@@ -4,7 +4,7 @@
   "description": "Btools chrome-extension",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack"
+    "c": "set BROWSER_ENV=chrome && webpack"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,11 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
+    "@babel/plugin-transform-async-to-generator": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
+    "@babel/runtime": "^7.9.6",
+    "@types/chrome": "^0.0.107",
     "@types/node": "^13.13.4",
     "@types/webpack": "^4.41.12",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
@@ -58,6 +62,8 @@
     "write-json-webpack-plugin": "^1.1.0"
   },
   "dependencies": {
+    "@babel/runtime": "^7.9.6",
+    "@babel/runtime-corejs3": "^7.9.6",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",

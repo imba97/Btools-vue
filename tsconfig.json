@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2017",
     "module": "esnext",
     "strict": true,
     "jsx": "preserve",
@@ -12,7 +12,7 @@
     "sourceMap": true,
     "allowJs": true,
     "baseUrl": ".",
-    "types": ["webpack-env", "node"],
+    "types": ["webpack-env", "node", "chrome"],
     "paths": {
       "@/*": ["src/*"]
     },

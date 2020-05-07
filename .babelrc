@@ -3,9 +3,17 @@
     [
       "@babel/preset-env",
       {
-        "useBuiltIns": "usage",
-        "corejs": "2"
+        "modules": false,
+        "targets": {"esmodules": true},
+        "useBuiltIns": "entry",
+        "corejs": 3
       }
     ]
+  ],
+  "plugins": [
+    ["@babel/plugin-transform-async-to-generator", {
+      "module": "bluebird",
+      "method": "coroutine"
+    }]
   ]
 }

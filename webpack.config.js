@@ -1,11 +1,14 @@
-const { resolve } = require('path')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const MiniCssExtractPluginBtools = require('mini-css-extract-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const WriteJsonWebpackPlugin = require('write-json-webpack-plugin')
+const { resolve } = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WriteJsonWebpackPlugin = require('write-json-webpack-plugin');
+
+require("@babel/core").transform("code", {
+  plugins: ["@babel/plugin-transform-runtime"],
+});
 
 module.exports = () => {
 
@@ -14,19 +17,22 @@ module.exports = () => {
   // 版本号
   manifestJSON.version = '2.1.0'
 
-  // 火狐浏览器
-  manifestJSON.browser_specific_settings = {
-    'gecko': {
-      'id': 'mail@imba97.cn',
-      'strict_min_version': '57.0'
+  if(process.env.BROWSER_ENV === 'firefox') {
+    // 火狐浏览器
+    manifestJSON.browser_specific_settings = {
+      'gecko': {
+        'id': 'mail@imba97.cn',
+        'strict_min_version': '57.0'
+      }
+    }
+    manifestJSON.applications = {
+      'gecko': {
+        'id': 'mail@imba97.cn',
+        'strict_min_version': '57.0'
+      }
     }
   }
-  manifestJSON.applications = {
-    'gecko': {
-      'id': 'mail@imba97.cn',
-      'strict_min_version': '57.0'
-    }
-  }
+  
 
   return {
     mode: 'development', // development production
@@ -55,6 +61,7 @@ module.exports = () => {
 
         {
           test: /\.vue$/,
+          exclude: /mode_modules/,
           loader: 'vue-loader'
         },
 
@@ -91,7 +98,7 @@ module.exports = () => {
 
         {
           test: /\.sass$/,
-          exclude: /(mode_modules)/,
+          exclude: /mode_modules/,
           use: [
             MiniCssExtractPlugin.loader,
             'css-loader',
@@ -102,6 +109,7 @@ module.exports = () => {
 
         {
           test: /\.(jpg|jpeg|png|gif|svg|webp)$/,
+          exclude: /mode_modules/,
           loader: 'url-loader',
           options: {
             limit: 8 * 1024

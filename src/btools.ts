@@ -1,2 +1,2 @@
 import '@/scripts/viv';
-import '@styles/btools';
+import '@styles/global';

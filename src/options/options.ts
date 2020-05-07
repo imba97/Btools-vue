@@ -7,5 +7,5 @@ export default new Vue({
   components: {
     Options
   },
-  render: h => h(Options)
+  render: (h: (arg0: any) => any) => h(Options)
 }).$mount('#app');
