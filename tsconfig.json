@@ -12,6 +12,7 @@
     "sourceMap": true,
     "allowJs": true,
     "baseUrl": ".",
+    "typeRoots": ["./typings"],
     "types": ["webpack-env", "node", "chrome"],
     "paths": {
       "@/*": ["src/*"]
@@ -20,10 +21,9 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
+    "src/**/*.d.ts",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
