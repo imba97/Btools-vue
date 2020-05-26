@@ -1,7 +1,7 @@
 export default class Util {
   private static _instance: Util;
 
-  public static instance(): Util {
+  public static get instance(): Util {
     if (typeof this._instance === 'undefined') {
       this._instance = new Util();
     }
@@ -16,11 +16,11 @@ export default class Util {
    * 获取页面上的元素，10秒内如果没获取到则停止获取
    * @param selector 选择器
    */
-  public getElements(selector: string): Promise<NodeListOf<Element>> {
+  public getElements(selector: string): Promise<NodeListOf<HTMLElement>> {
     return new Promise((resolve, reject) => {
       let timeout = 20;
       const timer = setInterval(() => {
-        const elements: NodeListOf<Element>|null = document.querySelectorAll(selector);
+        const elements: NodeListOf<HTMLElement>|null = document.querySelectorAll(selector);
 
         // 成功获取
         if (elements.length !== 0) {
@@ -64,7 +64,7 @@ export default class Util {
     return result;
   }
 
-  public inNodeList(element: Element, nodeList: NodeListOf<Element>): number {
+  public inNodeList(element: HTMLElement, nodeList: NodeListOf<HTMLElement>): number {
     let result = -1;
 
     nodeList.forEach((nodeItem, index) => {
@@ -77,13 +77,7 @@ export default class Util {
     return result;
   }
 
-  public changeDisplay(element: Element, display: string) {
-    const style = element.getAttribute('style') || '';
-
-    const reg = /display:([^;]*?);/;
-
-    const displayText = reg.exec(style);
-
+  public changeDisplay(element: HTMLElement, display: string) {
     let styleText = '';
 
     switch (display) {
@@ -96,46 +90,19 @@ export default class Util {
       default:
     }
 
-    if (displayText === null || typeof displayText[1] === 'undefined') {
-      if (style === '') {
-        element.setAttribute('style', `display: ${styleText}`);
-      } else {
-        element.setAttribute('style', `display: ${styleText}; ${style}`);
-      }
-    } else {
-      element.setAttribute('style', style.replace(reg, `display: ${styleText};`));
-    }
+    element.style.display = styleText;
   }
 
-  public position(element: Element, x: number, y: number) {
-    let style = element.getAttribute('style') || '';
-
-    const regX = /left:([^;]*?);/;
-    const regY = /top:([^;]*?);/;
-
-    const isX = regX.test(style);
-    const isY = regY.test(style);
-
-    if (isX) {
-      style = style.replace(regX, `left: ${x}px;`);
-      element.setAttribute('style', style);
-    } else {
-      style = `left: ${x}px; ${style}`;
-      element.setAttribute('style', style);
-    }
-
-    if (isY) {
-      element.setAttribute('style', style.replace(regY, `top: ${y}px;`));
-    } else {
-      element.setAttribute('style', `top: ${y}px; ${style}`);
-    }
+  public position(element: HTMLElement, x: number, y: number) {
+    element.style.top = y + 'px';
+    element.style.left = x + 'px';
   }
 
-  public addClass(element: Element, className: string) {
+  public addClass(element: HTMLElement, className: string) {
 
   }
 
-  public removeClass(element: Element, className: string) {
+  public removeClass(element: HTMLElement, className: string) {
 
   }
 
@@ -162,7 +129,7 @@ export default class Util {
   }
 }
 
-Element.prototype.addClass = function(className: string) {
+HTMLElement.prototype.addClass = function(className: string) {
   const classText = this.getAttribute('class') || '';
 
   const regClass = new RegExp(className);
@@ -174,7 +141,7 @@ Element.prototype.addClass = function(className: string) {
   }
 };
 
-Element.prototype.removeClass = function(className: string) {
+HTMLElement.prototype.removeClass = function(className: string) {
   const classText = this.getAttribute('class') || '';
 
   const regClass = new RegExp(className);
@@ -184,4 +151,8 @@ Element.prototype.removeClass = function(className: string) {
   if (isClass) {
     this.setAttribute('class', classText.replace(regClass, '').trim());
   }
+};
+
+HTMLElement.prototype.CSS = function(param1: string|object, param2?: string) {
+
 };

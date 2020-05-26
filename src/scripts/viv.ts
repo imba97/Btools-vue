@@ -1,13 +1,11 @@
 import HKM from './hotKeyMenu';
 import Util from './util';
 
-const UtilInstance = Util.instance();
-
 console.log('start');
 
-const btn = UtilInstance.getElements('.avatar,#primaryChannelMenu>span');
+const banner = Util.instance.getElements('.bili-banner');
 
-btn.then(elements => {
+banner.then(elements => {
   new HKM(elements).add([
     {
       key: 83,
@@ -15,9 +13,20 @@ btn.then(elements => {
       action: function() {
         alert('测试');
       }
+    },
+    {
+      key: 82,
+      title: '测试2',
+      action: function() {
+        alert('测试2');
+      }
     }
   ]);
 })
   .catch(error => {
-    UtilInstance.console(error, 'error');
+    Util.instance.console(error, 'error');
   });
+
+chrome.runtime.sendMessage({
+  url: ''
+});

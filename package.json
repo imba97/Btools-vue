@@ -4,7 +4,8 @@
   "description": "Btools chrome-extension",
   "main": "index.js",
   "scripts": {
-    "c": "set BROWSER_ENV=chrome && webpack"
+    "c": "set BROWSER_ENV=chrome && webpack",
+    "c-serve": "set BROWSER_ENV=chrome && webpack-dev-server --hot"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "@types/chrome": "^0.0.107",
     "@types/node": "^13.13.4",
     "@types/webpack": "^4.41.12",
+    "@types/webpack-env": "^1.15.2",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/experimental-utils": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
@@ -49,6 +51,7 @@
     "node-sass": "^4.14.0",
     "postcss": "^7.0.28",
     "postcss-loader": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "style-loader": "^1.2.1",
@@ -59,15 +62,19 @@
     "vue-loader": "^15.9.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0",
     "write-json-webpack-plugin": "^1.1.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.9.6",
     "@babel/runtime-corejs3": "^7.9.6",
+    "axios": "^0.19.2",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.4.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-router": "^3.2.0",
+    "vue-template-compiler": "^2.6.11",
+    "vuex": "^3.3.0"
   }
 }

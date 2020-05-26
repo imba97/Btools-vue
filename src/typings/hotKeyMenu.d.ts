@@ -10,6 +10,6 @@ declare interface HotKeyMenuOption extends Object {
   action: Function;
 
   /** 快捷键菜单每一项添加到的位置（可选） */
-  position?: string|undefined;
+  position?: string;
 
 }

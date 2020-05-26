@@ -47,7 +47,7 @@ module.exports = () => {
       filename: '[name].js'
     },
     resolve: {
-      extensions: [ '.ts', '.vue', '.scss', '.json' ],
+      extensions: [ '.js', '.ts', '.vue', '.scss', '.json' ],
       alias: {
         'vue$': 'vue/dist/vue.esm.js',
         '@': resolve('src'),
@@ -97,7 +97,7 @@ module.exports = () => {
         },
 
         {
-          test: /\.scss$/,
+          test: /\.(sa|sc|c)ss$/,
           exclude: /mode_modules/,
           use: [
             MiniCssExtractPlugin.loader,
@@ -117,7 +117,7 @@ module.exports = () => {
         },
 
         {
-          exclude: /\.(vue|js|tsx?|scss|html|jpg|jpeg|png|gif|svg|webp)/,
+          exclude: /\.(mode_modules|vue|js|tsx?|scss|html|jpg|jpeg|png|gif|svg|webp)/,
           loader: 'file-loader',
           options: {
             outputPath: 'media'

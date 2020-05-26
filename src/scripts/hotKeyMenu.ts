@@ -1,21 +1,25 @@
 import Util from './util';
 
 export default class HKM {
-  private menuElement: Element = document.createElement('div');
-  private overlordElements?: NodeListOf<Element>;
+  // 宿主元素，添加快捷键菜单的元素
+  private overlordElements?: NodeListOf<HTMLElement>;
+  // 菜单 DIV
+  private menuElement: HTMLElement = document.createElement('div');
 
+  // 所有选项
   private options: Array<HotKeyMenuOption> = [];
+  // 当前选择的选项
   private selectedItem = -1;
 
   private _height = 100;
 
-  constructor(elements: NodeListOf<Element>) {
+  constructor(elements: NodeListOf<HTMLElement>) {
     if (elements.length === 0) return this;
 
     this.overlordElements = elements;
 
     // 生成快捷键菜单ID，每个快捷键菜单对应一个，与宿主元素绑定
-    const hotKeyMenuID = Util.instance().random();
+    const hotKeyMenuID = Util.instance.random();
 
     this.overlordElements.forEach(overlordElement => {
       overlordElement.setAttribute('btools-bind-hkm-id', hotKeyMenuID);
@@ -29,18 +33,15 @@ export default class HKM {
         // 鼠标抬起
         window.addEventListener('mouseup', (e: MouseEventInit) => {
           e = e || window.event;
-          // Util.instance().changeDisplay(this.menuElement, 'hide');
-          this.menuElement.removeClass('test');
+          console.log('hide');
+          Util.instance.changeDisplay(this.menuElement, 'hide');
         }, {
           once: true
         });
 
-        this.menuElement.addClass('test');
+        Util.instance.changeDisplay(this.menuElement, 'show');
 
-        Util.instance().changeDisplay(this.menuElement, 'show');
-        Util.instance().position(this.menuElement, e.clientX! - this.height / 2, e.clientY! - this.height / 2);
-
-        console.log(this.menuElement.clientWidth, this.menuElement.clientHeight);
+        Util.instance.position(this.menuElement, e.clientX! - this.menuElement.clientWidth / 2, e.clientY! - 60);
       }, true);
     });
 
@@ -64,10 +65,11 @@ export default class HKM {
     this.menuElement.appendChild(titleElement);
     this.menuElement.appendChild(optionsElement);
     this.menuElement.appendChild(backgroundElement);
+
     document.body.appendChild(this.menuElement);
   }
 
-  public add(options: [HotKeyMenuOption]) {
+  public add(options: Array<HotKeyMenuOption>): HKM {
     options.forEach(option => {
       // 如果没设置 position 则默认 push 到数组末尾
       if (typeof option.position === 'undefined') {
@@ -86,6 +88,9 @@ export default class HKM {
           break;
       }
     });
+
+    this.restructure();
+    return this;
   }
 
   public removeWithKey(key: number) {
@@ -93,40 +98,56 @@ export default class HKM {
   }
 
   private show(test: any) {
-    Util.instance().console(test);
+    Util.instance.console(test);
   }
 
   private restructure() {
-    const optionsElement = this.menuElement.children[0];
+    // 获取第一个子元素 ul
+    const optionsElement = this.menuElement.children[1];
 
+    // 清空 HTML
+    optionsElement.innerHTML = '';
+
+    this.setHeightWithOptionsLength(this.options.length);
+ 
     this.options.forEach(option => {
       const optionElement = document.createElement('li');
-      optionElement.innerText = option.title;
-      optionElement.addEventListener('mouseover', function() {
 
+      const optionKeyElement = document.createElement('span');
+      const optionTitleElement = document.createElement('p');
+
+      // key 和 标题
+      optionKeyElement.innerText = String.fromCharCode(option.key);
+      optionTitleElement.innerText = option.title;
+
+      optionElement.addEventListener('mouseover', function() {
+        optionElement.addClass('btools-hkm-option-selected');
       });
       optionElement.addEventListener('mouseout', function() {
-
+        optionElement.removeClass('btools-hkm-option-selected');
       });
+
+      optionElement.appendChild(optionKeyElement);
+      optionElement.appendChild(optionTitleElement);
+
+      // 将选项 li 放入 ul
+      optionsElement.appendChild(optionElement);
     });
+  }
+
+  private setHeightWithOptionsLength(optionsLength: number) {
+    const optionsTitleElementStyleHeight = 40;
+    const optionsElementStylePadding = optionsLength * 10;
+    const optionsElementStyleHeight = optionsLength * 30;
+    this.height = optionsTitleElementStyleHeight + optionsElementStylePadding + optionsElementStyleHeight;
   }
 
   private set height(setHeight: number) {
     this._height = setHeight;
 
-    let style = this.menuElement.getAttribute('style') || '';
+    console.log(setHeight);
 
-    const regHeight = /height:([^;]*?);/;
-
-    const isHeight = regHeight.test(style);
-
-    if (isHeight) {
-      style = style.replace(regHeight, `height: ${setHeight}px;`);
-      this.menuElement.setAttribute('style', style);
-    } else {
-      style = `height: ${setHeight}px; ${style}`;
-      this.menuElement.setAttribute('style', style);
-    }
+    this.menuElement.style.height = setHeight + 'px';
   }
 
   private get height() {
