@@ -1,24 +1,23 @@
 import HKM from './hotKeyMenu';
 import Util from './util';
 
-console.log('start');
+const nodeListOfElement = Util.instance.getElements('.h-forbid');
 
-const banner = Util.instance.getElements('.bili-banner');
-
-banner.then(elements => {
+nodeListOfElement.then(elements => {
   new HKM(elements).add([
     {
       key: 83,
-      title: '测试',
+      title: '解封（bushi）',
       action: function() {
-        alert('测试');
+        const element = <HTMLElement>document.querySelector('.h-forbid');
+        element.style.opacity = '0';
       }
     },
     {
       key: 82,
-      title: '测试2',
-      action: function() {
-        alert('测试2');
+      title: '封禁',
+      action: function(overlordElement) {
+        overlordElement.style.opacity = '1';
       }
     }
   ]);

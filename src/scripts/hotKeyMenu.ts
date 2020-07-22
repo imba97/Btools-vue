@@ -28,20 +28,25 @@ export default class HKM {
       overlordElement.addEventListener('mousedown', (e: MouseEventInit) => {
         e = e || window.event;
 
-        if (e.button !== 0) return true;
+        if (e.button !== 0) return false;
 
-        // 鼠标抬起
+        // 显示菜单
+        Util.instance.changeDisplay(this.menuElement, 'show');
+        // 设置位移 X 中心在鼠标位置 Y 鼠标位置 - 60 也就是默认选中第一个
+        Util.instance.position(this.menuElement, e.clientX! - this.menuElement.clientWidth / 2, e.clientY! - 60);
+
+        // 鼠标抬起 只执行一次
         window.addEventListener('mouseup', (e: MouseEventInit) => {
           e = e || window.event;
-          console.log('hide');
+          // 隐藏菜单
           Util.instance.changeDisplay(this.menuElement, 'hide');
+          // 有 被选中的选项 并且 有 action 函数 则执行
+          if (this.selectedItem !== -1 && typeof this.options[this.selectedItem].action === 'function') {
+            this.options[this.selectedItem].action(overlordElement);
+          }
         }, {
           once: true
         });
-
-        Util.instance.changeDisplay(this.menuElement, 'show');
-
-        Util.instance.position(this.menuElement, e.clientX! - this.menuElement.clientWidth / 2, e.clientY! - 60);
       }, true);
     });
 
@@ -93,8 +98,22 @@ export default class HKM {
     return this;
   }
 
-  public removeWithKey(key: number) {
+  /**
+   * 根据 keyCode 删除选项
+   * @param key 按键值
+   */
+  public removeWithKey(key: number): HKM {
+    this.options.forEach((option, index) => {
+      if (option.key !== key) return false;
 
+      // 根据 index，删除元素
+      this.options.splice(index, 1);
+
+      // 重新构建菜单
+      this.restructure();
+    });
+
+    return this;
   }
 
   private show(test: any) {
@@ -109,8 +128,8 @@ export default class HKM {
     optionsElement.innerHTML = '';
 
     this.setHeightWithOptionsLength(this.options.length);
- 
-    this.options.forEach(option => {
+
+    this.options.forEach((option, index) => {
       const optionElement = document.createElement('li');
 
       const optionKeyElement = document.createElement('span');
@@ -120,11 +139,15 @@ export default class HKM {
       optionKeyElement.innerText = String.fromCharCode(option.key);
       optionTitleElement.innerText = option.title;
 
-      optionElement.addEventListener('mouseover', function() {
+      optionElement.addEventListener('mouseover', () => {
         optionElement.addClass('btools-hkm-option-selected');
+        // 设置当前被选中的元素
+        this.selectedItem = index;
       });
-      optionElement.addEventListener('mouseout', function() {
+      optionElement.addEventListener('mouseout', () => {
         optionElement.removeClass('btools-hkm-option-selected');
+        // 设置当前被选中的元素为空
+        this.selectedItem = -1;
       });
 
       optionElement.appendChild(optionKeyElement);

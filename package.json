@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@43.226.145.102:/git/Btools-vue"
+    "url": "git@github.com:imba97/Btools-vue.git"
   },
   "keywords": [
     "Btools"

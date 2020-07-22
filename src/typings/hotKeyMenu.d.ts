@@ -1,4 +1,4 @@
-declare interface HotKeyMenuOption extends Object {
+declare interface HotKeyMenuOption {
 
   /** 快捷键菜单每一项的按键值 */
   key: number;
@@ -7,7 +7,7 @@ declare interface HotKeyMenuOption extends Object {
   title: string;
 
   /** 快捷键菜单每一项执行的函数 */
-  action: Function;
+  action: (overlordElement: HTMLElement) => void;
 
   /** 快捷键菜单每一项添加到的位置（可选） */
   position?: string;
