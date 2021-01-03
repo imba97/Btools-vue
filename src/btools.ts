@@ -8,5 +8,6 @@ import '@styles/global';
 import '@/scripts/viv';
 
 Vue.prototype.$http = axios;
+Vue.chrome = Vue.prototype.$chrome = chrome || browser;
 Vue.use(VueRouter);
 Vue.use(Vuex);

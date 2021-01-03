@@ -1,5 +1,6 @@
 import HKM from './hotKeyMenu';
 import Util from './util';
+import Vue from 'vue';
 
 const nodeListOfElement = Util.instance.getElements('.h-forbid');
 

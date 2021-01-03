@@ -11,9 +11,6 @@ module.exports = {
     node: true,
     serviceworker: true
   },
-  globals: {
-    chrome: true
-  },
   extends: ['plugin:vue/base', 'plugin:@typescript-eslint/recommended', 'plugin:vue/essential', 'standard'],
   rules: {
     // 设置默认eslint规则
