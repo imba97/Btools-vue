@@ -1,7 +1,7 @@
 declare interface HotKeyMenuOption {
 
   /** 快捷键菜单每一项的按键值 */
-  key: number;
+  key: string;
 
   /** 快捷键菜单每一项的显示文字 */
   title: string;

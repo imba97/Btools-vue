@@ -2,31 +2,30 @@ import HKM from './hotKeyMenu';
 import Util from './util';
 import Vue from 'vue';
 
-const nodeListOfElement = Util.instance.getElements('.h-forbid');
+/*
+
+const nodeListOfElement = Util.Instance.getElements('#app');
 
 nodeListOfElement.then(elements => {
   new HKM(elements).add([
     {
-      key: 83,
-      title: '解封（bushi）',
+      key: 'S',
+      title: '控制台输出“1”',
       action: function() {
-        const element = <HTMLElement>document.querySelector('.h-forbid');
-        element.style.opacity = '0';
+        console.log('1');
       }
     },
     {
-      key: 82,
-      title: '封禁',
-      action: function(overlordElement) {
-        overlordElement.style.opacity = '1';
+      key: 'R',
+      title: '控制台输出“2”',
+      action: function() {
+        console.log(2);
       }
     }
   ]);
 })
   .catch(error => {
-    Util.instance.console(error, 'error');
+    Util.Instance.console(error, 'error');
   });
 
-chrome.runtime.sendMessage({
-  url: ''
-});
+*/

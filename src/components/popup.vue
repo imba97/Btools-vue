@@ -15,7 +15,7 @@ import { Vue, Component } from 'vue-property-decorator';
 @Component
 export default class Popup extends Vue {
   // 初始数据可以直接声明为实例的 property
-  title = 'Popup';
+  title = 'Popup 125';
   message = '';
 
   uid = '';

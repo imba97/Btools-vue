@@ -7,6 +7,8 @@ import '@styles/global';
 
 import '@/scripts/viv';
 
+Vue.config.productionTip = false;
+
 Vue.prototype.$http = axios;
 Vue.chrome = Vue.prototype.$chrome = chrome || browser;
 Vue.use(VueRouter);

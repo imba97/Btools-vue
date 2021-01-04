@@ -1,7 +1,7 @@
 export default class Util {
   private static _instance: Util;
 
-  public static get instance(): Util {
+  public static get Instance(): Util {
     if (typeof this._instance === 'undefined') {
       this._instance = new Util();
     }
@@ -77,33 +77,9 @@ export default class Util {
     return result;
   }
 
-  public changeDisplay(element: HTMLElement, display: string) {
-    let styleText = '';
-
-    switch (display) {
-      case 'show':
-        styleText = 'block';
-        break;
-      case 'hide':
-        styleText = 'none';
-        break;
-      default:
-    }
-
-    element.style.display = styleText;
-  }
-
   public position(element: HTMLElement, x: number, y: number) {
     element.style.top = y + 'px';
     element.style.left = x + 'px';
-  }
-
-  public addClass(element: HTMLElement, className: string) {
-
-  }
-
-  public removeClass(element: HTMLElement, className: string) {
-
   }
 
   public console(message: any, type = 'log', prefix = 'Btools') {
@@ -128,31 +104,3 @@ export default class Util {
     console.log(message);
   }
 }
-
-HTMLElement.prototype.addClass = function(className: string) {
-  const classText = this.getAttribute('class') || '';
-
-  const regClass = new RegExp(className);
-
-  const isClass = regClass.test(classText);
-
-  if (!isClass) {
-    this.setAttribute('class', `${classText} ${className}`);
-  }
-};
-
-HTMLElement.prototype.removeClass = function(className: string) {
-  const classText = this.getAttribute('class') || '';
-
-  const regClass = new RegExp(className);
-
-  const isClass = regClass.test(classText);
-
-  if (isClass) {
-    this.setAttribute('class', classText.replace(regClass, '').trim());
-  }
-};
-
-HTMLElement.prototype.CSS = function(param1: string|object, param2?: string) {
-
-};

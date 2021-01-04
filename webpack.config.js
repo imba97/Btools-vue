@@ -5,6 +5,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WriteJsonWebpackPlugin = require('write-json-webpack-plugin');
+const ExtensionReloader = require('webpack-extension-reloader');
 
 require("@babel/core").transform("code", {
   plugins: ["@babel/plugin-transform-runtime"],
@@ -17,25 +18,8 @@ module.exports = () => {
   // 版本号
   manifestJSON.version = '2.1.0'
 
-  if(process.env.BROWSER_ENV === 'firefox') {
-    // 火狐浏览器
-    manifestJSON.browser_specific_settings = {
-      'gecko': {
-        'id': 'mail@imba97.cn',
-        'strict_min_version': '57.0'
-      }
-    }
-    manifestJSON.applications = {
-      'gecko': {
-        'id': 'mail@imba97.cn',
-        'strict_min_version': '57.0'
-      }
-    }
-  }
-  
-
-  return {
-    mode: 'development', // development production
+  let configs = {
+    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development', // development production
     entry: {
       btools: './src/btools.ts',
       background: './src/background/background.ts',
@@ -129,7 +113,7 @@ module.exports = () => {
     },
 
     plugins: [
-      new CleanWebpackPlugin(),
+      // new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
         filename: 'popup.html',
         template: './src/popup/popup.html',
@@ -155,13 +139,23 @@ module.exports = () => {
       new CopyWebpackPlugin([
         { from: resolve('src/assets/icon'), to: resolve('Build/icon'), toType: 'dir' },
         { from: resolve('src/_locales'), to: resolve('Build/_locales'), toType: 'dir' }
-      ]),
-      (manifestJSON && new WriteJsonWebpackPlugin({
-        pretty: false,
-        object: manifestJSON,
-        path: '/',
-        filename: 'manifest.json'
-      }))
+      ])
     ]
+  };
+
+  if(process.env.NODE_ENV === 'development') {
+    configs.plugins.push(
+      new ExtensionReloader({
+        reloadPage: true,
+        entries: { // The entries used for the content/background scripts or extension pages
+          contentScript: 'btools',
+          background: 'background',
+          extensionPage: ['popup', 'options'],
+        }
+      }),
+    );
   }
+
+  return configs;
+  
 }

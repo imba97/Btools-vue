@@ -10,8 +10,13 @@ export default class HKM {
   private options: Array<HotKeyMenuOption> = [];
   // 当前选择的选项
   private selectedItem = -1;
+  // 键盘
+  private keys: Array<string> = [];
 
   private _height = 100;
+
+  private onKeyDownFunc: any;
+  private onMouseUpFunc: any;
 
   constructor(elements: NodeListOf<HTMLElement>) {
     if (elements.length === 0) return this;
@@ -19,7 +24,7 @@ export default class HKM {
     this.overlordElements = elements;
 
     // 生成快捷键菜单ID，每个快捷键菜单对应一个，与宿主元素绑定
-    const hotKeyMenuID = Util.instance.random();
+    const hotKeyMenuID = Util.Instance.random();
 
     this.overlordElements.forEach(overlordElement => {
       overlordElement.setAttribute('btools-bind-hkm-id', hotKeyMenuID);
@@ -30,23 +35,19 @@ export default class HKM {
 
         if (e.button !== 0) return false;
 
-        // 显示菜单
-        Util.instance.changeDisplay(this.menuElement, 'show');
-        // 设置位移 X 中心在鼠标位置 Y 鼠标位置 - 60 也就是默认选中第一个
-        Util.instance.position(this.menuElement, e.clientX! - this.menuElement.clientWidth / 2, e.clientY! - 60);
+        this.onMouseUpFunc = this.onMouseUp.bind(this, overlordElement);
+        this.onKeyDownFunc = this.onKeyDown.bind(this, overlordElement);
 
-        // 鼠标抬起 只执行一次
-        window.addEventListener('mouseup', (e: MouseEventInit) => {
-          e = e || window.event;
-          // 隐藏菜单
-          Util.instance.changeDisplay(this.menuElement, 'hide');
-          // 有 被选中的选项 并且 有 action 函数 则执行
-          if (this.selectedItem !== -1 && typeof this.options[this.selectedItem].action === 'function') {
-            this.options[this.selectedItem].action(overlordElement);
-          }
-        }, {
-          once: true
-        });
+        // 显示菜单
+        this.menuElement.style.display = 'block';
+        // 设置位移 X 中心在鼠标位置 Y 鼠标位置 - 60 也就是默认选中第一个
+        Util.Instance.position(this.menuElement, e.clientX! - this.menuElement.clientWidth / 2, e.clientY! - 60);
+
+        // 监听鼠标抬起
+        window.addEventListener('mouseup', this.onMouseUpFunc);
+
+        // 监听键盘事件
+        window.addEventListener('keydown', this.onKeyDownFunc);
       }, true);
     });
 
@@ -74,11 +75,59 @@ export default class HKM {
     document.body.appendChild(this.menuElement);
   }
 
+  private onMouseUp() {
+    // 获取参数
+    const args: Array<any> = Array.prototype.slice.call(arguments);
+    const overlordElement = args[0];
+    // 隐藏菜单
+    this.menuElement.style.display = 'none';
+    // 有 被选中的选项 并且 有 action 函数 则执行
+    if (this.selectedItem !== -1 && typeof this.options[this.selectedItem].action === 'function') {
+      this.options[this.selectedItem].action(overlordElement);
+    }
+    // 删除事件监听
+    this.removeEventListener();
+  }
+
+  private onKeyDown() {
+    // 获取参数
+    const args: Array<any> = Array.prototype.slice.call(arguments);
+    const overlordElement = args[0];
+    const e = args[1] || window.event;
+    // 获取按键对应的数组 index
+    const index: number = this.keys.indexOf(e.key.toUpperCase());
+    // 如果这个按键不在快捷键菜单内 直接 return
+    if (index === -1) return;
+    // 隐藏菜单
+    this.menuElement.style.display = 'none';
+    // 有 action 函数 则执行
+    if (typeof this.options[index].action === 'function') {
+      this.options[index].action(overlordElement);
+    }
+    // 删除事件监听
+    this.removeEventListener();
+  }
+
+  private removeEventListener() {
+    // 删除键盘事件
+    if (this.onKeyDownFunc !== null) {
+      window.removeEventListener('keydown', this.onKeyDownFunc);
+      this.onKeyDownFunc = null;
+    }
+
+    // 删除鼠标事件
+    if (this.onMouseUpFunc !== null) {
+      window.removeEventListener('mouseup', this.onMouseUpFunc);
+      this.onMouseUpFunc = null;
+    }
+  }
+
   public add(options: Array<HotKeyMenuOption>): HKM {
     options.forEach(option => {
       // 如果没设置 position 则默认 push 到数组末尾
       if (typeof option.position === 'undefined') {
         this.options.push(option);
+        this.keys.push(option.key);
         return true;
       }
 
@@ -86,10 +135,12 @@ export default class HKM {
       switch (option.position) {
         case 'first':
           this.options.unshift(option);
+          this.keys.unshift(option.key);
           break;
 
         default:
           this.options.push(option);
+          this.keys.push(option.key);
           break;
       }
     });
@@ -102,7 +153,7 @@ export default class HKM {
    * 根据 keyCode 删除选项
    * @param key 按键值
    */
-  public removeWithKey(key: number): HKM {
+  public removeWithKey(key: string): HKM {
     this.options.forEach((option, index) => {
       if (option.key !== key) return false;
 
@@ -117,7 +168,7 @@ export default class HKM {
   }
 
   private show(test: any) {
-    Util.instance.console(test);
+    Util.Instance.console(test);
   }
 
   private restructure() {
@@ -136,16 +187,16 @@ export default class HKM {
       const optionTitleElement = document.createElement('p');
 
       // key 和 标题
-      optionKeyElement.innerText = String.fromCharCode(option.key);
+      optionKeyElement.innerText = option.key.toUpperCase();
       optionTitleElement.innerText = option.title;
 
       optionElement.addEventListener('mouseover', () => {
-        optionElement.addClass('btools-hkm-option-selected');
+        optionElement.classList.add('btools-hkm-option-selected');
         // 设置当前被选中的元素
         this.selectedItem = index;
       });
       optionElement.addEventListener('mouseout', () => {
-        optionElement.removeClass('btools-hkm-option-selected');
+        optionElement.classList.remove('btools-hkm-option-selected');
         // 设置当前被选中的元素为空
         this.selectedItem = -1;
       });
