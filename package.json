@@ -74,7 +74,7 @@
   "dependencies": {
     "@babel/runtime": "^7.9.6",
     "@babel/runtime-corejs3": "^7.9.6",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.8.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.3",
