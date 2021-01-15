@@ -18,11 +18,6 @@ export default class Popup extends Vue {
 
 </script>
 
-<style lang="sass" scoped>
-
-  button
-    width: 60px
-    height: 30px
-    background-color: 
+<style lang="scss" scoped>
 
 </style>

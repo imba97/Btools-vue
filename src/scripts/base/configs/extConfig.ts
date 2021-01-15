@@ -5,7 +5,7 @@ export interface ConfigOptions {
 /**
  * 扩展配置 接口
  */
-export interface IExtensionConfiguration {
+export interface IExtConfigs {
 
   getConfig(keys: Object): Promise<Object>
 
@@ -18,7 +18,7 @@ export interface IExtensionConfiguration {
 /**
  * 扩展配置 实现类
  */
-export class ExtensionConfiguration implements IExtensionConfiguration {
+export class ExtConfigs implements IExtConfigs {
 
   public getConfig(keys: Object): Promise<Object> {
     return this._getStorage(keys);

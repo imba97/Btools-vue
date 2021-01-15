@@ -16,7 +16,10 @@
     "typeRoots": ["./typings"],
     "types": ["webpack-env", "node", "chrome"],
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@styles/*": ["src/assets/styles/*"],
+      "@components/*": ["src/components/*"],
+      "@base/*": ["src/scripts/base/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
