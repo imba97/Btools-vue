@@ -70,8 +70,10 @@ module.exports = () => {
           exclude: /node_modules/,
           loader: 'eslint-loader',
           options: {
-            fix: false,
+            fix: true,
             extensions: ['.js', '.jsx', '.vue', '.ts', '.tsx'],
+            semi: false,
+            singleQuote: true,
             cache: false,
             emitWarning: true,
             emitError: false,
@@ -144,6 +146,13 @@ module.exports = () => {
           toType: 'dir',
         },
       ]),
+      manifestJSON &&
+        new WriteJsonWebpackPlugin({
+          pretty: false,
+          object: manifestJSON,
+          path: '/',
+          filename: 'manifest.json',
+        }),
     ],
   }
 

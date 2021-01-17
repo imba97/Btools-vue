@@ -22,13 +22,6 @@ export default class Popup extends Vue {
 
   public btn() {
     if (this.uid === '') return
-
-    // Url.USER_CARD.request({ mid: this.uid }).then((json) => {
-    //   this.message = `用户：${json.data.card.name}`
-    // })
-    Url.POST_TEST.request({ param: this.uid }).then((json) => {
-      this.message = json.param || 'none'
-    })
   }
 }
 </script>
