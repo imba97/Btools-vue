@@ -1,3 +1,7 @@
+import Vue from 'vue'
+
+import { ContentJsType } from '@/scripts/base/enums/ContentJsType'
+
 export default class Util {
   private static _instance: Util;
 
@@ -102,5 +106,12 @@ export default class Util {
 
     console.log('%c' + prefix, `background-color: ${backgroundColor}; color: #FFF; padding: 2px 3px; border-radius: 3px;`);
     console.log(message);
+  }
+
+  public ContentJsExec(options: object, callback: (response: any) => void) {
+    Vue.chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (tabs.length === 0) throw new Error('tabs length is 0')
+      Vue.chrome.tabs.sendMessage(tabs[0].id!, options, callback);
+    });
   }
 }

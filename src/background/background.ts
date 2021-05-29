@@ -3,7 +3,11 @@ import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
 
+import ResourceListListener from '@/Listener/ResourceListListener'
+
 Vue.chrome = Vue.prototype.$chrome = chrome || browser
+
+new ResourceListListener()
 
 // 设置 Header
 Vue.chrome.webRequest.onBeforeSendHeaders.addListener(function(details) {

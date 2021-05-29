@@ -70,7 +70,7 @@ module.exports = () => {
           exclude: /node_modules/,
           loader: 'eslint-loader',
           options: {
-            fix: true,
+            fix: false,
             extensions: ['.js', '.jsx', '.vue', '.ts', '.tsx'],
             semi: false,
             singleQuote: true,

@@ -2,6 +2,24 @@ import HKM from './hotKeyMenu';
 import Util from './util';
 import Vue from 'vue';
 
+export default class Viv {
+  constructor() {
+    console.log('Viv')
+    const videoList = Util.Instance.getElements('.fav-video-list>li.disabled')
+    videoList.then(elements => {
+      new HKM(elements).add([
+        {
+          key: 'S',
+          title: '用百度搜索',
+          action: (element) => {
+            window.open(`https://www.baidu.com/s?ie=UTF-8&wd=${element}`)
+          }
+        }
+      ])
+    })
+  }
+}
+
 /*
 
 const nodeListOfElement = Util.Instance.getElements('#app');
