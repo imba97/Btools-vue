@@ -1,12 +1,9 @@
 /**
- * 收藏夹
+ * 监听器：收藏夹
  */
 
-import Vue from 'vue'
-import BaseListener from '@/Listener/BaseListener'
-import Util from '@/scripts/util'
-
-import { ContentJsType } from '@/scripts/base/enums/ContentJsType'
+import BaseListener from '@/listener/baseListener'
+import { ContentJsType } from '@/scripts/base/enums/contentJsType'
 
 export default class ResourceListListener extends BaseListener {
   init() {
@@ -15,12 +12,13 @@ export default class ResourceListListener extends BaseListener {
   }
 
   handle() {
-    
-    Util.Instance.ContentJsExec({
-      type: ContentJsType.Action
-    }, function(response) {
-      console.log(response)
-    })
+    this.sendToContentJs(
+      {
+        type: ContentJsType.RetrieveInvalidVideo,
+        tabId: this.tabId,
+      },
+      (response) => {}
+    )
 
     super.handle()
   }

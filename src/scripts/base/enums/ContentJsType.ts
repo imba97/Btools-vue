@@ -1,3 +1,6 @@
 export enum ContentJsType {
-  Action
+  /**
+   * 收藏夹
+   */
+  RetrieveInvalidVideo,
 }

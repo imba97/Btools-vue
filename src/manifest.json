@@ -38,6 +38,7 @@
 	[
     "<all_urls>",
 		"storage",
+    "notifications",
     "webRequest",
     "webRequestBlocking"
 	],
