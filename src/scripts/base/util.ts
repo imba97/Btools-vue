@@ -1,18 +1,11 @@
-export default class Util {
-  private static _instance: Util
+import Singleton from '@/scripts/base/singletonBase/singleton'
 
-  public static get Instance(): Util {
-    if (typeof this._instance === 'undefined') {
-      this._instance = new Util()
-    }
-    return this._instance
-  }
-
+export default class Util extends Singleton {
   private bvTool = {
     table: [...'fZodR9XQDSUm21yCkr6zBqiveYah8bt4xsWpHnJE7jL5VG3guMTKNPAwcF'],
     s: [11, 10, 3, 8, 4, 6],
     xor: 177451812,
-    add: 8728348608,
+    add: 8728348608
   }
 
   /**
@@ -21,8 +14,8 @@ export default class Util {
    * @param isLower 开头的 BV 是否小写，默认为 false
    * @returns BV 号
    */
-  public av2bv(av: number, isLower: boolean = false): string {
-    let num: number = NaN
+  public av2bv(av: number, isLower = false): string {
+    let num = NaN
     if (Object.prototype.toString.call(av) === '[object Number]') {
       num = av
     } else if (Object.prototype.toString.call(av) === '[object String]') {
@@ -33,7 +26,7 @@ export default class Util {
     }
 
     num = (num ^ this.bvTool.xor) + this.bvTool.add
-    let result = [...`${isLower ? 'bv' : 'BV'}1  4 1 7  `]
+    const result = [...`${isLower ? 'bv' : 'BV'}1  4 1 7  `]
     let i = 0
     while (i < 6) {
       result[this.bvTool.s[i]] =
@@ -151,8 +144,9 @@ export default class Util {
 
     let result = ''
 
-    for (let i = length; i > 0; --i)
+    for (let i = length; i > 0; --i) {
       result += chars[Math.floor(Math.random() * chars.length)]
+    }
 
     return result
   }

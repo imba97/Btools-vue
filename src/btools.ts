@@ -1,12 +1,10 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
-import axios from 'axios'
 
 import '@styles/global'
 
 import Util from '@/scripts/base/util'
-import { IContentJs } from '@/scripts/base/interface/IContentJs'
 import { ContentJsType } from '@/scripts/base/enums/contentJsType'
 
 /**
@@ -25,7 +23,7 @@ Vue.chrome.runtime.onMessage.addListener(function (
   sender,
   sendResponse
 ) {
-  Util.Instance.console(request)
+  Util.Instance().console(request)
 
   // 根据类型调用不同功能模块
   switch (request.type) {
@@ -36,7 +34,24 @@ Vue.chrome.runtime.onMessage.addListener(function (
   }
 
   // callback 目前不需要
-  // sendResponse()
+  sendResponse()
 
   return true
+})
+
+// Vue.chrome.storage.sync.clear()
+
+// Vue.chrome.storage.sync.set(
+//   {
+//     test: {
+//       video: {
+//         v: 1
+//       }
+//     }
+//   },
+//   function () {}
+// )
+
+Vue.chrome.storage.sync.get(function (item) {
+  console.log('test', item)
 })

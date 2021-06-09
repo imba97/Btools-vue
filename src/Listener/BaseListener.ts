@@ -8,7 +8,7 @@
 import Vue from 'vue'
 import { IContentJs } from '@/scripts/base/interface/IContentJs'
 
-export default class BaseListener {
+export default abstract class BaseListener {
   protected tabId?: number
   protected urls: string[] = []
 
@@ -24,12 +24,12 @@ export default class BaseListener {
         this.handle()
       },
       {
-        urls: this.urls,
+        urls: this.urls
       }
     )
   }
 
-  protected handle() {}
+  protected abstract handle(): void
 
   /**
    * 向 Content Js 发送数据

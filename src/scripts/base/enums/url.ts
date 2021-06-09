@@ -126,6 +126,8 @@ export class Url<T extends ParsedUrlQueryInput> {
         (json) => {
           if (!json) reject('error')
           resolve(json)
+
+          return true
         }
       )
     })

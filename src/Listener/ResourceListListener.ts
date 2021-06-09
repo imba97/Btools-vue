@@ -15,11 +15,9 @@ export default class ResourceListListener extends BaseListener {
     this.sendToContentJs(
       {
         type: ContentJsType.RetrieveInvalidVideo,
-        tabId: this.tabId,
+        tabId: this.tabId
       },
       (response) => {}
     )
-
-    super.handle()
   }
 }

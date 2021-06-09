@@ -1,6 +1,5 @@
 import Util from '@/scripts/base/util'
 import $ from 'jquery'
-import { over } from '_@types_lodash@4.14.170@@types/lodash'
 
 export default class HKM {
   // 宿主元素，添加快捷键菜单的元素
@@ -23,7 +22,7 @@ export default class HKM {
 
   constructor(elements: NodeListOf<HTMLElement> | HTMLElement) {
     // 生成快捷键菜单ID，每个快捷键菜单对应一个，与宿主元素绑定
-    const hotKeyMenuID = Util.Instance.random()
+    const hotKeyMenuID = Util.Instance().random()
 
     if (typeof elements['length'] !== 'undefined') {
       if (elements['length'] === 0) return this
@@ -83,7 +82,7 @@ export default class HKM {
         // 设置位移 X 中心在鼠标位置 Y 鼠标位置 - 60 也就是默认选中第一个
         this.$menuElement.css({
           top: e.pageY - 60,
-          left: e.pageX - this.menuElement.clientWidth / 2,
+          left: e.pageX - this.menuElement.clientWidth / 2
         })
 
         // 监听鼠标抬起
