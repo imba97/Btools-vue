@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>{{ title }}</h1>
-    <input type="text" v-model="uid" value="" placeholder="输入UID" />
+    <input type="text" v-model="input" value="" placeholder="输入UID" />
     <button @click="btn">请求数据测试</button>
     <p>{{ message }}</p>
   </div>
@@ -15,13 +15,20 @@ import { Url } from '@base/enums/url'
 @Component
 export default class Popup extends Vue {
   // 初始数据可以直接声明为实例的 property
-  title = 'Popup 125'
+  title = 'Popup'
   message = ''
 
-  uid = '2198461'
+  input = '2198461'
 
-  public btn() {
-    if (this.uid === '') return
+  public async btn() {
+    if (this.input === '') return
+
+    const data = await Url.TEST.request({
+      param: '233',
+      complex: true
+    })
+
+    console.log(data)
   }
 }
 </script>

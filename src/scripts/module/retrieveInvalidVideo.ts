@@ -27,6 +27,8 @@ export default class RetrieveInvalidVideo {
   constructor() {
     // ExtStorage.Instance().clear()
 
+    console.log('test', Util.Instance() === Util.Instance())
+
     const videoList = Util.Instance().getElements(
       '.fav-video-list>li.disabled>a.cover'
     )

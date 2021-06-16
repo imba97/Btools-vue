@@ -3,19 +3,19 @@ module.exports = {
   parserOptions: {
     parser: '@typescript-eslint/parser',
     env: { es6: true },
-    sourceType: 'module',
+    sourceType: 'module'
   },
   root: true,
   env: {
     browser: true,
     node: true,
-    serviceworker: true,
+    serviceworker: true
   },
   extends: [
     'plugin:vue/base',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/essential',
-    'standard',
+    'standard'
   ],
   rules: {
     // 设置默认eslint规则
@@ -41,6 +41,6 @@ module.exports = {
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/docs/rules
     '@typescript-eslint/semi': 0,
     '@typescript-eslint/indent': 0,
-    '@typescript-eslint/explicit-function-return-type': 0,
-  },
+    '@typescript-eslint/explicit-function-return-type': 0
+  }
 }

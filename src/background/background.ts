@@ -37,7 +37,7 @@ Vue.chrome.webRequest.onBeforeSendHeaders.addListener(
   {
     urls: ['<all_urls>']
   },
-  ['requestHeaders', 'blocking', 'extraHeaders']
+  ['requestHeaders', 'blocking']
 )
 
 Vue.chrome.runtime.onMessage.addListener(function (
@@ -59,7 +59,3 @@ Vue.chrome.runtime.onMessage.addListener(function (
 
   return true
 })
-
-// chrome.runtime.onInstalled.addListener(function () {
-//   ExtStorage.Instance().clear()
-// })

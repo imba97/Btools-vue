@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import { default as qs, ParsedUrlQueryInput } from 'querystring'
 import { AxiosRequestConfig } from 'axios'
-import { RequestOptions } from 'https'
 
 /**
  * URL 类型
@@ -9,6 +8,7 @@ import { RequestOptions } from 'https'
 export enum UrlType {
   BILIBILI,
   BILIPLUS,
+  IMBA97
 }
 
 /**
@@ -16,14 +16,10 @@ export enum UrlType {
  */
 export enum MethodType {
   GET,
-  POST,
+  POST
 }
 
 export class Url<T extends ParsedUrlQueryInput> {
-  private _bilibili_base_url = 'https://api.bilibili.com'
-
-  private _biliplus_base_rul = 'https://www.biliplus.com/api'
-
   public static readonly enums: Url<any>[] = []
 
   public static readonly headers: { [key: string]: { [key: string]: string } } =
@@ -40,6 +36,20 @@ export class Url<T extends ParsedUrlQueryInput> {
   )
   // public static readonly 名称: Url<{ 发送参数名: 发送参数类型 }> = new Url(请求类型, URL类型, 'URL路径', RequestHeaders)
 
+  public static readonly VIDEO_INFO: Url<{ bvid: string }> = new Url(
+    MethodType.GET,
+    UrlType.BILIBILI,
+    '/x/web-interface/view',
+    null
+  )
+
+  public static readonly TEST: Url<{ param: any; complex?: boolean }> = new Url(
+    MethodType.POST,
+    UrlType.IMBA97,
+    '/postTest.php',
+    null
+  )
+
   public static readonly LIKE: Url<{
     aid: number
     like: number
@@ -50,7 +60,7 @@ export class Url<T extends ParsedUrlQueryInput> {
     '/x/web-interface/archive/like',
     {
       Referer: 'https://www.bilibili.com',
-      Origin: 'https://www.bilibili.com',
+      Origin: 'https://www.bilibili.com'
     }
   )
 
@@ -79,10 +89,13 @@ export class Url<T extends ParsedUrlQueryInput> {
     // 根据 type 获取 baseUrl
     switch (this._type) {
       case UrlType.BILIBILI:
-        return this._bilibili_base_url
+        return 'https://api.bilibili.com'
 
       case UrlType.BILIPLUS:
-        return this._biliplus_base_rul
+        return 'https://www.biliplus.com/api'
+
+      case UrlType.IMBA97:
+        return 'https://bili.imba97.cn'
 
       default:
         throw new Error('获取 Base URL 失败')
@@ -121,7 +134,7 @@ export class Url<T extends ParsedUrlQueryInput> {
             this._method === MethodType.GET
               ? {}
               : { 'content-type': 'application/x-www-form-urlencoded' },
-          ...options,
+          ...options
         },
         (json) => {
           if (!json) reject('error')

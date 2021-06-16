@@ -23,8 +23,6 @@ Vue.chrome.runtime.onMessage.addListener(function (
   sender,
   sendResponse
 ) {
-  Util.Instance().console(request)
-
   // 根据类型调用不同功能模块
   switch (request.type) {
     // 收藏夹
@@ -37,21 +35,4 @@ Vue.chrome.runtime.onMessage.addListener(function (
   sendResponse()
 
   return true
-})
-
-// Vue.chrome.storage.sync.clear()
-
-// Vue.chrome.storage.sync.set(
-//   {
-//     test: {
-//       video: {
-//         v: 1
-//       }
-//     }
-//   },
-//   function () {}
-// )
-
-Vue.chrome.storage.sync.get(function (item) {
-  console.log('test', item)
 })
