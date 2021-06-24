@@ -7,8 +7,7 @@ import { AxiosRequestConfig } from 'axios'
  */
 export enum UrlType {
   BILIBILI,
-  BILIPLUS,
-  IMBA97
+  BILIPLUS
 }
 
 /**
@@ -40,13 +39,6 @@ export class Url<T extends ParsedUrlQueryInput> {
     MethodType.GET,
     UrlType.BILIBILI,
     '/x/web-interface/view',
-    null
-  )
-
-  public static readonly TEST: Url<{ param: any; complex?: boolean }> = new Url(
-    MethodType.POST,
-    UrlType.IMBA97,
-    '/postTest.php',
     null
   )
 
@@ -93,9 +85,6 @@ export class Url<T extends ParsedUrlQueryInput> {
 
       case UrlType.BILIPLUS:
         return 'https://www.biliplus.com/api'
-
-      case UrlType.IMBA97:
-        return 'https://bili.imba97.cn'
 
       default:
         throw new Error('获取 Base URL 失败')

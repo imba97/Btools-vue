@@ -1,15 +1,14 @@
-import { Url } from '@/scripts/base/enums/url'
+import { Url } from '@/scripts/base/Url'
 import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
 
-import ResourceListListener from '@/listener/resourceListListener'
-
-import ExtStorage from '@/scripts/base/storage/extStorage'
-
-Vue.chrome = Vue.prototype.$chrome = chrome || browser
+import { ResourceListListener, CommentListener } from '@/listener'
 
 new ResourceListListener()
+new CommentListener()
+
+Vue.chrome = Vue.prototype.$chrome = chrome || browser
 
 // 设置 Header
 Vue.chrome.webRequest.onBeforeSendHeaders.addListener(

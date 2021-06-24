@@ -1,6 +1,11 @@
-export enum ContentJsType {
+export enum RequestApiType {
   /**
    * 收藏夹
    */
-  RetrieveInvalidVideo,
+  ResourceList,
+
+  /**
+   * 评论
+   */
+  Reply
 }

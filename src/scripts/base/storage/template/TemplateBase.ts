@@ -1,10 +1,11 @@
 export default abstract class TemplateBase {
   private _name: string
 
-  protected abstract _data: Object
+  protected _data: Object
 
-  public constructor() {
-    this._name = (<any>this).__proto__.constructor.name
+  public constructor(data: Object) {
+    this._data = data
+    this._name = (this as any).__proto__.constructor.name
   }
   public GetName(): string {
     return this._name

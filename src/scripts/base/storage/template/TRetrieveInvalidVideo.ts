@@ -1,10 +1,10 @@
 /**
- * 找回失效视频存储
+ * 找回失效视频存储模板
  */
 
 import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
 
-export interface IVideoInfo {
+export interface IVideoInfo extends Object {
   /**
    * 视频标题
    */
@@ -16,16 +16,12 @@ export interface IVideoInfo {
   pic: string
 }
 
-export interface IRetrieveInvalidVideo {
-  videoInfo: Object
+export interface IRetrieveInvalidVideo extends Object {
+  videoInfo: { [key: string]: IVideoInfo }
 }
 
 export class TRetrieveInvalidVideo extends TemplateBase {
-  protected _data
-
   constructor(data: IRetrieveInvalidVideo) {
-    super()
-
-    this._data = data
+    super(data)
   }
 }

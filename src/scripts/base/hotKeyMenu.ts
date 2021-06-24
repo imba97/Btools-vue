@@ -1,4 +1,4 @@
-import Util from '@/scripts/base/util'
+import Util from '@/scripts/base/Util'
 import $ from 'jquery'
 
 export default class HKM {

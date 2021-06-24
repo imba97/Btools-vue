@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { Url } from '@base/enums/url'
+import { Url } from '@base/Url'
 
 // @Component 修饰符注明了此类为一个 Vue 组件
 @Component
@@ -22,13 +22,6 @@ export default class Popup extends Vue {
 
   public async btn() {
     if (this.input === '') return
-
-    const data = await Url.TEST.request({
-      param: '233',
-      complex: true
-    })
-
-    console.log(data)
   }
 }
 </script>

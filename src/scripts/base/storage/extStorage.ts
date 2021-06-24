@@ -6,7 +6,7 @@ import Vue from 'vue'
 import _ from 'lodash'
 
 import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
-import Singleton from '@/scripts/base/singletonBase/singleton'
+import Singleton from '@/scripts/base/singletonBase/Singleton'
 
 export default class ExtStorage extends Singleton {
   public getStorage<T extends TemplateBase, TResult>(
@@ -47,10 +47,7 @@ export default class ExtStorage extends Singleton {
       const space = new Object()
       space[configs.GetName()] = configs.GetData()
 
-      console.log('读取', space)
-
       Vue.chrome.storage.sync.get(space, function (items) {
-        console.log('get', items)
         resolve(items[configs.GetName()])
       })
     })
@@ -63,8 +60,6 @@ export default class ExtStorage extends Singleton {
       // 根据类型自动分配模块 index
       const space = {}
       space[configs.GetName()] = configs.GetData()
-
-      console.log('保存', space)
 
       Vue.chrome.storage.sync.set(space, function () {
         resolve(<TResult>configs.GetData())

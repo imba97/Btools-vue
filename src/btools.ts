@@ -4,13 +4,14 @@ import Vuex from 'vuex'
 
 import '@styles/global'
 
-import Util from '@/scripts/base/util'
-import { ContentJsType } from '@/scripts/base/enums/contentJsType'
+import Util from '@/scripts/base/Util'
+import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 
 /**
  * 加载 Btools 功能模块
  */
-import RetrieveInvalidVideo from '@/scripts/module/retrieveInvalidVideo'
+import RetrieveInvalidVideo from '@/scripts/module/RetrieveInvalidVideo'
+import StickerHistory from '@/scripts/module/StickerHistory'
 
 Vue.config.productionTip = false
 
@@ -25,9 +26,14 @@ Vue.chrome.runtime.onMessage.addListener(function (
 ) {
   // 根据类型调用不同功能模块
   switch (request.type) {
-    // 收藏夹
-    case ContentJsType.RetrieveInvalidVideo:
+    case RequestApiType.ResourceList:
+      // 找回失效视频
       new RetrieveInvalidVideo()
+      break
+
+    case RequestApiType.Reply:
+      new StickerHistory()
+      // 历史表情
       break
   }
 

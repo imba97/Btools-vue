@@ -5,17 +5,16 @@
 import _ from 'lodash'
 import $ from 'jquery'
 
-import HKM from '@/scripts/base/hotKeyMenu'
-import Util from '@/scripts/base/util'
-import { Url } from '@/scripts/base/enums/url'
+import HKM from '@/scripts/base/HotKeyMenu'
+import Util from '@/scripts/base/Util'
+import { Url } from '@/scripts/base/Url'
 
-import ExtStorage from '@/scripts/base/storage/extStorage'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
   TRetrieveInvalidVideo,
   IRetrieveInvalidVideo,
   IVideoInfo
 } from '@/scripts/base/storage/template'
-import Vue from 'vue'
 
 export default class RetrieveInvalidVideo {
   private _notFoundTitle = '未查询到视频信息'
@@ -26,8 +25,6 @@ export default class RetrieveInvalidVideo {
 
   constructor() {
     // ExtStorage.Instance().clear()
-
-    console.log('test', Util.Instance() === Util.Instance())
 
     const videoList = Util.Instance().getElements(
       '.fav-video-list>li.disabled>a.cover'

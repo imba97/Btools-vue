@@ -1,6 +1,6 @@
-import { ContentJsType } from '@/scripts/base/enums/contentJsType'
+import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 
 export interface IContentJs extends Object {
-  type: ContentJsType
+  type: RequestApiType
   tabId?: number
 }

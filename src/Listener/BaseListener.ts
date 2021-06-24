@@ -8,6 +8,8 @@
 import Vue from 'vue'
 import { IContentJs } from '@/scripts/base/interface/IContentJs'
 
+Vue.chrome = Vue.prototype.$chrome = chrome || browser
+
 export default abstract class BaseListener {
   protected tabId?: number
   protected urls: string[] = []
