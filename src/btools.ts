@@ -19,6 +19,12 @@ Vue.chrome = Vue.prototype.$chrome = chrome || browser
 Vue.use(VueRouter)
 Vue.use(Vuex)
 
+// 声明全局变量
+window.__BTOOLS__ = {
+  stickerHistory: false,
+  kaomoji: false
+}
+
 Vue.chrome.runtime.onMessage.addListener(function (
   request,
   sender,

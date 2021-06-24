@@ -8,6 +8,7 @@ import $ from 'jquery'
 import HKM from '@/scripts/base/HotKeyMenu'
 import Util from '@/scripts/base/Util'
 import { Url } from '@/scripts/base/Url'
+import BaseModule from '@/scripts/module/BaseModule'
 
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
@@ -16,22 +17,27 @@ import {
   IVideoInfo
 } from '@/scripts/base/storage/template'
 
-export default class RetrieveInvalidVideo {
+export default class RetrieveInvalidVideo extends BaseModule {
   private _notFoundTitle = '未查询到视频信息'
 
   private _localData: IRetrieveInvalidVideo = {
     videoInfo: {}
   }
 
-  constructor() {
-    // ExtStorage.Instance().clear()
-
+  protected handle() {
     const videoList = Util.Instance().getElements(
       '.fav-video-list>li.disabled>a.cover'
     )
 
     // 获取本地数据
-    const localData = this.getLocalData()
+    const localData = this.getLocalData<
+      IRetrieveInvalidVideo,
+      TRetrieveInvalidVideo
+    >(
+      new TRetrieveInvalidVideo({
+        videoInfo: {}
+      })
+    )
 
     // 初始化
     Promise.all([videoList, localData]).then((res) => {
@@ -160,17 +166,6 @@ export default class RetrieveInvalidVideo {
       // 移除遮挡
       $(element).find('.disabled-cover').remove()
     }
-  }
-
-  private getLocalData(): Promise<IRetrieveInvalidVideo> {
-    return ExtStorage.Instance().getStorage<
-      TRetrieveInvalidVideo,
-      IRetrieveInvalidVideo
-    >(
-      new TRetrieveInvalidVideo({
-        videoInfo: {}
-      })
-    )
   }
 
   private setHMK(element: HTMLElement, data: IVideoInfo) {

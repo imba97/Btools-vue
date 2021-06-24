@@ -12,7 +12,6 @@ export default class CommentListListener extends BaseListener {
   }
 
   handle() {
-    console.log('评论监听器')
     this.sendToContentJs(
       {
         type: RequestApiType.Reply,

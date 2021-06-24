@@ -6,7 +6,12 @@
  */
 
 import Vue from 'vue'
-import { IContentJs } from '@/scripts/base/interface/IContentJs'
+import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
+
+interface IContentJs extends Object {
+  type: RequestApiType
+  tabId?: number
+}
 
 Vue.chrome = Vue.prototype.$chrome = chrome || browser
 

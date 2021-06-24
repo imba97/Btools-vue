@@ -3,7 +3,7 @@ import axios from 'axios'
 import Vue from 'vue'
 import _ from 'lodash'
 
-import { ResourceListListener, CommentListener } from '@/listener'
+import { ResourceListListener, CommentListener } from '@/Listener'
 
 new ResourceListListener()
 new CommentListener()

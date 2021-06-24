@@ -3,19 +3,20 @@
  */
 
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
-import { TComment, IComment } from '@/scripts/base/storage/template'
+import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
 
-export default class BaseModule {
-  constructor() {
-    const localData = this.getLocalData()
-    console.log('历史表情', localData)
+export default abstract class BaseModule {
+  private _name: string
+  public constructor() {
+    this._name = (this as any).__proto__.constructor.name
+    this.handle()
   }
 
-  private getLocalData(): Promise<IComment> {
-    return ExtStorage.Instance().getStorage<TComment, IComment>(
-      new TComment({
-        stickerHistory: []
-      })
-    )
+  protected abstract handle(): void
+
+  protected getLocalData<TInterface, TTemplate extends TemplateBase>(
+    data: TTemplate
+  ): Promise<TInterface> {
+    return ExtStorage.Instance().getStorage<TTemplate, TInterface>(data)
   }
 }
