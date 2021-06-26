@@ -1,0 +1,40 @@
+.btools-sticker-history {
+  position: absolute;
+  bottom: -31px;
+  left: 80px;
+  width: 200px;
+  height: 30px;
+
+  ul > li {
+    margin: 0 2px;
+    list-style: none;
+    height: 30px;
+    line-height: 30px;
+    float: left;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ccc;
+    }
+
+    span {
+      font-size: 12px;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  ul::after {
+    clear: both;
+  }
+}
+
+.kaomoji {
+  width: auto;
+}
+.img {
+  width: 30px;
+}
