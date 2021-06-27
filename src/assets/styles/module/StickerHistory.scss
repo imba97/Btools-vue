@@ -4,20 +4,40 @@
   left: 80px;
   width: 200px;
   height: 30px;
+  overflow: hidden;
 
   ul > li {
+    position: relative;
+    top: 0;
+    left: 0;
     margin: 0 2px;
     list-style: none;
     height: 30px;
     line-height: 30px;
     float: left;
     cursor: pointer;
+    border-radius: 3px;
 
     &:hover {
-      background-color: #ccc;
+      background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(0, 0, 0, 0.15) 100%
+        ),
+        radial-gradient(
+            at top center,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(0, 0, 0, 0.4) 120%
+          )
+          #989898;
+      background-blend-mode: multiply, multiply;
+      span {
+        color: #fff;
+      }
     }
 
     span {
+      padding: 0 2px;
       font-size: 12px;
     }
 
@@ -27,14 +47,16 @@
     }
   }
 
+  ul {
+    .kaomoji {
+      width: auto;
+    }
+    .img {
+      width: 30px;
+    }
+  }
+
   ul::after {
     clear: both;
   }
-}
-
-.kaomoji {
-  width: auto;
-}
-.img {
-  width: 30px;
 }

@@ -13,10 +13,4 @@ export default abstract class BaseModule {
   }
 
   protected abstract handle(): void
-
-  protected getLocalData<TInterface, TTemplate extends TemplateBase>(
-    data: TTemplate
-  ): Promise<TInterface> {
-    return ExtStorage.Instance().getStorage<TTemplate, TInterface>(data)
-  }
 }

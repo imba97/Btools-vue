@@ -172,28 +172,39 @@ export default class Util extends Singleton {
     element.style.left = x + 'px'
   }
 
-  public console(message: any, type = 'log', prefix = 'Btools') {
-    let backgroundColor: string
+  public console(
+    message: any,
+    type?: 'success' | 'waring' | 'error',
+    prefix = 'Btools'
+  ) {
+    let css: string
 
     switch (type) {
-      case 'warn':
-        prefix += ' warn:'
-        backgroundColor = '#FF3'
+      case 'success':
+        prefix += ' Success:'
+        css =
+          'background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);'
+        break
+      case 'waring':
+        prefix += ' Waring:'
+        css =
+          'background-image: linear-gradient(to top, #e6b980 0%, #eacda3 100%);'
         break
 
       case 'error':
-        prefix += ' error:'
-        backgroundColor = '#F66'
+        prefix += ' Error:'
+        css =
+          'background-image: linear-gradient(to top, #ff0844 0%, #ffb199 100%);'
         break
 
       default:
-        backgroundColor = '#666'
+        prefix += ' Info:'
+        css =
+          'background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%), radial-gradient(at top center, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0.40) 120%) #989898; background-blend-mode: multiply,multiply;'
     }
 
-    console.log(
-      '%c' + prefix,
-      `background-color: ${backgroundColor}; color: #FFF; padding: 2px 3px; border-radius: 3px;`,
-      message
-    )
+    css += 'color: #FFF; padding: 2px 3px; border-radius: 3px;'
+
+    console.log('%c' + prefix, css, message)
   }
 }

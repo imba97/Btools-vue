@@ -48,3 +48,5 @@ Vue.chrome.runtime.onMessage.addListener(function (
 
   return true
 })
+
+Util.Instance().console('已开启', 'success')

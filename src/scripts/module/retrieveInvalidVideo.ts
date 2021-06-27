@@ -30,9 +30,9 @@ export default class RetrieveInvalidVideo extends BaseModule {
     )
 
     // 获取本地数据
-    const localData = this.getLocalData<
-      IRetrieveInvalidVideo,
-      TRetrieveInvalidVideo
+    const localData = ExtStorage.Instance().getStorage<
+      TRetrieveInvalidVideo,
+      IRetrieveInvalidVideo
     >(
       new TRetrieveInvalidVideo({
         videoInfo: {}
