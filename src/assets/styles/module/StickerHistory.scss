@@ -1,62 +1,115 @@
-.btools-sticker-history {
-  position: absolute;
-  bottom: -31px;
-  left: 80px;
-  width: 200px;
-  height: 30px;
-  overflow: hidden;
+.comment {
+  & > .btools-sticker-history {
+    position: absolute;
+    top: 143px;
+    left: 160px;
 
-  ul > li {
-    position: relative;
+    .btools-sticker-history-container {
+      top: 0;
+    }
+
+    .btools-sticker-history-show-more {
+      top: 0;
+    }
+  }
+}
+
+.comment-send-lite {
+  & > .btools-sticker-history {
+    position: fixed;
+    bottom: 12px;
+    left: 230px;
+
+    .btools-sticker-history-container {
+      bottom: 0;
+    }
+
+    .btools-sticker-history-show-more {
+      bottom: 0;
+    }
+  }
+}
+
+.btools-sticker-history {
+  .more::before {
+    content: '';
+    position: absolute;
     top: 0;
     left: 0;
-    margin: 0 2px;
-    list-style: none;
-    height: 30px;
-    line-height: 30px;
-    float: left;
-    cursor: pointer;
-    border-radius: 3px;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+    background-color: #000;
+    opacity: 0.75;
+    z-index: 0;
+  }
 
-    &:hover {
-      background: linear-gradient(
-          to bottom,
-          rgba(255, 255, 255, 0.15) 0%,
-          rgba(0, 0, 0, 0.15) 100%
-        ),
-        radial-gradient(
-            at top center,
-            rgba(255, 255, 255, 0.4) 0%,
-            rgba(0, 0, 0, 0.4) 120%
-          )
-          #989898;
-      background-blend-mode: multiply, multiply;
+  .more ul li span {
+    color: #fff;
+  }
+
+  .btools-sticker-history-container {
+    position: absolute;
+    left: 0;
+    width: 200px;
+    height: 30px;
+    overflow: hidden;
+
+    ul > li {
+      position: relative;
+      top: 0;
+      left: 0;
+      margin: 0 2px;
+      list-style: none;
+      height: 30px;
+      line-height: 30px;
+      float: left;
+      cursor: pointer;
+      border-radius: 3px;
+
+      &:hover {
+        background-image: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+        span {
+          color: #fff;
+        }
+      }
+
       span {
-        color: #fff;
+        padding: 0 2px;
+        font-size: 12px;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
       }
     }
 
-    span {
-      padding: 0 2px;
-      font-size: 12px;
+    ul {
+      overflow: auto;
+      z-index: 999;
+
+      .kaomoji {
+        width: auto;
+      }
+      .img {
+        width: 30px;
+      }
     }
 
-    img {
-      width: 100%;
-      height: 100%;
+    ul::after {
+      clear: both;
     }
   }
 
-  ul {
-    .kaomoji {
-      width: auto;
-    }
-    .img {
-      width: 30px;
-    }
-  }
-
-  ul::after {
-    clear: both;
+  .btools-sticker-history-show-more {
+    position: absolute;
+    left: 205px;
+    width: 30px;
+    height: 30px;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    display: none;
   }
 }

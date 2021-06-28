@@ -9,8 +9,7 @@ import $ from 'jquery'
 import _ from 'lodash'
 import { IStickerHistory } from '@base/storage/template/TComment'
 import ExtStorage from '@base/storage/ExtStorage'
-import Vue from 'vue'
-import StickerHistoryComponent from '@components/StickerHistory.vue'
+import IconUtil from '@base/IconUtil'
 
 /**
  * 历史表情 DOM 元素信息
@@ -18,6 +17,7 @@ import StickerHistoryComponent from '@components/StickerHistory.vue'
 class StickerHistoryDomInfo {
   public div: HTMLDivElement[] = []
   public textarea: HTMLTextAreaElement[] = []
+  public showMore: HTMLButtonElement[] = []
 }
 
 export default class StickerHistory extends BaseModule {
@@ -42,22 +42,12 @@ export default class StickerHistory extends BaseModule {
     )
 
     // 在页面添加历史表情
-    Util.Instance()
-      .getElements('.textarea-container')
-      .then((eles) => {
-        eles.forEach((ele) => {
-          const btools_sticker_history = document.createElement('div')
-          btools_sticker_history.setAttribute('class', 'btools-sticker-history')
-          ele.appendChild(btools_sticker_history)
-          this._sticker_history_dom_info?.div.push(btools_sticker_history)
-          this._sticker_history_dom_info?.textarea.push(
-            $(ele).find('textarea')[0]
-          )
-        })
-      })
-      .then(() => {
-        this.createList(this._localData)
-      })
+    // 1. 上面的评论框
+    await this.addStickerHistoryElement('.comment')
+    // 2. 下面的评论框
+    await this.addStickerHistoryElement('.comment-send-lite')
+
+    this.createList(this._localData)
 
     // 表情 按钮被点击 开启初始化
     Util.Instance()
@@ -69,6 +59,46 @@ export default class StickerHistory extends BaseModule {
           })
         })
       })
+  }
+
+  private async addStickerHistoryElement(selector: string) {
+    const ele = await Util.Instance().getElement(selector)
+    const btools_sticker_history = document.createElement('div')
+    btools_sticker_history.setAttribute('class', 'btools-sticker-history')
+
+    // 历史表情 容器 用于定位
+    const btools_sticker_history_container = document.createElement('div')
+    btools_sticker_history_container.setAttribute(
+      'class',
+      'btools-sticker-history-container'
+    )
+
+    // ul
+    const ul = document.createElement('ul')
+    btools_sticker_history_container.appendChild(ul)
+
+    // 显示更多 按钮
+    const show_more = document.createElement('button')
+    show_more.setAttribute('class', 'btools-sticker-history-show-more')
+    show_more.setAttribute('data-added-listener', 'false')
+    show_more.innerHTML = IconUtil.Instance().SHOW_MORE('#CCC')
+    btools_sticker_history.append(show_more)
+    this._sticker_history_dom_info?.showMore.push(show_more)
+
+    btools_sticker_history.appendChild(btools_sticker_history_container)
+    ele.appendChild(btools_sticker_history)
+    this._sticker_history_dom_info?.div.push(btools_sticker_history_container)
+
+    const textarea: HTMLTextAreaElement =
+      selector === '.comment'
+        ? ($(ele).find(
+            '.bb-comment .comment-send .textarea-container textarea'
+          )[0] as HTMLTextAreaElement)
+        : ($(ele).find(
+            '.textarea-container textarea'
+          )[0] as HTMLTextAreaElement)
+
+    this._sticker_history_dom_info?.textarea.push(textarea)
   }
 
   private async Init() {
@@ -86,6 +116,7 @@ export default class StickerHistory extends BaseModule {
 
       const self = this
 
+      // 表情点击事件
       $(document).on('click', '.emoji-wrap .emoji-list', async function () {
         const img = $(this).find('img')
         const isKaomoji = img.length === 0
@@ -119,13 +150,15 @@ export default class StickerHistory extends BaseModule {
   }
 
   private createList(data: IComment) {
+    let isShowMore = false
+
     this._sticker_history_dom_info!.div.forEach((ele, domIndex) => {
+      const ul = $(ele).find('ul')
+      ul.html('')
+
       if (!data.stickerHistory || data.stickerHistory.length === 0) {
-        ele.innerHTML = ''
         return
       }
-
-      const ul = document.createElement('ul')
 
       data.stickerHistory.forEach((item, index) => {
         const li = document.createElement('li')
@@ -135,42 +168,50 @@ export default class StickerHistory extends BaseModule {
           ? `<span>${item.text}</span>`
           : `<img src="${item.src}" />`
 
+        li.addEventListener(
+          'click',
+          (e: MouseEvent) => {
+            e.preventDefault()
+            e.stopPropagation()
+
+            // 左键发送表情
+            if (e.button === 0) {
+              // 插入文字
+              this.insertText(item.text, domIndex)
+
+              // 获取是否点击
+              const isClick = li.getAttribute('data-is-click')
+              // 如果已经点击 则不重复添加监听
+              if (isClick === 'true') return
+              li.setAttribute('data-is-click', 'true')
+              // 添加监听 鼠标移出后把表情排到第一个
+              li.addEventListener(
+                'mouseleave',
+                () => {
+                  // 先删除
+                  const removedItem = this._localData.stickerHistory?.splice(
+                    index,
+                    1
+                  )
+                  if (removedItem && removedItem.length === 1)
+                    this._localData.stickerHistory?.unshift(removedItem[0])
+
+                  this.saveLocalData()
+                },
+                {
+                  once: true
+                }
+              )
+
+              return
+            }
+          },
+          false
+        )
+
         li.addEventListener('mousedown', (e: MouseEvent) => {
           e.preventDefault()
           e.stopPropagation()
-
-          // 左键发送表情
-          if (e.button === 0) {
-            // 插入文字
-            this.insertText(item.text, domIndex)
-
-            // 获取是否点击
-            const isClick = li.getAttribute('data-is-click')
-            // 如果已经点击 则不重复添加监听
-            if (isClick === 'true') return
-            li.setAttribute('data-is-click', 'true')
-            // 添加监听 鼠标移出后把表情排到第一个
-            li.addEventListener(
-              'mouseleave',
-              () => {
-                // 先删除
-                const removedItem = this._localData.stickerHistory?.splice(
-                  index,
-                  1
-                )
-                if (removedItem && removedItem.length === 1)
-                  this._localData.stickerHistory?.unshift(removedItem[0])
-
-                this.saveLocalData()
-              },
-              {
-                once: true
-              }
-            )
-
-            return
-          }
-
           // 中键删除表情
           if (e.button === 1) {
             // 删除对应表情
@@ -179,16 +220,73 @@ export default class StickerHistory extends BaseModule {
           }
         })
 
-        ul.appendChild(li)
-
-        ele.innerHTML = ''
-        ele.append(ul)
+        ul.append(li)
       })
+
+      // 高度大于两行则显示 “显示更多” 按钮
+      const ulHeight = ul.height()
+      if (ulHeight && ulHeight > 30) {
+        isShowMore = true
+      }
     })
+
+    const showMore = this._sticker_history_dom_info?.showMore
+    if (!showMore) return
+
+    if (isShowMore) {
+      showMore.forEach((show_more, index) => {
+        // 显示
+        $(show_more).show()
+
+        // 防止重复添加点击事件
+        if (show_more.getAttribute('data-added-listener') === 'true') return
+        show_more.setAttribute('data-added-listener', 'true')
+        show_more.setAttribute('data-is-show', 'false')
+
+        // 添加点击事件
+        show_more.addEventListener('click', (e: MouseEvent) => {
+          e.preventDefault()
+          e.stopPropagation()
+
+          const div = this._sticker_history_dom_info!.div[index]
+
+          const ul = $(div).find('ul')
+          const row = (ul.height() || 1) / 30
+          const isShow = show_more.getAttribute('data-is-show') === 'true'
+
+          if (isShow) {
+            // 隐藏
+            $(div).removeClass('more').css({
+              height: 30
+            })
+          } else {
+            // 显示
+            $(div)
+              .addClass('more')
+              .css({
+                height: 30 * row
+              })
+          }
+
+          show_more.setAttribute('data-is-show', isShow ? 'false' : 'true')
+        })
+      })
+    } else {
+      showMore.forEach((show_more, index) => {
+        const div = this._sticker_history_dom_info!.div[index]
+        $(div).removeClass('more').css({
+          height: 30
+        })
+
+        $(show_more).hide()
+      })
+    }
   }
 
+  /**
+   * 储存本地数据
+   */
   private saveLocalData() {
-    // 存储删除后的表情
     ExtStorage.Instance()
       .setStorage<TComment, IComment>(
         new TComment({
@@ -206,9 +304,9 @@ export default class StickerHistory extends BaseModule {
     if (this._sticker_history_dom_info) {
       const $t = this._sticker_history_dom_info.textarea[domIndex]
       if ($t.selectionStart || $t.selectionStart === 0) {
-        var startPos = $t.selectionStart
-        var endPos = $t.selectionEnd
-        var scrollTop = $t.scrollTop
+        const startPos = $t.selectionStart
+        const endPos = $t.selectionEnd
+        const scrollTop = $t.scrollTop
         $t.value =
           $t.value.substring(0, startPos) +
           text +
