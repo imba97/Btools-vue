@@ -25,17 +25,37 @@ export class Url<T extends ParsedUrlQueryInput> {
   public static readonly headers: { [key: string]: { [key: string]: string } } =
     {}
 
+  // public static readonly 名称: Url<{ 发送参数名: 发送参数类型 }> = new Url(请求类型, URL类型, 'URL路径', RequestHeaders)
+
   // ========= BILIBILI =========
 
-  // 获取用户卡片信息
+  /**
+   * 获取用户卡片信息
+   */
   public static readonly USER_CARD: Url<{ mid: string }> = new Url(
     MethodType.GET,
     UrlType.BILIBILI,
     '/x/web-interface/card',
     null
   )
-  // public static readonly 名称: Url<{ 发送参数名: 发送参数类型 }> = new Url(请求类型, URL类型, 'URL路径', RequestHeaders)
 
+  /**
+   * 获取频道信息
+   */
+  public static readonly CHANEL_VIDEO: Url<{
+    mid: number
+    cid: number
+    ps: number
+  }> = new Url(
+    MethodType.GET,
+    UrlType.BILIBILI,
+    '/x/space/channel/video?ps=100&order=0&ctype=0',
+    null
+  )
+
+  /**
+   * 获取视频信息
+   */
   public static readonly VIDEO_INFO: Url<{ bvid: string }> = new Url(
     MethodType.GET,
     UrlType.BILIBILI,

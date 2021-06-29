@@ -7,5 +7,10 @@ export enum RequestApiType {
   /**
    * 评论
    */
-  Reply
+  Reply,
+
+  /**
+   * 订阅频道
+   */
+  Channel
 }

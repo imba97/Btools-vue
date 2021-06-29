@@ -3,10 +3,15 @@ import axios from 'axios'
 import _ from 'lodash'
 import { browser } from 'webextension-polyfill-ts'
 
-import { ResourceListListener, CommentListener } from '@/Listener'
+import {
+  ResourceListListener,
+  CommentListener,
+  ChannelListener
+} from '@/Listener'
 
 new ResourceListListener()
 new CommentListener()
+new ChannelListener()
 
 // 设置 Header
 browser.webRequest.onBeforeSendHeaders.addListener(
@@ -46,5 +51,8 @@ browser.runtime.onMessage.addListener(async function (request, sender) {
     url: request.url,
     ...params,
     headers: request.headers || {}
-  }).then((response) => response.data)
+  }).then((response) => {
+    console.log(response)
+    return response.data
+  })
 })

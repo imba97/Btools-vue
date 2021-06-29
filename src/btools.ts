@@ -11,8 +11,11 @@ import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 /**
  * 加载 Btools 功能模块
  */
-import RetrieveInvalidVideo from '@/scripts/module/RetrieveInvalidVideo'
-import StickerHistory from '@/scripts/module/StickerHistory'
+import {
+  RetrieveInvalidVideo,
+  StickerHistory,
+  SubscribeChannel
+} from '@/scripts/module'
 
 Vue.config.productionTip = false
 
@@ -36,6 +39,11 @@ browser.runtime.onMessage.addListener(function (request, sender) {
     case RequestApiType.Reply:
       new StickerHistory()
       // 历史表情
+      break
+
+    case RequestApiType.Channel:
+      // 订阅频道
+      new SubscribeChannel()
       break
   }
 

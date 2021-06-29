@@ -47,13 +47,14 @@ export default abstract class BaseListener {
     callback: (response: any) => void
   ) {
     // 如果传了 tabId 则直接用这个
-    if (typeof options.tabId !== 'undefined') {
+    if (options.tabId && options.tabId !== -1) {
+      console.log(options.tabId)
       browser.tabs.sendMessage(options.tabId, options).then(callback)
       return
     }
-    browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-      if (tabs.length === 0) throw new Error('tabs length is 0')
-      browser.tabs.sendMessage(tabs[0].id!, options).then(callback)
-    })
+    // browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+    //   if (tabs.length === 0) throw new Error('tabs length is 0')
+    //   browser.tabs.sendMessage(tabs[0].id!, options).then(callback)
+    // })
   }
 }
