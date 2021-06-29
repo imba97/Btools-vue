@@ -29,6 +29,8 @@ export default class StickerHistory extends BaseModule {
     if (window.__BTOOLS__.stickerHistory) return
     window.__BTOOLS__.stickerHistory = true
 
+    Util.Instance().console('历史表情', 'success')
+
     this._sticker_history_dom_info = new StickerHistoryDomInfo()
 
     // 读取存储表情
@@ -43,7 +45,7 @@ export default class StickerHistory extends BaseModule {
 
     // 在页面添加历史表情
     // 1. 上面的评论框
-    await this.addStickerHistoryElement('.comment')
+    await this.addStickerHistoryElement('.bb-comment')
     // 2. 下面的评论框
     await this.addStickerHistoryElement('.comment-send-lite')
 
@@ -92,7 +94,7 @@ export default class StickerHistory extends BaseModule {
     const textarea: HTMLTextAreaElement =
       selector === '.comment'
         ? ($(ele).find(
-            '.bb-comment .comment-send .textarea-container textarea'
+            '.comment-send .textarea-container textarea'
           )[0] as HTMLTextAreaElement)
         : ($(ele).find(
             '.textarea-container textarea'
@@ -150,6 +152,7 @@ export default class StickerHistory extends BaseModule {
   }
 
   private createList(data: IComment) {
+    console.log('createList', data)
     let isShowMore = false
 
     this._sticker_history_dom_info!.div.forEach((ele, domIndex) => {

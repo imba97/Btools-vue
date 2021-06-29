@@ -2,8 +2,9 @@
  * 扩展配置
  */
 
-import Vue from 'vue'
 import _ from 'lodash'
+
+import { browser } from 'webextension-polyfill-ts'
 
 import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
 import Singleton from '@/scripts/base/singletonBase/Singleton'
@@ -36,7 +37,7 @@ export default class ExtStorage extends Singleton {
   }
 
   public clear() {
-    Vue.chrome.storage.sync.clear()
+    browser.storage.local.clear()
   }
 
   private _getStorage<T extends TemplateBase, TResult>(
@@ -47,7 +48,7 @@ export default class ExtStorage extends Singleton {
       const space = new Object()
       space[configs.GetName()] = configs.GetData()
 
-      Vue.chrome.storage.sync.get(space, function (items) {
+      browser.storage.local.get(space).then((items) => {
         resolve(items[configs.GetName()])
       })
     })
@@ -61,7 +62,7 @@ export default class ExtStorage extends Singleton {
       const space = {}
       space[configs.GetName()] = configs.GetData()
 
-      Vue.chrome.storage.sync.set(space, function () {
+      browser.storage.local.set(space).then(() => {
         resolve(<TResult>configs.GetData())
       })
     })

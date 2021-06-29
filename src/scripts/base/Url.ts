@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { default as qs, ParsedUrlQueryInput } from 'querystring'
 import { AxiosRequestConfig } from 'axios'
+import { browser } from 'webextension-polyfill-ts'
 
 /**
  * URL 类型
@@ -112,8 +113,8 @@ export class Url<T extends ParsedUrlQueryInput> {
 
   public request(params?: T, options?: AxiosRequestConfig): Promise<any> {
     return new Promise((resolve, reject) => {
-      Vue.chrome.runtime.sendMessage(
-        {
+      browser.runtime
+        .sendMessage({
           type: this.method,
           url: this.url,
           ...(this._method === MethodType.GET
@@ -124,14 +125,11 @@ export class Url<T extends ParsedUrlQueryInput> {
               ? {}
               : { 'content-type': 'application/x-www-form-urlencoded' },
           ...options
-        },
-        (json) => {
+        })
+        .then((json) => {
           if (!json) reject('error')
           resolve(json)
-
-          return true
-        }
-      )
+        })
     })
   }
 }

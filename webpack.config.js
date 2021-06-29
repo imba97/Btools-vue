@@ -6,9 +6,10 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WriteJsonWebpackPlugin = require('write-json-webpack-plugin')
 const ExtensionReloader = require('webpack-extension-reloader')
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 require('@babel/core').transform('code', {
-  plugins: ['@babel/plugin-transform-runtime'],
+  plugins: ['@babel/plugin-transform-runtime']
 })
 
 module.exports = () => {
@@ -23,11 +24,11 @@ module.exports = () => {
       btools: './src/btools.ts',
       background: './src/background/background.ts',
       popup: './src/popup/popup.ts',
-      options: './src/options/options.ts',
+      options: './src/options/options.ts'
     },
     output: {
       path: resolve('Build'),
-      filename: '[name].js',
+      filename: '[name].js'
     },
     resolve: {
       extensions: ['.js', '.ts', '.vue', '.scss', '.json'],
@@ -36,15 +37,15 @@ module.exports = () => {
         '@': resolve('src'),
         '@styles': resolve('src/assets/styles'),
         '@components': resolve('src/components'),
-        '@base': resolve('src/scripts/base'),
-      },
+        '@base': resolve('src/scripts/base')
+      }
     },
     module: {
       rules: [
         {
           test: /\.vue$/,
           exclude: /mode_modules/,
-          loader: 'vue-loader',
+          loader: 'vue-loader'
         },
 
         {
@@ -58,26 +59,10 @@ module.exports = () => {
                 appendTsSuffixTo: [/\.vue$/],
                 appendTsxSuffixTo: [/\.vue$/],
                 transpileOnly: true,
-                happyPackMode: false,
-              },
-            },
-          ],
-        },
-
-        {
-          test: /\.(js|vue|tsx?)$/,
-          enforce: 'pre',
-          exclude: /node_modules/,
-          loader: 'eslint-loader',
-          options: {
-            fix: false,
-            extensions: ['.js', '.jsx', '.vue', '.ts', '.tsx'],
-            semi: false,
-            singleQuote: true,
-            cache: false,
-            emitWarning: true,
-            emitError: false,
-          },
+                happyPackMode: false
+              }
+            }
+          ]
         },
 
         {
@@ -87,8 +72,8 @@ module.exports = () => {
             MiniCssExtractPlugin.loader,
             'css-loader',
             'postcss-loader',
-            'sass-loader',
-          ],
+            'sass-loader'
+          ]
         },
 
         {
@@ -96,22 +81,26 @@ module.exports = () => {
           exclude: /mode_modules/,
           loader: 'url-loader',
           options: {
-            limit: 8 * 1024,
-          },
+            limit: 8 * 1024
+          }
         },
 
         {
-          exclude: /\.(mode_modules|vue|js|tsx?|scss|html|jpg|jpeg|png|gif|svg|webp)/,
+          exclude:
+            /\.(mode_modules|vue|js|tsx?|scss|html|jpg|jpeg|png|gif|svg|webp)/,
           loader: 'file-loader',
           options: {
-            outputPath: 'media',
-          },
-        },
-      ],
+            outputPath: 'media'
+          }
+        }
+      ]
     },
 
     plugins: [
       // new CleanWebpackPlugin(),
+      new ESLintPlugin({
+        overrideConfigFile: resolve(__dirname, '.eslintrc.js')
+      }),
       new HtmlWebpackPlugin({
         filename: 'popup.html',
         template: './src/popup/popup.html',
@@ -119,7 +108,7 @@ module.exports = () => {
           // collapseWhitespace: true,
           // removeComments: true
         },
-        chunks: ['popup'],
+        chunks: ['popup']
       }),
       new HtmlWebpackPlugin({
         filename: 'options.html',
@@ -128,32 +117,32 @@ module.exports = () => {
           // collapseWhitespace: true,
           // removeComments: true
         },
-        chunks: ['options'],
+        chunks: ['options']
       }),
       new MiniCssExtractPlugin({
-        filename: '[name].css',
+        filename: '[name].css'
       }),
       new VueLoaderPlugin(),
       new CopyWebpackPlugin([
         {
           from: resolve('src/assets/icon'),
           to: resolve('Build/icon'),
-          toType: 'dir',
+          toType: 'dir'
         },
         {
           from: resolve('src/_locales'),
           to: resolve('Build/_locales'),
-          toType: 'dir',
-        },
+          toType: 'dir'
+        }
       ]),
       manifestJSON &&
         new WriteJsonWebpackPlugin({
           pretty: false,
           object: manifestJSON,
           path: '/',
-          filename: 'manifest.json',
-        }),
-    ],
+          filename: 'manifest.json'
+        })
+    ]
   }
 
   if (process.env.NODE_ENV === 'development') {
@@ -164,8 +153,8 @@ module.exports = () => {
           // The entries used for the content/background scripts or extension pages
           contentScript: 'btools',
           background: 'background',
-          extensionPage: ['popup', 'options'],
-        },
+          extensionPage: ['popup', 'options']
+        }
       })
     )
   }

@@ -1,4 +1,4 @@
-.comment {
+.bb-comment {
   & > .btools-sticker-history {
     position: absolute;
     top: 143px;
@@ -16,9 +16,9 @@
 
 .comment-send-lite {
   & > .btools-sticker-history {
-    position: fixed;
+    position: absolute;
     bottom: 12px;
-    left: 230px;
+    left: 175px;
 
     .btools-sticker-history-container {
       bottom: 0;

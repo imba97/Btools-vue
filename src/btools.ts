@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Vuex from 'vuex'
+import { browser } from 'webextension-polyfill-ts'
 
 import '@styles/global'
 
@@ -15,7 +16,6 @@ import StickerHistory from '@/scripts/module/StickerHistory'
 
 Vue.config.productionTip = false
 
-Vue.chrome = Vue.prototype.$chrome = chrome || browser
 Vue.use(VueRouter)
 Vue.use(Vuex)
 
@@ -25,11 +25,7 @@ window.__BTOOLS__ = {
   kaomoji: false
 }
 
-Vue.chrome.runtime.onMessage.addListener(function (
-  request,
-  sender,
-  sendResponse
-) {
+browser.runtime.onMessage.addListener(function (request, sender) {
   // 根据类型调用不同功能模块
   switch (request.type) {
     case RequestApiType.ResourceList:
@@ -44,9 +40,7 @@ Vue.chrome.runtime.onMessage.addListener(function (
   }
 
   // callback 目前不需要
-  sendResponse()
-
-  return true
+  // return new Promise(() => {})
 })
 
 Util.Instance().console('已开启', 'success')

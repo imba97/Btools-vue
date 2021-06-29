@@ -1,17 +1,15 @@
 import { Url } from '@/scripts/base/Url'
 import axios from 'axios'
-import Vue from 'vue'
 import _ from 'lodash'
+import { browser } from 'webextension-polyfill-ts'
 
 import { ResourceListListener, CommentListener } from '@/Listener'
 
 new ResourceListListener()
 new CommentListener()
 
-Vue.chrome = Vue.prototype.$chrome = chrome || browser
-
 // 设置 Header
-Vue.chrome.webRequest.onBeforeSendHeaders.addListener(
+browser.webRequest.onBeforeSendHeaders.addListener(
   function (details) {
     const headers = Url.headers[details.url]
 
@@ -39,22 +37,14 @@ Vue.chrome.webRequest.onBeforeSendHeaders.addListener(
   ['requestHeaders', 'blocking']
 )
 
-Vue.chrome.runtime.onMessage.addListener(function (
-  request,
-  sender,
-  sendResponse
-) {
+browser.runtime.onMessage.addListener(async function (request, sender) {
   const params =
     request.type === 'GET' ? { params: request.params } : { data: request.data }
 
-  axios({
+  return await axios({
     method: request.type,
     url: request.url,
     ...params,
     headers: request.headers || {}
-  }).then((response) => {
-    sendResponse(response.data)
-  })
-
-  return true
+  }).then((response) => response.data)
 })
