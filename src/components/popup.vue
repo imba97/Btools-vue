@@ -4,6 +4,7 @@
     <input type="text" v-model="input" value="" placeholder="输入UID" />
     <button @click="btn">请求数据测试</button>
     <p>{{ message }}</p>
+    <!-- 订阅频道 图片后缀 @380w_240h_100Q_1c.webp -->
   </div>
 </template>
 

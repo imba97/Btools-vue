@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { default as qs, ParsedUrlQueryInput } from 'querystring'
 import { AxiosRequestConfig } from 'axios'
 import { browser } from 'webextension-polyfill-ts'
+import Util from './Util'
 
 /**
  * URL 类型
@@ -45,7 +46,7 @@ export class Url<T extends ParsedUrlQueryInput> {
   public static readonly CHANEL_VIDEO: Url<{
     mid: number
     cid: number
-    ps: number
+    pn: number
   }> = new Url(
     MethodType.GET,
     UrlType.BILIBILI,
@@ -98,7 +99,7 @@ export class Url<T extends ParsedUrlQueryInput> {
     Url.enums.push(this)
   }
 
-  get baseUrl(): string {
+  get baseUrl(): string | undefined {
     // 根据 type 获取 baseUrl
     switch (this._type) {
       case UrlType.BILIBILI:
@@ -108,7 +109,7 @@ export class Url<T extends ParsedUrlQueryInput> {
         return 'https://www.biliplus.com/api'
 
       default:
-        throw new Error('获取 Base URL 失败')
+        Util.Instance().console('未曾设想的 Base Url 类型', 'error')
     }
   }
 
@@ -120,14 +121,14 @@ export class Url<T extends ParsedUrlQueryInput> {
     return `${this.baseUrl}${this._path}`
   }
 
-  get method(): string {
+  get method(): string | undefined {
     switch (this._method) {
       case MethodType.GET:
         return 'GET'
       case MethodType.POST:
         return 'POST'
       default:
-        throw new Error('未曾设想的类型')
+        Util.Instance().console('未曾设想的类型', 'error')
     }
   }
 

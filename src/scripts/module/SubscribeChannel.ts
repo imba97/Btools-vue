@@ -1,18 +1,47 @@
 import BaseModule from '@/scripts/module/BaseModule'
 import Util from '@base/Util'
 import ExtStorage from '@base/storage/ExtStorage'
-import { TSubscribeChannel, ISubscribeChannel } from '@base/storage/template'
+import {
+  TSubscribeChannel,
+  ISubscribeChannel,
+  IVideoData
+} from '@base/storage/template'
 import _ from 'lodash'
-import { Url } from '../base/Url'
-import IconUtil from '../base/IconUtil'
-import HKM from '../base/HotKeyMenu'
+import { Url } from '@base/Url'
+import IconUtil from '@base/IconUtil'
+import HKM from '@base/HotKeyMenu'
 
 export default class SubscribeChannel extends BaseModule {
   private _localData: ISubscribeChannel = {}
+
+  /**
+   * 视频临时存储
+   */
+  private _videos_temp: IVideoData[] = []
+
+  /**
+   * 订阅按钮（快捷键菜单按钮）
+   */
   private _subscribeButton = document.createElement('a')
+
+  /**
+   * 是否已订阅
+   */
   private _isSubscribed = false
+
+  /**
+   * 频道信息
+   */
   private _channel_info: { uid?: number; cid?: number } = {}
+
+  /**
+   * 快捷键菜单 实例
+   */
   private _hkm?: HKM
+
+  /**
+   * 快捷键菜单类型 订阅 和 取消订阅
+   */
   private _hkm_type: { [key: string]: HotKeyMenuOption } = {
     subscribe: {
       key: 'S',
@@ -30,6 +59,26 @@ export default class SubscribeChannel extends BaseModule {
     }
   }
 
+  /**
+   * 订阅按钮颜色
+   */
+  private _logo_color = {
+    /**
+     * 未订阅
+     */
+    doNotSubscribe: '#00a1d6',
+
+    /**
+     * 订阅中（请求接口等待）
+     */
+    subscribing: '#CCC',
+
+    /**
+     * 已订阅
+     */
+    subscribed: '#13a813'
+  }
+
   protected async handle() {
     Util.Instance().console('订阅频道', 'success')
 
@@ -39,7 +88,7 @@ export default class SubscribeChannel extends BaseModule {
       ISubscribeChannel
     >(
       new TSubscribeChannel({
-        chanel: {},
+        channel: {},
         readed: {}
       })
     )
@@ -65,14 +114,35 @@ export default class SubscribeChannel extends BaseModule {
       this._channel_info.uid,
       this._channel_info.cid
     )
-    console.log('是否已订阅', this._isSubscribed)
 
+    // 订阅按钮
     this._subscribeButton.setAttribute('class', 'btools-subscribe-button')
     this._subscribeButton.innerHTML = this._isSubscribed
-      ? IconUtil.Instance().LOGO('#CCC')
-      : IconUtil.Instance().LOGO()
+      ? IconUtil.Instance().LOGO(this._logo_color.subscribed)
+      : IconUtil.Instance().LOGO(this._logo_color.doNotSubscribe)
 
-    this._hkm = new HKM(this._subscribeButton).add([this._hkm_type.subscribe])
+    // 创建快捷键菜单
+    this._hkm = new HKM(this._subscribeButton).add([
+      this._isSubscribed
+        ? this._hkm_type.unsubscribe
+        : this._hkm_type.subscribe,
+      {
+        // 测试
+        key: 'Q',
+        title: '清空',
+        action: () => {
+          ExtStorage.Instance().setStorage<
+            TSubscribeChannel,
+            ISubscribeChannel
+          >(
+            new TSubscribeChannel({
+              channel: {},
+              readed: {}
+            })
+          )
+        }
+      }
+    ])
 
     channel_action_row.appendChild(this._subscribeButton)
   }
@@ -82,20 +152,44 @@ export default class SubscribeChannel extends BaseModule {
    * @param uid 用户ID
    * @param cid 频道ID
    */
-  private async doSubscribe(uid: number, cid: number, page: number = 1) {
-    Url.CHANEL_VIDEO.request({
-      mid: uid,
+  private async doSubscribe(uid: number, cid: number) {
+    if (!this._localData.channel?.hasOwnProperty(uid))
+      this._localData.channel![uid] = []
+
+    if (_.findIndex(this._localData.channel![uid], { cid }) !== -1) return
+
+    // 切换按钮颜色
+    this._subscribeButton.innerHTML = IconUtil.Instance().LOGO(
+      this._logo_color.subscribing
+    )
+
+    // 频道数据 获取频道标题 和 作者名称
+    const channelData = await this.getChannelVideos(uid, cid)
+
+    // 添加到本地存储
+    this._localData.channel![uid].push({
       cid,
-      ps: page
-    }).then((json) => {
-      console.log(json)
+      title: channelData.data.list.name,
+      author: channelData.data.list.archives[0].owner.name
     })
 
+    // 添加已读
+    if (!this._localData.readed?.hasOwnProperty(uid))
+      this._localData.readed![uid] = {}
+
+    this._localData.readed![uid][cid] = this._videos_temp
+
+    this.save()
+
+    // 更改快捷键菜单
     this._hkm
       ?.removeWithKey(this._hkm_type.subscribe.key)
       .add([this._hkm_type.unsubscribe])
 
-    this._subscribeButton.innerHTML = IconUtil.Instance().LOGO('#CCC')
+    // logo 颜色
+    this._subscribeButton.innerHTML = IconUtil.Instance().LOGO(
+      this._logo_color.subscribed
+    )
   }
 
   /**
@@ -104,10 +198,60 @@ export default class SubscribeChannel extends BaseModule {
    * @param cid 频道ID
    */
   private doUnSubscribe(uid: number, cid: number) {
+    const channelIndex = _.findIndex(this._localData.channel![uid], { cid })
+
+    if (channelIndex === -1) {
+      return
+    }
+
+    // 删除频道
+    this._localData.channel![uid].splice(channelIndex, 1)
+
+    // 删除已读
+    delete this._localData.readed![uid][cid]
+
+    this.save()
+
+    // 更改快捷键菜单
     this._hkm
       ?.removeWithKey(this._hkm_type.unsubscribe.key)
       .add([this._hkm_type.subscribe])
-    this._subscribeButton.innerHTML = IconUtil.Instance().LOGO()
+
+    // logo 颜色
+    this._subscribeButton.innerHTML = IconUtil.Instance().LOGO(
+      this._logo_color.doNotSubscribe
+    )
+  }
+
+  /**
+   * 获取频道所有视频 视频存入 _videos_temp
+   * @param uid 用户ID
+   * @param cid 频道 ID
+   * @param page 页数
+   * @returns 频道数据
+   */
+  private async getChannelVideos(uid: number, cid: number, page: number = 1) {
+    const result = await Url.CHANEL_VIDEO.request({
+      mid: uid,
+      cid,
+      pn: page
+    })
+
+    // 遍历视频列表
+    if (result.data.list.archives.length !== 0) {
+      result.data.list.archives.forEach((item: IVideoData) => {
+        this._videos_temp.push({
+          bvid: item.bvid,
+          title: item.title,
+          pic: item.pic
+        })
+      })
+      // 如果本页全满 说明可能有下一页
+      if (result.data.list.archives.length === 100)
+        await this.getChannelVideos(uid, cid, ++page)
+    }
+
+    return result
   }
 
   /**
@@ -117,17 +261,23 @@ export default class SubscribeChannel extends BaseModule {
    * @returns 是否已订阅
    */
   private isSubscribed(uid: number, cid: number): boolean {
-    console.log(`查询是否已订阅 uid: ${uid}, cid: ${cid}`)
     return (
       // chanel 不是 undefined
-      this._localData.chanel !== undefined &&
+      this._localData.channel !== undefined &&
       // 频道中有 uid
-      this._localData.chanel.hasOwnProperty(uid) &&
+      this._localData.channel.hasOwnProperty(uid) &&
       // uid 下有 cid
-      this._localData.chanel[uid].indexOf(cid) !== -1
+      _.findIndex(this._localData.channel[uid], { cid }) !== -1
       // 则已订阅
     )
   }
 
-  private reset() {}
+  /**
+   * 存储本地数据
+   */
+  private save() {
+    ExtStorage.Instance().setStorage<TSubscribeChannel, ISubscribeChannel>(
+      new TSubscribeChannel(this._localData)
+    )
+  }
 }

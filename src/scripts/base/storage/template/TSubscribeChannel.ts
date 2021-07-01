@@ -1,4 +1,5 @@
 import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
+import { IBtoolsConfigsOptions, IBtoolsOptions } from '@base/interface/IOptions'
 
 export interface IVideoData {
   /**
@@ -17,28 +18,46 @@ export interface IVideoData {
   title: string
 }
 
-interface IChanelInfo extends Object {
-  [key: number]: number[]
+interface IChannel extends Object {
+  cid: number
+  title: string
+  author: string
+}
+
+interface IChannelInfo extends Object {
+  [key: number]: IChannel[]
+}
+
+interface IReaded extends Object {
+  [key: number]: IVideoData[]
+}
+
+interface IReadedInfo extends Object {
+  [key: number]: IReaded
+}
+
+/**
+ * 订阅频道 配置项
+ */
+export interface ISubscribeChannelOptions extends Object {
+  time: IBtoolsConfigsOptions<number> | null
 }
 
 export interface ISubscribeChannel {
   /**
    * 订阅的频道
-   * key: uid
-   * value: [
-   *   chanel_id_1,
-   *   chanel_id_2,
-   *   ...
-   * ]
    */
-  chanel?: IChanelInfo
+  channel?: IChannelInfo
 
   /**
    * 已查看的视频信息
-   * key: uid-aid
-   * value: 视频信息
    */
-  readed?: { [key: string]: IVideoData[] }
+  readed?: IReadedInfo
+
+  /**
+   * 设置 - 查询间隔
+   */
+  setting?: ISubscribeChannelOptions
 }
 
 export class TSubscribeChannel extends TemplateBase {
