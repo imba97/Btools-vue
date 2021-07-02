@@ -119,6 +119,15 @@ module.exports = () => {
         },
         chunks: ['options']
       }),
+      new HtmlWebpackPlugin({
+        filename: 'background.html',
+        template: './src/background/background.html',
+        minify: {
+          // collapseWhitespace: true,
+          // removeComments: true
+        },
+        chunks: ['background']
+      }),
       new MiniCssExtractPlugin({
         filename: '[name].css'
       }),

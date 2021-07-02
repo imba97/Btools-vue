@@ -16,43 +16,59 @@ export interface IVideoData {
    * 视频标题
    */
   title: string
+
+  /**
+   * 是否已读
+   */
+  readed: boolean
 }
 
 interface IChannel extends Object {
-  cid: number
-  title: string
-  author: string
+  [key: number]: number[]
 }
 
 interface IChannelInfo extends Object {
-  [key: number]: IChannel[]
+  [key: number]: {
+    title: string
+  }
 }
 
-interface IReaded extends Object {
+interface IUserInfo extends Object {
+  [key: number]: {
+    name: string
+    face: string
+  }
+}
+
+export interface IChannelVideoInfo extends Object {
+  [key: number]: IChannelVideos
+}
+
+interface IChannelVideos extends Object {
   [key: number]: IVideoData[]
-}
-
-interface IReadedInfo extends Object {
-  [key: number]: IReaded
 }
 
 /**
  * 订阅频道 配置项
  */
 export interface ISubscribeChannelOptions extends Object {
-  time: IBtoolsConfigsOptions<number> | null
+  time: IBtoolsOptions<number>
 }
 
 export interface ISubscribeChannel {
   /**
    * 订阅的频道
    */
-  channel?: IChannelInfo
+  channel?: IChannel
+
+  channelInfo?: IChannelInfo
+
+  userInfo?: IUserInfo
 
   /**
-   * 已查看的视频信息
+   * 频道视频信息
    */
-  readed?: IReadedInfo
+  channelVideos?: IChannelVideoInfo
 
   /**
    * 设置 - 查询间隔

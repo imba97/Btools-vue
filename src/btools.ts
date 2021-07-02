@@ -25,7 +25,8 @@ Vue.use(Vuex)
 // 声明全局变量
 window.__BTOOLS__ = {
   stickerHistory: false,
-  kaomoji: false
+  kaomoji: false,
+  subscribeChannel: false
 }
 
 browser.runtime.onMessage.addListener(function (request, sender) {

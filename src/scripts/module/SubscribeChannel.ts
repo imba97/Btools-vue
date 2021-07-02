@@ -80,6 +80,9 @@ export default class SubscribeChannel extends BaseModule {
   }
 
   protected async handle() {
+    // 防止重复加载
+    if (document.querySelector('.btools-subscribe-button') !== null) return
+
     Util.Instance().console('订阅频道', 'success')
 
     // 读取本地数据
@@ -89,7 +92,8 @@ export default class SubscribeChannel extends BaseModule {
     >(
       new TSubscribeChannel({
         channel: {},
-        readed: {}
+        channelInfo: {},
+        channelVideos: {}
       })
     )
 
@@ -137,7 +141,9 @@ export default class SubscribeChannel extends BaseModule {
           >(
             new TSubscribeChannel({
               channel: {},
-              readed: {}
+              channelVideos: {},
+              channelInfo: {},
+              userInfo: {}
             })
           )
         }
@@ -153,10 +159,11 @@ export default class SubscribeChannel extends BaseModule {
    * @param cid 频道ID
    */
   private async doSubscribe(uid: number, cid: number) {
-    if (!this._localData.channel?.hasOwnProperty(uid))
+    if (!this._localData.channel?.hasOwnProperty(uid)) {
       this._localData.channel![uid] = []
+    }
 
-    if (_.findIndex(this._localData.channel![uid], { cid }) !== -1) return
+    if (this._localData.channel![uid].indexOf(cid) !== -1) return
 
     // 切换按钮颜色
     this._subscribeButton.innerHTML = IconUtil.Instance().LOGO(
@@ -166,18 +173,29 @@ export default class SubscribeChannel extends BaseModule {
     // 频道数据 获取频道标题 和 作者名称
     const channelData = await this.getChannelVideos(uid, cid)
 
-    // 添加到本地存储
-    this._localData.channel![uid].push({
-      cid,
-      title: channelData.data.list.name,
-      author: channelData.data.list.archives[0].owner.name
+    const userInfo = await Url.USER_CARD.request({
+      mid: uid.toString()
     })
 
-    // 添加已读
-    if (!this._localData.readed?.hasOwnProperty(uid))
-      this._localData.readed![uid] = {}
+    // 频道信息
+    this._localData.channelInfo![cid] = {
+      title: channelData.data.list.name
+    }
 
-    this._localData.readed![uid][cid] = this._videos_temp
+    // 用户信息
+    this._localData.userInfo![uid] = {
+      name: userInfo.data.card.name,
+      face: userInfo.data.card.face
+    }
+
+    // 添加到本地存储
+    this._localData.channel![uid].push(cid)
+
+    // 添加频道视频
+    if (!this._localData.channelVideos?.hasOwnProperty(uid))
+      this._localData.channelVideos![uid] = {}
+
+    this._localData.channelVideos![uid][cid] = this._videos_temp
 
     this.save()
 
@@ -198,7 +216,7 @@ export default class SubscribeChannel extends BaseModule {
    * @param cid 频道ID
    */
   private doUnSubscribe(uid: number, cid: number) {
-    const channelIndex = _.findIndex(this._localData.channel![uid], { cid })
+    const channelIndex = this._localData.channel![uid].indexOf(cid)
 
     if (channelIndex === -1) {
       return
@@ -207,8 +225,8 @@ export default class SubscribeChannel extends BaseModule {
     // 删除频道
     this._localData.channel![uid].splice(channelIndex, 1)
 
-    // 删除已读
-    delete this._localData.readed![uid][cid]
+    // 删除频道视频
+    this._localData.channelVideos![uid][cid] = []
 
     this.save()
 
@@ -243,7 +261,8 @@ export default class SubscribeChannel extends BaseModule {
         this._videos_temp.push({
           bvid: item.bvid,
           title: item.title,
-          pic: item.pic
+          pic: item.pic,
+          readed: true
         })
       })
       // 如果本页全满 说明可能有下一页
@@ -267,7 +286,7 @@ export default class SubscribeChannel extends BaseModule {
       // 频道中有 uid
       this._localData.channel.hasOwnProperty(uid) &&
       // uid 下有 cid
-      _.findIndex(this._localData.channel[uid], { cid }) !== -1
+      this._localData.channel[uid].indexOf(cid) !== -1
       // 则已订阅
     )
   }

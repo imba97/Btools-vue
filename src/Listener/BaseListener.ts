@@ -48,7 +48,6 @@ export default abstract class BaseListener {
   ) {
     // 如果传了 tabId 则直接用这个
     if (options.tabId && options.tabId !== -1) {
-      console.log(options.tabId)
       browser.tabs.sendMessage(options.tabId, options).then(callback)
       return
     }

@@ -1,3 +1,5 @@
+import { OptionsType } from '@base/enums/OptionsType'
+
 export interface IBtoolsConfigsOptions<T> extends Object {
   /**
    * 选项名称
@@ -5,19 +7,14 @@ export interface IBtoolsConfigsOptions<T> extends Object {
   name: string
 
   /**
+   * 值
+   */
+  value: T
+
+  /**
    * 选项类型
    */
-  type: string
-
-  /**
-   * 选项值
-   */
-  values: T[]
-
-  /**
-   * 当前选项值
-   */
-  current: T
+  type: OptionsType
 }
 
 /**
@@ -27,10 +24,15 @@ export interface IBtoolsOptions<T> {
   /**
    * 配置项名称
    */
-  name: string
+  name?: string
 
   /**
-   * 配置项选项值
+   * 选项值
    */
-  options: T
+  values?: IBtoolsConfigsOptions<T>[]
+
+  /**
+   * 当前选项值
+   */
+  current: IBtoolsConfigsOptions<T> | null
 }

@@ -1,6 +1,5 @@
-import Vue from 'vue'
 import { default as qs, ParsedUrlQueryInput } from 'querystring'
-import { AxiosRequestConfig } from 'axios'
+import { default as axios, AxiosRequestConfig, Method } from 'axios'
 import { browser } from 'webextension-polyfill-ts'
 import Util from './Util'
 
@@ -10,14 +9,6 @@ import Util from './Util'
 export enum UrlType {
   BILIBILI,
   BILIPLUS
-}
-
-/**
- * 请求类型
- */
-export enum MethodType {
-  GET,
-  POST
 }
 
 export class Url<T extends ParsedUrlQueryInput> {
@@ -34,7 +25,7 @@ export class Url<T extends ParsedUrlQueryInput> {
    * 获取用户卡片信息
    */
   public static readonly USER_CARD: Url<{ mid: string }> = new Url(
-    MethodType.GET,
+    'GET',
     UrlType.BILIBILI,
     '/x/web-interface/card',
     null
@@ -48,7 +39,7 @@ export class Url<T extends ParsedUrlQueryInput> {
     cid: number
     pn: number
   }> = new Url(
-    MethodType.GET,
+    'GET',
     UrlType.BILIBILI,
     '/x/space/channel/video?ps=100&order=0&ctype=0',
     null
@@ -58,7 +49,7 @@ export class Url<T extends ParsedUrlQueryInput> {
    * 获取视频信息
    */
   public static readonly VIDEO_INFO: Url<{ bvid: string }> = new Url(
-    MethodType.GET,
+    'GET',
     UrlType.BILIBILI,
     '/x/web-interface/view',
     null
@@ -68,18 +59,13 @@ export class Url<T extends ParsedUrlQueryInput> {
     aid: number
     like: number
     csrf: string
-  }> = new Url(
-    MethodType.POST,
-    UrlType.BILIBILI,
-    '/x/web-interface/archive/like',
-    {
-      Referer: 'https://www.bilibili.com',
-      Origin: 'https://www.bilibili.com'
-    }
-  )
+  }> = new Url('POST', UrlType.BILIBILI, '/x/web-interface/archive/like', {
+    Referer: 'https://www.bilibili.com',
+    Origin: 'https://www.bilibili.com'
+  })
 
   public static readonly BILIPLUS_VIDEO_INFO: Url<{ aid: string }> = new Url(
-    MethodType.GET,
+    'GET',
     UrlType.BILIPLUS,
     '/aidinfo',
     null
@@ -90,7 +76,7 @@ export class Url<T extends ParsedUrlQueryInput> {
   // ========= 测试 =========
 
   constructor(
-    private _method: MethodType,
+    private _method: Method,
     private _type: UrlType,
     private _path: string,
     private _headers: any
@@ -121,15 +107,8 @@ export class Url<T extends ParsedUrlQueryInput> {
     return `${this.baseUrl}${this._path}`
   }
 
-  get method(): string | undefined {
-    switch (this._method) {
-      case MethodType.GET:
-        return 'GET'
-      case MethodType.POST:
-        return 'POST'
-      default:
-        Util.Instance().console('未曾设想的类型', 'error')
-    }
+  get method(): Method {
+    return this._method
   }
 
   public request(params?: T, options?: AxiosRequestConfig): Promise<any> {
@@ -138,11 +117,11 @@ export class Url<T extends ParsedUrlQueryInput> {
         .sendMessage({
           type: this.method,
           url: this.url,
-          ...(this._method === MethodType.GET
+          ...(this._method === 'GET'
             ? { params }
             : { data: qs.stringify(params) }),
           headers:
-            this._method === MethodType.GET
+            this._method === 'GET'
               ? {}
               : { 'content-type': 'application/x-www-form-urlencoded' },
           ...options
@@ -151,6 +130,21 @@ export class Url<T extends ParsedUrlQueryInput> {
           if (!json) reject('error')
           resolve(json)
         })
+    })
+  }
+
+  public async backgroundRequest(params: T, options?: AxiosRequestConfig) {
+    return await axios({
+      method: this.method,
+      url: this.url,
+      ...(this._method === 'GET' ? { params } : { data: qs.stringify(params) }),
+      headers:
+        this._method === 'GET'
+          ? {}
+          : { 'content-type': 'application/x-www-form-urlencoded' },
+      ...options
+    }).then((response) => {
+      return response.data
     })
   }
 }
