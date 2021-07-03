@@ -34,5 +34,5 @@ export interface IBtoolsOptions<T> {
   /**
    * 当前选项值
    */
-  current: IBtoolsConfigsOptions<T> | null
+  current?: IBtoolsConfigsOptions<T>
 }

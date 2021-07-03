@@ -42,16 +42,14 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { Url } from '@base/Url'
 import {
   ISubscribeChannel,
   IVideoData,
-  IVideoInfo,
   TSubscribeChannel
 } from '@base/storage/template'
 import ExtStorage from '@base/storage/ExtStorage'
 import _ from 'lodash'
-import IconUtil from '@/scripts/base/IconUtil'
+import IconUtil from '@base/IconUtil'
 
 @Component
 export default class Popup extends Vue {
@@ -93,6 +91,9 @@ export default class Popup extends Vue {
       user[uid].face = this._localData.userInfo![uid].face
       // 循环频道信息
       _.forEach(cids, (videos: IVideoData[], cid) => {
+        if (_.isEmpty(videos)) {
+          return true
+        }
         data[uid][cid] = {}
         // 频道名称
         data[uid][cid].title = this._localData.channelInfo![cid].title

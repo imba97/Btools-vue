@@ -3,11 +3,19 @@ import axios from 'axios'
 import _ from 'lodash'
 import { browser } from 'webextension-polyfill-ts'
 
+import { OSubscribeChannel } from '@/OptionsInit'
+
 import {
   ResourceListListener,
   CommentListener,
   ChannelListener
 } from '@/Listener'
+
+// 初始化配置
+
+new OSubscribeChannel()
+
+// 加载监听器
 
 new ResourceListListener()
 new CommentListener()
@@ -42,7 +50,7 @@ browser.webRequest.onBeforeSendHeaders.addListener(
   ['requestHeaders', 'blocking']
 )
 
-browser.runtime.onMessage.addListener(async function (request, sender) {
+browser.runtime.onMessage.addListener(async function (request) {
   const params =
     request.type === 'GET' ? { params: request.params } : { data: request.data }
 
@@ -51,8 +59,5 @@ browser.runtime.onMessage.addListener(async function (request, sender) {
     url: request.url,
     ...params,
     headers: request.headers || {}
-  }).then((response) => {
-    console.log(response)
-    return response.data
-  })
+  }).then((response) => response.data)
 })

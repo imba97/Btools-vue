@@ -46,9 +46,7 @@ export default class ChannelListener extends BaseListener {
   private async startInterval() {
     // 默认配置
     const defaultSetting: ISubscribeChannelOptions = {
-      time: {
-        current: null
-      }
+      time: null
     }
 
     // 本地存储
@@ -63,8 +61,10 @@ export default class ChannelListener extends BaseListener {
       })
     )
 
-    // 测试 直接查询一次
-    this.query()
+    // 先查询一次（打开浏览器时、刚安装插件时）
+    await this.query()
+
+    console.log('localData', this._localData)
 
     /**
      * 查询是否到获取频道视频时间
@@ -72,15 +72,15 @@ export default class ChannelListener extends BaseListener {
     const queryInterval =
       this._localData.setting?.time &&
       this._localData.setting.time.current?.value &&
-      this._localData.setting.time.current.value >= 600
+      this._localData.setting.time.current.value >= 10
         ? this._localData.setting.time.current.value
-        : 600
+        : 10
 
     // 开启计时器
     setInterval(() => {
       this.query()
-    }, queryInterval * 1000)
-    // queryInterval * 1000
+      // 用户设置的时间(分钟) * 60 秒
+    }, queryInterval * 60000)
   }
 
   /**
@@ -161,7 +161,6 @@ export default class ChannelListener extends BaseListener {
   }
 
   private save() {
-    console.log('save')
     ExtStorage.Instance().setStorage<TSubscribeChannel, ISubscribeChannel>(
       new TSubscribeChannel(this._localData)
     )

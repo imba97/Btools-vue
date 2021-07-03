@@ -93,7 +93,8 @@ export default class SubscribeChannel extends BaseModule {
       new TSubscribeChannel({
         channel: {},
         channelInfo: {},
-        channelVideos: {}
+        channelVideos: {},
+        userInfo: {}
       })
     )
 
@@ -159,8 +160,9 @@ export default class SubscribeChannel extends BaseModule {
    * @param cid 频道ID
    */
   private async doSubscribe(uid: number, cid: number) {
-    if (!this._localData.channel?.hasOwnProperty(uid)) {
+    if (!this._localData.channel!.hasOwnProperty(uid)) {
       this._localData.channel![uid] = []
+      this._localData.userInfo![uid] = {}
     }
 
     if (this._localData.channel![uid].indexOf(cid) !== -1) return
@@ -226,7 +228,7 @@ export default class SubscribeChannel extends BaseModule {
     this._localData.channel![uid].splice(channelIndex, 1)
 
     // 删除频道视频
-    this._localData.channelVideos![uid][cid] = []
+    delete this._localData.channelVideos![uid][cid]
 
     this.save()
 

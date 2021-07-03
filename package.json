@@ -4,10 +4,10 @@
   "description": "Btools chrome-extension",
   "main": "index.js",
   "scripts": {
-    "c": "set BROWSER_ENV=chrome && cross-env NODE_ENV=development && webpack --watch",
-    "f": "set BROWSER_ENV=firefox && cross-env NODE_ENV=development && webpack --watch",
-    "build:chrome": "set BROWSER_ENV=chrome && cross-env NODE_ENV=production && webpack",
-    "build:firefox": "set BROWSER_ENV=firefox && cross-env NODE_ENV=production && webpack"
+    "c": "cross-env BROWSER_ENV=chrome cross-env NODE_ENV=development webpack --watch",
+    "f": "cross-env BROWSER_ENV=firefox cross-env NODE_ENV=development webpack --watch",
+    "build:chrome": "cross-env BROWSER_ENV=chrome cross-env NODE_ENV=production webpack",
+    "build:firefox": "cross-env BROWSER_ENV=firefox cross-env NODE_ENV=production webpack"
   },
   "repository": {
     "type": "git",

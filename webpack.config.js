@@ -8,6 +8,8 @@ const WriteJsonWebpackPlugin = require('write-json-webpack-plugin')
 const ExtensionReloader = require('webpack-extension-reloader')
 const ESLintPlugin = require('eslint-webpack-plugin')
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 require('@babel/core').transform('code', {
   plugins: ['@babel/plugin-transform-runtime']
 })
@@ -16,10 +18,10 @@ module.exports = () => {
   let manifestJSON = require('./src/manifest.json')
 
   // 版本号
-  manifestJSON.version = '2.1.0'
+  manifestJSON.version = '2.0.0'
 
   let configs = {
-    mode: process.env.NODE_ENV === 'production' ? 'production' : 'development', // development production
+    mode: isProduction ? 'production' : 'development', // development production
     entry: {
       btools: './src/btools.ts',
       background: './src/background/background.ts',
@@ -105,8 +107,8 @@ module.exports = () => {
         filename: 'popup.html',
         template: './src/popup/popup.html',
         minify: {
-          // collapseWhitespace: true,
-          // removeComments: true
+          collapseWhitespace: isProduction,
+          removeComments: isProduction
         },
         chunks: ['popup']
       }),
@@ -114,8 +116,8 @@ module.exports = () => {
         filename: 'options.html',
         template: './src/options/options.html',
         minify: {
-          // collapseWhitespace: true,
-          // removeComments: true
+          collapseWhitespace: isProduction,
+          removeComments: isProduction
         },
         chunks: ['options']
       }),
@@ -123,8 +125,8 @@ module.exports = () => {
         filename: 'background.html',
         template: './src/background/background.html',
         minify: {
-          // collapseWhitespace: true,
-          // removeComments: true
+          collapseWhitespace: isProduction,
+          removeComments: isProduction
         },
         chunks: ['background']
       }),
@@ -154,7 +156,7 @@ module.exports = () => {
     ]
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (!isProduction && process.env.BROWSER_ENV === 'chrome') {
     configs.plugins.push(
       new ExtensionReloader({
         reloadPage: true,

@@ -1,6 +1,15 @@
 <template>
   <div>
-    <h1>Btools 设置</h1>
+    <div class="routers-box">
+      <ul class="routers">
+        <li><router-link to="/">基本设置</router-link></li>
+        <li><router-link to="/SubscribeChannel">订阅频道</router-link></li>
+      </ul>
+    </div>
+
+    <div class="container">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 

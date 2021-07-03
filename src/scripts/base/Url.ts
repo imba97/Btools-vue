@@ -127,7 +127,8 @@ export class Url<T extends ParsedUrlQueryInput> {
           ...options
         })
         .then((json) => {
-          if (!json) reject('error')
+          console.log(json)
+          if (!json) reject(new Error('error'))
           resolve(json)
         })
     })

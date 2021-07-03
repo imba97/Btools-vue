@@ -35,8 +35,8 @@ interface IChannelInfo extends Object {
 
 interface IUserInfo extends Object {
   [key: number]: {
-    name: string
-    face: string
+    name?: string
+    face?: string
   }
 }
 
@@ -52,7 +52,7 @@ interface IChannelVideos extends Object {
  * 订阅频道 配置项
  */
 export interface ISubscribeChannelOptions extends Object {
-  time: IBtoolsOptions<number>
+  time: IBtoolsOptions<number> | null
 }
 
 export interface ISubscribeChannel {

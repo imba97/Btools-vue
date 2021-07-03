@@ -49,7 +49,10 @@ export default class ExtStorage extends Singleton {
       space[configs.GetName()] = configs.GetData()
 
       browser.storage.local.get(space).then((items) => {
-        resolve(items[configs.GetName()])
+        resolve({
+          ...configs.GetData(),
+          ...items[configs.GetName()]
+        })
       })
     })
   }
@@ -63,7 +66,7 @@ export default class ExtStorage extends Singleton {
       space[configs.GetName()] = configs.GetData()
 
       browser.storage.local.set(space).then(() => {
-        resolve(<TResult>configs.GetData())
+        resolve(configs.GetData() as TResult)
       })
     })
   }
