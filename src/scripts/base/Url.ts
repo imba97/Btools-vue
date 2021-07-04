@@ -111,7 +111,7 @@ export class Url<T extends ParsedUrlQueryInput> {
     return this._method
   }
 
-  public request(params?: T, options?: AxiosRequestConfig): Promise<any> {
+  public async request(params?: T, options?: AxiosRequestConfig): Promise<any> {
     return new Promise((resolve, reject) => {
       browser.runtime
         .sendMessage({
@@ -127,7 +127,6 @@ export class Url<T extends ParsedUrlQueryInput> {
           ...options
         })
         .then((json) => {
-          console.log(json)
           if (!json) reject(new Error('error'))
           resolve(json)
         })

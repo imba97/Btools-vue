@@ -19,14 +19,13 @@ import {
 
 Vue.config.productionTip = false
 
-Vue.use(VueRouter)
-Vue.use(Vuex)
+// Vue.use(VueRouter)
+// Vue.use(Vuex)
 
 // 声明全局变量
 window.__BTOOLS__ = {
   stickerHistory: false,
-  kaomoji: false,
-  subscribeChannel: false
+  kaomoji: false
 }
 
 browser.runtime.onMessage.addListener(function (request, sender) {

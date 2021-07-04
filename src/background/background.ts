@@ -50,14 +50,18 @@ browser.webRequest.onBeforeSendHeaders.addListener(
   ['requestHeaders', 'blocking']
 )
 
-browser.runtime.onMessage.addListener(async function (request) {
+browser.runtime.onMessage.addListener((request) => {
   const params =
     request.type === 'GET' ? { params: request.params } : { data: request.data }
 
-  return await axios({
-    method: request.type,
-    url: request.url,
-    ...params,
-    headers: request.headers || {}
-  }).then((response) => response.data)
+  return new Promise((resolve, reject) => {
+    axios({
+      method: request.type,
+      url: request.url,
+      ...params,
+      headers: request.headers || {}
+    }).then((response) => {
+      resolve(response.data)
+    })
+  })
 })
