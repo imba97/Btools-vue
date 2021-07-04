@@ -13,7 +13,7 @@ interface IContentJs extends Object {
   tabId?: number
 }
 
-export default abstract class BaseListener {
+export default abstract class ListenerBase {
   protected tabId?: number
   protected urls: string[] = []
 

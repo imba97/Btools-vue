@@ -1,5 +1,5 @@
-export { default as RetrieveInvalidVideo } from '@/scripts/module/RetrieveInvalidVideo'
-export { default as StickerHistory } from '@/scripts/module/StickerHistory'
-export { default as SubscribeChannel } from '@/scripts/module/SubscribeChannel'
+export { RetrieveInvalidVideo } from '@/scripts/module/RetrieveInvalidVideo'
+export { StickerHistory } from '@/scripts/module/StickerHistory'
+export { SubscribeChannel } from '@/scripts/module/SubscribeChannel'
 
 export {}

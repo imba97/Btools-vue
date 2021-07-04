@@ -9,13 +9,18 @@ import Util from '@/scripts/base/Util'
 import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 
 /**
- * 加载 Btools 功能模块
+ * 加载 Btools Linstener 模块
  */
 import {
   RetrieveInvalidVideo,
   StickerHistory,
   SubscribeChannel
 } from '@/scripts/module'
+
+/**
+ * 加载 Btools Watcher 模块
+ */
+import { GetPicWatcher } from '@/Watcher'
 
 Vue.config.productionTip = false
 
@@ -28,6 +33,7 @@ window.__BTOOLS__ = {
   kaomoji: false
 }
 
+// Linstener 模块
 browser.runtime.onMessage.addListener(function (request, sender) {
   // 根据类型调用不同功能模块
   switch (request.type) {
@@ -50,5 +56,8 @@ browser.runtime.onMessage.addListener(function (request, sender) {
   // callback 目前不需要
   // return new Promise(() => {})
 })
+
+// Watcher 模块
+new GetPicWatcher()
 
 Util.Instance().console('已开启', 'success')

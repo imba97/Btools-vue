@@ -2,10 +2,10 @@
  * 监听器：收藏夹
  */
 
-import BaseListener from '@/listener/baseListener'
+import ListenerBase from '@/Listener/ListenerBase'
 import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 
-export default class ResourceListListener extends BaseListener {
+export class ResourceListListener extends ListenerBase {
   init() {
     this.urls = ['*://api.bilibili.com/x/v3/fav/resource/list*']
     super.init()

@@ -2,7 +2,7 @@
  * 监听器：频道
  */
 
-import BaseListener from '@/listener/baseListener'
+import ListenerBase from '@/Listener/ListenerBase'
 import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
@@ -14,7 +14,7 @@ import {
 import { Url } from '@/scripts/base/Url'
 import _ from 'lodash'
 
-export default class ChannelListener extends BaseListener {
+export class ChannelListener extends ListenerBase {
   private _localData: ISubscribeChannel = {}
 
   /**

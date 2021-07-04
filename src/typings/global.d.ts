@@ -13,6 +13,8 @@ interface IBtools {
 declare global {
   interface Window {
     __BTOOLS__: IBtools
+    // 直播间 打开封面 用
+    __NEPTUNE_IS_MY_WAIFU__: any
   }
 }
 

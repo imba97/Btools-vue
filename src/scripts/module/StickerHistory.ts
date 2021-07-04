@@ -4,7 +4,7 @@
 
 import Util from '@/scripts/base/Util'
 import { TComment, IComment } from '@/scripts/base/storage/template'
-import BaseModule from '@/scripts/module/BaseModule'
+import ModuleBase from '@/scripts/module/ModuleBase'
 import $ from 'jquery'
 import _ from 'lodash'
 import { IStickerHistory } from '@base/storage/template/TComment'
@@ -20,7 +20,7 @@ class StickerHistoryDomInfo {
   public showMore: HTMLButtonElement[] = []
 }
 
-export default class StickerHistory extends BaseModule {
+export class StickerHistory extends ModuleBase {
   private _sticker_history_dom_info?: StickerHistoryDomInfo
   private _addedListener = false
   private _localData: IComment = {}

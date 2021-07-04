@@ -1,0 +1,31 @@
+.live-skin-coloration-area {
+  position: relative;
+}
+
+.btools-get-pic-live-room {
+  position: absolute;
+  top: -3px;
+  right: 190px;
+  width: 18px;
+  height: 18px;
+
+  cursor: pointer;
+
+  i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  span {
+    position: absolute;
+    top: 3px;
+    left: 20px;
+    width: 35px;
+    height: 18px;
+
+    color: #00a1d6;
+  }
+}

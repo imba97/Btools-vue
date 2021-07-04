@@ -1,4 +1,4 @@
-import BaseModule from '@/scripts/module/BaseModule'
+import ModuleBase from '@/scripts/module/ModuleBase'
 import Util from '@base/Util'
 import ExtStorage from '@base/storage/ExtStorage'
 import {
@@ -11,7 +11,7 @@ import { Url } from '@base/Url'
 import IconUtil from '@base/IconUtil'
 import HKM from '@base/HotKeyMenu'
 
-export default class SubscribeChannel extends BaseModule {
+export class SubscribeChannel extends ModuleBase {
   private _localData: ISubscribeChannel = {}
 
   /**
@@ -71,7 +71,7 @@ export default class SubscribeChannel extends BaseModule {
     /**
      * 订阅中（请求接口等待）
      */
-    subscribing: '#CCC',
+    subscribing: '#ccc',
 
     /**
      * 已订阅

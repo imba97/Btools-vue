@@ -8,7 +8,7 @@ import $ from 'jquery'
 import HKM from '@/scripts/base/HotKeyMenu'
 import Util from '@/scripts/base/Util'
 import { Url } from '@/scripts/base/Url'
-import BaseModule from '@/scripts/module/BaseModule'
+import ModuleBase from '@/scripts/module/ModuleBase'
 
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
@@ -17,7 +17,7 @@ import {
   IVideoInfo
 } from '@/scripts/base/storage/template'
 
-export default class RetrieveInvalidVideo extends BaseModule {
+export class RetrieveInvalidVideo extends ModuleBase {
   private _notFoundTitle = '未查询到视频信息'
 
   private _localData: IRetrieveInvalidVideo = {

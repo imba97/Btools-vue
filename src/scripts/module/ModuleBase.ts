@@ -5,7 +5,7 @@
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
 
-export default abstract class BaseModule {
+export default abstract class ModuleBase {
   private _name: string
   public constructor() {
     this._name = (this as any).__proto__.constructor.name
