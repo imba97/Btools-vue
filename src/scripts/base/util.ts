@@ -70,10 +70,17 @@ export default class Util extends Singleton {
   }
 
   public getElement(selector: string): Promise<HTMLElement> {
+    // 先获取一次
+    let element: HTMLElement | null = document.querySelector(selector)
+
+    if (element) return Promise.resolve(element)
+
+    // 如果没获取到 开启计时器 循环获取
     return new Promise((resolve, reject) => {
       let timeout = 20
+
       const timer = setInterval(() => {
-        const element: HTMLElement | null = document.querySelector(selector)
+        element = document.querySelector(selector)
 
         // 成功获取
         if (element !== null) {
@@ -97,11 +104,14 @@ export default class Util extends Singleton {
    * @param selector 选择器
    */
   public getElements(selector: string): Promise<NodeListOf<HTMLElement>> {
+    let elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector)
+
+    if (elements.length > 0) return Promise.resolve(elements)
+
     return new Promise((resolve, reject) => {
       let timeout = 20
       const timer = setInterval(() => {
-        const elements: NodeListOf<HTMLElement> | null =
-          document.querySelectorAll(selector)
+        elements = document.querySelectorAll(selector)
 
         // 成功获取
         if (elements.length !== 0) {

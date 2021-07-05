@@ -1,9 +1,10 @@
 import Util from '@/scripts/base/Util'
 import $ from 'jquery'
+import _ from 'lodash'
 
 export default class HKM {
   // 宿主元素，添加快捷键菜单的元素
-  private overlordElements?: NodeListOf<HTMLElement>
+  private overlordElement?: NodeListOf<HTMLElement> | HTMLElement
   // 菜单 DIV
   private menuElement: HTMLElement = document.createElement('div')
   private $menuElement: JQuery<HTMLElement> = $(this.menuElement)
@@ -24,13 +25,15 @@ export default class HKM {
     // 生成快捷键菜单ID，每个快捷键菜单对应一个，与宿主元素绑定
     const hotKeyMenuID = Util.Instance().random()
 
+    this.overlordElement = elements
+
     if (typeof elements['length'] !== 'undefined') {
       if (elements['length'] === 0) return this
-      this.overlordElements = elements as NodeListOf<HTMLElement>
-
-      this.overlordElements.forEach((overlordElement) => {
-        this.setOverlordElement(overlordElement, hotKeyMenuID)
-      })
+      ;(this.overlordElement as NodeListOf<HTMLElement>).forEach(
+        (overlordElement) => {
+          this.setOverlordElement(overlordElement, hotKeyMenuID)
+        }
+      )
     } else {
       this.setOverlordElement(elements as HTMLElement, hotKeyMenuID)
     }
@@ -79,10 +82,22 @@ export default class HKM {
         // 显示菜单
         this.$menuElement.show()
 
+        let top = e.pageY - 60
+        let left = e.pageX - this.menuElement.clientWidth / 2
+
+        // 修正 top left 防止超出页面
+        if (top < 0) top = 0
+        if (top > document.body.clientHeight - this.menuElement.clientHeight)
+          top = document.body.clientHeight - this.menuElement.clientHeight
+
+        if (left < 0) left = 0
+        if (left > document.body.clientWidth - this.menuElement.clientWidth)
+          left = document.body.clientWidth - this.menuElement.clientWidth
+
         // 设置位移 X 中心在鼠标位置 Y 鼠标位置 - 60 也就是默认选中第一个
         this.$menuElement.css({
-          top: e.pageY - 60,
-          left: e.pageX - this.menuElement.clientWidth / 2
+          top,
+          left
         })
 
         // 监听鼠标抬起
@@ -150,7 +165,7 @@ export default class HKM {
    * @param options 快捷键菜单选项
    * @returns 当前类
    */
-  public add(options: Array<HotKeyMenuOption>): HKM {
+  public add(options: Array<HotKeyMenuOption>): this {
     options.forEach((option) => {
       // 如果没设置 position 则默认 push 到数组末尾
       if (typeof option.position === 'undefined') {
@@ -181,18 +196,28 @@ export default class HKM {
    * 根据 keyCode 删除选项
    * @param key 按键值
    */
-  public removeWithKey(key: string): HKM {
-    this.options.forEach((option, index) => {
-      if (option.key !== key) return false
+  public removeWithKey(key: string): this {
+    const index = _.findIndex(this.keys, key)
 
-      // 根据 index，删除元素
-      this.options.splice(index, 1)
+    // 根据 index 删除选项 和 keys
+    this.options.splice(index, 1)
+    this.keys.splice(index, 1)
 
-      // 重新构建菜单
-      this.restructure()
-    })
+    // 重新构建菜单
+    this.restructure()
 
     return this
+  }
+
+  public setCss(target: SetCssTarget, css: any) {
+    switch (target) {
+      case SetCssTarget.OverlordElements:
+        $(this.overlordElement!).css(css)
+        break
+      case SetCssTarget.MenuElement:
+        this.$menuElement.css(css)
+        break
+    }
   }
 
   private restructure() {
@@ -251,4 +276,9 @@ export default class HKM {
   private get height() {
     return this._height
   }
+}
+
+export enum SetCssTarget {
+  OverlordElements,
+  MenuElement
 }

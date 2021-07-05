@@ -113,3 +113,19 @@
     display: none;
   }
 }
+
+.custom-kaomoji {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 30px;
+
+  input {
+    width: 100%;
+    height: 100%;
+
+    border: 1px #ccc solid;
+    border-radius: 2px;
+  }
+}

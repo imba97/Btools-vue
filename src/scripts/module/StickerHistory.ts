@@ -1,5 +1,7 @@
 /**
- * 模块：历史表情
+ * 模块
+ *  - 历史表情
+ *  - 自定义颜文字
  */
 
 import Util from '@/scripts/base/Util'
@@ -112,9 +114,19 @@ export class StickerHistory extends ModuleBase {
     if (!this._addedListener) {
       this._addedListener = true
       // 监听 title 内容变化
-      // $(emojiBoxTitle).on('DOMNodeInserted', (e) => {
-      //   console.log($('.emoji-box .emoji-title').text())
-      // })
+      $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
+        if ($('.emoji-box .emoji-title').text() !== '颜文字') return
+
+        const emoji_box = await Util.Instance().getElement('.emoji-box')
+
+        console.log(emoji_box)
+
+        $(emoji_box).append(`
+          <div class="custom-kaomoji">
+            <input type="text" />
+          </div>
+        `)
+      })
 
       const self = this
 
