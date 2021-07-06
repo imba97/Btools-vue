@@ -2,9 +2,6 @@
  * 模块基类
  */
 
-import ExtStorage from '@/scripts/base/storage/ExtStorage'
-import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
-
 export default abstract class ModuleBase {
   private _name: string
   public constructor() {

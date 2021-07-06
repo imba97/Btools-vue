@@ -10,6 +10,7 @@ export class GetPicWatcher extends WatcherBase {
     this.urls[GetPicEnum.Bangumi] = /bilibili\.com\/bangumi/
     this.urls[GetPicEnum.Watchlater] =
       /bilibili\.com\/medialist\/play\/watchlater/
+    this.urls[GetPicEnum.Read] = /bilibili\.com\/read/
     this.urls[GetPicEnum.LiveRoom] = /live\.bilibili\.com/
   }
   protected handle(options: HandleOptions): void {
@@ -24,6 +25,10 @@ export class GetPicWatcher extends WatcherBase {
         break
       case GetPicEnum.Watchlater:
         this.watchlater()
+        break
+
+      case GetPicEnum.Read:
+        this.read()
         break
       case GetPicEnum.LiveRoom:
         this.liveRoom()
@@ -104,7 +109,7 @@ export class GetPicWatcher extends WatcherBase {
   private async watchlater() {
     // 有 video
 
-    const img = await Util.Instance().getElement(
+    await Util.Instance().getElement(
       '.player-auxiliary-playlist-item-active img'
     )
 
@@ -116,13 +121,25 @@ export class GetPicWatcher extends WatcherBase {
       {
         key: 'S',
         title: '打开封面',
-        action: () => {
-          const srcSplit = (img as HTMLImageElement).src.split('@')
-          if (srcSplit.length > 1) {
-            window.open(srcSplit[0])
-          } else {
-            window.open((img as HTMLImageElement).src)
-          }
+        action: async () => {
+          const img = await Util.Instance().getElement(
+            '.player-auxiliary-playlist-item-active img'
+          )
+          window.open(this.getOriginalDrawing(img as HTMLImageElement))
+        }
+      }
+    ])
+  }
+
+  private async read() {
+    const imgs = await Util.Instance().getElements('#article-content img')
+
+    new HKM(imgs).add([
+      {
+        key: 'S',
+        title: '打开原图',
+        action: (img) => {
+          window.open(this.getOriginalDrawing(img as HTMLImageElement))
         }
       }
     ])
@@ -164,6 +181,15 @@ export class GetPicWatcher extends WatcherBase {
     ])
   }
 
+  private getOriginalDrawing(img: HTMLImageElement) {
+    const srcSplit = img.src.split('@')
+    if (srcSplit.length > 1) {
+      return srcSplit[0]
+    } else {
+      return img.src
+    }
+  }
+
   /**
    * 执行脚本（因为插件不能直接获取到页面 window）
    * @param code 代码
@@ -191,6 +217,11 @@ enum GetPicEnum {
    * 稍后再看
    */
   Watchlater,
+
+  /**
+   * 专栏
+   */
+  Read,
 
   /**
    * 直播间

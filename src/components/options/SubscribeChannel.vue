@@ -42,7 +42,6 @@ export default class SubscribeChannel extends Vue {
         }
       })
     )
-    console.log(test)
   }
 
   async created() {

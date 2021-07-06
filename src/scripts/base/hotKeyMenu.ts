@@ -82,8 +82,8 @@ export default class HKM {
         // 显示菜单
         this.$menuElement.show()
 
-        let top = e.pageY - 60
-        let left = e.pageX - this.menuElement.clientWidth / 2
+        let top = e.screenY - 160
+        let left = e.screenX - this.menuElement.clientWidth / 2
 
         // 修正 top left 防止超出页面
         if (top < 0) top = 0
@@ -209,6 +209,11 @@ export default class HKM {
     return this
   }
 
+  /**
+   * 设置元素 CSS
+   * @param target 目标元素
+   * @param css CSS
+   */
   public setCss(target: SetCssTarget, css: any) {
     switch (target) {
       case SetCssTarget.OverlordElements:

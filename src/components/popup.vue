@@ -75,8 +75,6 @@ export default class Popup extends Vue {
     const data = {}
     const user = {}
 
-    console.log(this._localData)
-
     // 遍历视频信息
     _.forEach(this._localData.channelVideos, async (cids, uid) => {
       // 如果是空直接跳过
@@ -105,7 +103,6 @@ export default class Popup extends Vue {
     // 渲染页面
     this.channelInfo = data
     this.userInfo = user
-    console.log(this.channelInfo)
   }
 
   /**

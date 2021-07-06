@@ -64,8 +64,6 @@ export class ChannelListener extends ListenerBase {
     // 先查询一次（打开浏览器时、刚安装插件时）
     await this.query()
 
-    console.log('localData', this._localData)
-
     /**
      * 查询是否到获取频道视频时间
      */

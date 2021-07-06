@@ -35,6 +35,8 @@ export interface ICustomizeKaomoji {
    */
   isBig: boolean
 
+  name?: string
+
   /**
    * 颜文字
    */

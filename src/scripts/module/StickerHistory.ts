@@ -18,7 +18,7 @@ import IconUtil from '@base/IconUtil'
  */
 class StickerHistoryDomInfo {
   public div: HTMLDivElement[] = []
-  public textarea: HTMLTextAreaElement[] = []
+  public textarea: string[] = []
   public showMore: HTMLButtonElement[] = []
 }
 
@@ -27,9 +27,10 @@ export class StickerHistory extends ModuleBase {
   private _addedListener = false
   private _localData: IComment = {}
 
+  private _isAddedCustomizeKaomoji = false
+
   protected async handle() {
-    if (window.__BTOOLS__.stickerHistory) return
-    window.__BTOOLS__.stickerHistory = true
+    if (document.querySelector('.btools-sticker-history') !== null) return
 
     Util.Instance().console('历史表情', 'success')
 
@@ -41,7 +42,8 @@ export class StickerHistory extends ModuleBase {
       IComment
     >(
       new TComment({
-        stickerHistory: []
+        stickerHistory: [],
+        customizeKaomoji: []
       })
     )
 
@@ -93,14 +95,10 @@ export class StickerHistory extends ModuleBase {
     ele.appendChild(btools_sticker_history)
     this._sticker_history_dom_info?.div.push(btools_sticker_history_container)
 
-    const textarea: HTMLTextAreaElement =
-      selector === '.comment'
-        ? ($(ele).find(
-            '.comment-send .textarea-container textarea'
-          )[0] as HTMLTextAreaElement)
-        : ($(ele).find(
-            '.textarea-container textarea'
-          )[0] as HTMLTextAreaElement)
+    const textarea: string =
+      selector === '.bb-comment'
+        ? '.bb-comment .comment-send .textarea-container textarea'
+        : '.bb-comment .comment-send-lite .textarea-container textarea'
 
     this._sticker_history_dom_info?.textarea.push(textarea)
   }
@@ -111,60 +109,86 @@ export class StickerHistory extends ModuleBase {
       '.emoji-box .emoji-title span'
     )
     // 防止重复添加监听
-    if (!this._addedListener) {
-      this._addedListener = true
-      // 监听 title 内容变化
-      $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
-        if ($('.emoji-box .emoji-title').text() !== '颜文字') return
-
+    if (this._addedListener) return
+    this._addedListener = true
+    // 监听 表情类型 title 内容变化
+    let customizeKaomojiElement: JQuery<HTMLElement>
+    $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
+      if (!this._isAddedCustomizeKaomoji) {
         const emoji_box = await Util.Instance().getElement('.emoji-box')
-
-        console.log(emoji_box)
-
-        $(emoji_box).append(`
-          <div class="custom-kaomoji">
-            <input type="text" />
-          </div>
-        `)
-      })
-
-      const self = this
-
-      // 表情点击事件
-      $(document).on('click', '.emoji-wrap .emoji-list', async function () {
-        const img = $(this).find('img')
-        const isKaomoji = img.length === 0
-        const text = isKaomoji ? $(this).text() : img.attr('title') || ''
-        const src = img.attr('src') || ''
-
-        const stickerHistory: IStickerHistory = {
-          isKaomoji,
-          text,
-          src
-        }
-
-        // 如果存在则不做任何操作
-        if (
-          _.findIndex(self._localData.stickerHistory, stickerHistory) !== -1
-        ) {
-          return
-        }
-
-        self._localData.stickerHistory?.unshift(stickerHistory)
-
-        await ExtStorage.Instance().setStorage<TComment, IComment>(
-          new TComment({
-            stickerHistory: self._localData.stickerHistory
+        // 自定义颜文字 输入框
+        customizeKaomojiElement = $(emoji_box)
+          .append(
+            `
+                <div class="customize-kaomoji">
+                  <input type="text" placeholder="请输入颜文字，回车提交" />
+                </div>
+              `
+          )
+          .find('.customize-kaomoji')
+          .on('keyup', (e) => {
+            // 过滤回车
+            if (e.key !== 'Enter') return
+            const isAdded = this.addCustomizeKaomoji(
+              (e.target as HTMLInputElement).value
+            )
+            // 添加成功
+            if (isAdded) {
+              // 删除文本框内容
+              ;(e.target as HTMLInputElement).value = ''
+            }
           })
-        )
+        this._isAddedCustomizeKaomoji = true
+      }
 
-        self.createList(self._localData)
-      })
-    }
+      if (!customizeKaomojiElement) return
+
+      if ($('.emoji-box .emoji-title').text() === '颜文字') {
+        this.createCustomizeKaomoji()
+        customizeKaomojiElement?.show()
+      } else {
+        customizeKaomojiElement?.hide()
+      }
+    })
+
+    const self = this
+
+    // 表情点击事件
+    $(document).on('click', '.emoji-wrap .emoji-list', async function () {
+      const img = $(this).find('img')
+      const isKaomoji = img.length === 0
+      const text = isKaomoji ? $(this).text() : img.attr('title') || ''
+      const src = img.attr('src') || ''
+
+      const stickerHistory: IStickerHistory = {
+        isKaomoji,
+        text,
+        src
+      }
+
+      const index = _.findIndex(self._localData.stickerHistory, stickerHistory)
+
+      // 如果存在则只排序
+      if (index !== -1) {
+        self.removeAndAddToFirst(self._localData.stickerHistory!, index)
+        self.save(true)
+
+        return
+      }
+
+      self._localData.stickerHistory?.unshift(stickerHistory)
+
+      await ExtStorage.Instance().setStorage<TComment, IComment>(
+        new TComment({
+          stickerHistory: self._localData.stickerHistory
+        })
+      )
+
+      self.createList(self._localData)
+    })
   }
 
   private createList(data: IComment) {
-    console.log('createList', data)
     let isShowMore = false
 
     this._sticker_history_dom_info!.div.forEach((ele, domIndex) => {
@@ -203,15 +227,12 @@ export class StickerHistory extends ModuleBase {
               li.addEventListener(
                 'mouseleave',
                 () => {
-                  // 先删除
-                  const removedItem = this._localData.stickerHistory?.splice(
-                    index,
-                    1
+                  this.removeAndAddToFirst(
+                    this._localData.stickerHistory!,
+                    index
                   )
-                  if (removedItem && removedItem.length === 1)
-                    this._localData.stickerHistory?.unshift(removedItem[0])
 
-                  this.saveLocalData()
+                  this.save(true)
                 },
                 {
                   once: true
@@ -231,7 +252,7 @@ export class StickerHistory extends ModuleBase {
           if (e.button === 1) {
             // 删除对应表情
             this._localData.stickerHistory?.splice(index, 1)
-            this.saveLocalData()
+            this.save(true)
           }
         })
 
@@ -245,6 +266,7 @@ export class StickerHistory extends ModuleBase {
       }
     })
 
+    // 显示更多
     const showMore = this._sticker_history_dom_info?.showMore
     if (!showMore) return
 
@@ -298,34 +320,45 @@ export class StickerHistory extends ModuleBase {
     }
   }
 
+  private createCustomizeKaomoji() {
+    if (this._localData.customizeKaomoji?.length === 0) return
+
+    _.forEachRight(this._localData.customizeKaomoji, (item) => {
+      this.addCustomizeKaomojiToEmojiBox(item.text)
+    })
+  }
+
   /**
-   * 储存本地数据
+   * 保存本地存储
+   * @param isStickerHistory 是否是历史表情
    */
-  private saveLocalData() {
-    ExtStorage.Instance()
-      .setStorage<TComment, IComment>(
-        new TComment({
-          stickerHistory: this._localData.stickerHistory
-        })
-      )
-      .then((resData) => {
+  private save(isStickerHistory: boolean) {
+    const storage = ExtStorage.Instance().setStorage<TComment, IComment>(
+      new TComment(this._localData)
+    )
+
+    if (isStickerHistory) {
+      storage.then((resData) => {
         // 重新创建表情列表
         this.createList(resData)
       })
+    }
   }
 
-  private insertText(text: string, domIndex: number) {
+  private async insertText(text: string, domIndex: number) {
     // 插入文字
     if (this._sticker_history_dom_info) {
-      const $t = this._sticker_history_dom_info.textarea[domIndex]
+      const $t = (await Util.Instance().getElement(
+        this._sticker_history_dom_info.textarea[domIndex]
+      )) as HTMLTextAreaElement
       if ($t.selectionStart || $t.selectionStart === 0) {
         const startPos = $t.selectionStart
         const endPos = $t.selectionEnd
         const scrollTop = $t.scrollTop
-        $t.value =
-          $t.value.substring(0, startPos) +
-          text +
-          $t.value.substring(endPos, $t.value.length)
+        $t.value = `${$t.value.substring(
+          0,
+          startPos
+        )}${text}${$t.value.substring(endPos, $t.value.length)}`
         $t.focus()
         $t.selectionStart = startPos + text.length
         $t.selectionEnd = startPos + text.length
@@ -335,5 +368,102 @@ export class StickerHistory extends ModuleBase {
         $t.focus()
       }
     }
+  }
+
+  /**
+   * 添加颜文字
+   * @param val 颜文字
+   */
+  private addCustomizeKaomoji(val: string): boolean {
+    // 检查是否已存在
+    const index = _.findIndex(this._localData.customizeKaomoji, {
+      text: val
+    })
+
+    if (index !== -1) return false
+
+    // 添加界面
+    this.addCustomizeKaomojiToEmojiBox(val)
+
+    // 本地存储
+    this._localData.customizeKaomoji!.unshift({
+      isBig: false,
+      text: val
+    })
+
+    this.save(false)
+
+    return true
+  }
+
+  /**
+   * 添加颜文字到颜文字框（添加到界面上）
+   * @param val 颜文字
+   */
+  private async addCustomizeKaomojiToEmojiBox(val: string) {
+    const a = document.createElement('a')
+    a.setAttribute(
+      'class',
+      'emoji-list emoji-text emoji-default btools-customize-kaomoji'
+    )
+    a.setAttribute('data-emoji-text', val)
+    a.setAttribute('data-is-click', 'false')
+    a.innerText = val
+
+    const enmoji_box = await Util.Instance().getElement(
+      '.emoji-box .emoji-wrap'
+    )
+    $(enmoji_box).prepend(a)
+
+    a.addEventListener('mousedown', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+
+      const isClick = a.getAttribute('data-is-click')
+
+      const index = _.findIndex(this._localData.customizeKaomoji, {
+        text: val
+      })
+
+      if (isClick !== 'true') {
+        a.addEventListener(
+          'mouseleave',
+          () => {
+            // 界面
+            a.setAttribute('data-is-click', 'false')
+            a.remove()
+            $(enmoji_box).prepend(a)
+            // 存储
+            this.removeAndAddToFirst(this._localData.customizeKaomoji!, index)
+            this.save(false)
+          },
+          {
+            once: true
+          }
+        )
+      }
+
+      // 左键
+      if (e.button === 0) {
+        a.setAttribute('data-is-click', 'true')
+        return
+      }
+
+      // 中键 删除
+      if (e.button === 1) {
+        this._localData.customizeKaomoji!.splice(index, 1)
+
+        this.save(false)
+
+        a.remove()
+      }
+    })
+  }
+
+  private removeAndAddToFirst(arr: Array<any>, index: number) {
+    // 先删除
+    const removedItem = arr.splice(index, 1)
+    // 添加到第一个
+    if (removedItem && removedItem.length === 1) arr.unshift(removedItem[0])
   }
 }

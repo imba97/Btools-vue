@@ -25,7 +25,6 @@ export class OSubscribeChannel {
   }
 
   setTime() {
-    console.log('set time')
     const values = [
       {
         name: '10分钟',
