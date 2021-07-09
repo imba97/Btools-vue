@@ -6,10 +6,6 @@ import _ from 'lodash'
 export class OSubscribeChannel {
   private _localData: ISubscribeChannel = {}
 
-  constructor() {
-    this.init()
-  }
-
   async init() {
     await this.get()
 
@@ -21,7 +17,7 @@ export class OSubscribeChannel {
       }
     })
 
-    this.save()
+    return await this.save()
   }
 
   setTime() {
@@ -63,9 +59,10 @@ export class OSubscribeChannel {
     )
   }
 
-  save() {
-    ExtStorage.Instance().setStorage<TSubscribeChannel, ISubscribeChannel>(
-      new TSubscribeChannel(this._localData)
-    )
+  async save() {
+    return await ExtStorage.Instance().setStorage<
+      TSubscribeChannel,
+      ISubscribeChannel
+    >(new TSubscribeChannel(this._localData))
   }
 }

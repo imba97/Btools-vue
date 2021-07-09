@@ -3,7 +3,7 @@
  */
 
 import ListenerBase from '@/Listener/ListenerBase'
-import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
+import { RequestApiType } from '@base/enums/ContentJsType'
 
 export class CommentListener extends ListenerBase {
   init() {

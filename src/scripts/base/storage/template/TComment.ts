@@ -4,7 +4,7 @@
  *   - 自定义颜文字
  */
 
-import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
+import { TemplateBase } from '@base/storage/template/TemplateBase'
 
 /**
  * 历史表情接口

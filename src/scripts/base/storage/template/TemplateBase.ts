@@ -1,4 +1,4 @@
-export default abstract class TemplateBase {
+export class TemplateBase {
   private _name: string
 
   protected _data: Object
@@ -18,4 +18,8 @@ export default abstract class TemplateBase {
   public SetData(data: Object): void {
     this._data = data
   }
+}
+
+export interface ITemplateBase extends Object {
+  setting?: { [key: string]: any }
 }

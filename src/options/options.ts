@@ -16,6 +16,11 @@ const router = new Router({
       path: '/SubscribeChannel',
       name: 'SubscribeChannel',
       component: () => import('@components/options/SubscribeChannel.vue')
+    },
+    {
+      path: '/LiveRoomHelper',
+      name: 'LiveRoomHelper',
+      component: () => import('@components/options/LiveRoomHelper.vue')
     }
   ],
   linkExactActiveClass: 'active'

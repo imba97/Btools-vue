@@ -3,15 +3,15 @@
  */
 
 import ListenerBase from '@/Listener/ListenerBase'
-import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
-import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import { RequestApiType } from '@base/enums/ContentJsType'
+import ExtStorage from '@base/storage/ExtStorage'
 import {
   ISubscribeChannel,
   ISubscribeChannelOptions,
   IVideoData,
   TSubscribeChannel
-} from '@/scripts/base/storage/template'
-import { Url } from '@/scripts/base/Url'
+} from '@base/storage/template'
+import { Url } from '@base/Url'
 import _ from 'lodash'
 
 export class ChannelListener extends ListenerBase {

@@ -171,7 +171,7 @@ export default class Popup extends Vue {
   }
 
   getEmptyIcon() {
-    return IconUtil.Instance().EMPRY_DATA()
+    return IconUtil.Instance().EMPRY_DATA('#000')
   }
 }
 </script>

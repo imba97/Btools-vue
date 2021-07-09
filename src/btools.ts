@@ -5,8 +5,8 @@ import { browser } from 'webextension-polyfill-ts'
 
 import '@styles/global'
 
-import Util from '@/scripts/base/Util'
-import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
+import Util from '@base/Util'
+import { RequestApiType } from '@base/enums/ContentJsType'
 
 /**
  * 加载 Btools Linstener 模块
@@ -20,18 +20,14 @@ import {
 /**
  * 加载 Btools Watcher 模块
  */
-import { GetPicWatcher } from '@/Watcher'
+import { GetPicWatcher, LinkConverter, LiveRoomHelper } from '@/Watcher'
+
+Util.Instance().console('已开启', 'success')
 
 Vue.config.productionTip = false
 
 // Vue.use(VueRouter)
 // Vue.use(Vuex)
-
-// 声明全局变量
-window.__BTOOLS__ = {
-  stickerHistory: false,
-  kaomoji: false
-}
 
 // Linstener 模块
 browser.runtime.onMessage.addListener(function (request, sender) {
@@ -59,5 +55,5 @@ browser.runtime.onMessage.addListener(function (request, sender) {
 
 // Watcher 模块
 new GetPicWatcher()
-
-Util.Instance().console('已开启', 'success')
+new LinkConverter()
+new LiveRoomHelper()

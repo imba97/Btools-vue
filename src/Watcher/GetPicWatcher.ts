@@ -1,15 +1,18 @@
+/**
+ * 获取封面
+ */
+
 import Util from '@base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
-import IconUtil from '@/scripts/base/IconUtil'
-import { default as HKM, SetCssTarget } from '@/scripts/base/HotKeyMenu'
+import IconUtil from '@base/IconUtil'
+import { default as HKM, SetCssTarget } from '@base/HotKeyMenu'
 
 export class GetPicWatcher extends WatcherBase {
   protected init(): void {
     this.urls[GetPicEnum.Video] = /bilibili\.com\/video/
     this.urls[GetPicEnum.Bangumi] = /bilibili\.com\/bangumi/
-    this.urls[GetPicEnum.Watchlater] =
-      /bilibili\.com\/medialist\/play\/watchlater/
+    this.urls[GetPicEnum.Medialist] = /bilibili\.com\/medialist/
     this.urls[GetPicEnum.Read] = /bilibili\.com\/read/
     this.urls[GetPicEnum.LiveRoom] = /live\.bilibili\.com/
   }
@@ -23,8 +26,8 @@ export class GetPicWatcher extends WatcherBase {
       case GetPicEnum.Bangumi:
         this.bangumi()
         break
-      case GetPicEnum.Watchlater:
-        this.watchlater()
+      case GetPicEnum.Medialist:
+        this.medialist()
         break
 
       case GetPicEnum.Read:
@@ -106,7 +109,7 @@ export class GetPicWatcher extends WatcherBase {
     ])
   }
 
-  private async watchlater() {
+  private async medialist() {
     // 有 video
 
     await Util.Instance().getElement(
@@ -214,9 +217,9 @@ enum GetPicEnum {
   Bangumi,
 
   /**
-   * 稍后再看
+   * 稍后再看、收藏夹的播放全部
    */
-  Watchlater,
+  Medialist,
 
   /**
    * 专栏

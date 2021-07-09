@@ -1,5 +1,5 @@
-import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
-import { IBtoolsConfigsOptions, IBtoolsOptions } from '@base/interface/IOptions'
+import { TemplateBase } from '@base/storage/template/TemplateBase'
+import { IBtoolsOptions } from '@base/interface/IOptions'
 
 export interface IVideoData {
   /**

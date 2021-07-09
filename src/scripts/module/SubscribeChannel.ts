@@ -128,27 +128,7 @@ export class SubscribeChannel extends ModuleBase {
 
     // 创建快捷键菜单
     this._hkm = new HKM(this._subscribeButton).add([
-      this._isSubscribed
-        ? this._hkm_type.unsubscribe
-        : this._hkm_type.subscribe,
-      {
-        // 测试
-        key: 'Q',
-        title: '清空',
-        action: () => {
-          ExtStorage.Instance().setStorage<
-            TSubscribeChannel,
-            ISubscribeChannel
-          >(
-            new TSubscribeChannel({
-              channel: {},
-              channelVideos: {},
-              channelInfo: {},
-              userInfo: {}
-            })
-          )
-        }
-      }
+      this._isSubscribed ? this._hkm_type.unsubscribe : this._hkm_type.subscribe
     ])
 
     channel_action_row.appendChild(this._subscribeButton)

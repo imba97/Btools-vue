@@ -1,13 +1,13 @@
 /**
- * 扩展配置
+ * 扩展本地存储
  */
 
 import _ from 'lodash'
 
 import { browser } from 'webextension-polyfill-ts'
 
-import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
-import Singleton from '@/scripts/base/singletonBase/Singleton'
+import { TemplateBase } from '@base/storage/template/TemplateBase'
+import Singleton from '@base/singletonBase/Singleton'
 
 export default class ExtStorage extends Singleton {
   public getStorage<T extends TemplateBase, TResult>(

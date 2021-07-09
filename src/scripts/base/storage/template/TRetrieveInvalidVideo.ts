@@ -2,7 +2,7 @@
  * 找回失效视频存储模板
  */
 
-import TemplateBase from '@/scripts/base/storage/template/TemplateBase'
+import { TemplateBase } from '@base/storage/template/TemplateBase'
 
 export interface IVideoInfo extends Object {
   /**

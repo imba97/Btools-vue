@@ -1,3 +1,5 @@
+import webpack from 'webpack'
+
 const { resolve } = require('path')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -14,13 +16,14 @@ require('@babel/core').transform('code', {
   plugins: ['@babel/plugin-transform-runtime']
 })
 
-module.exports = () => {
+module.exports = (): webpack.Configuration => {
   let manifestJSON = require('./src/manifest.json')
 
   // 版本号
   manifestJSON.version = '2.0.0'
 
-  let configs = {
+  let configs: webpack.Configuration = {
+    node: false,
     mode: isProduction ? 'production' : 'development', // development production
     entry: {
       btools: './src/btools.ts',
@@ -99,7 +102,6 @@ module.exports = () => {
     },
 
     plugins: [
-      // new CleanWebpackPlugin(),
       new ESLintPlugin({
         overrideConfigFile: resolve(__dirname, '.eslintrc.js')
       }),
@@ -156,8 +158,12 @@ module.exports = () => {
     ]
   }
 
+  if (isProduction) {
+    configs.plugins!.unshift(new CleanWebpackPlugin())
+  }
+
   if (!isProduction && process.env.BROWSER_ENV === 'chrome') {
-    configs.plugins.push(
+    configs.plugins!.push(
       new ExtensionReloader({
         reloadPage: true,
         entries: {

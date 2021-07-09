@@ -1,4 +1,4 @@
-import Singleton from '@/scripts/base/singletonBase/Singleton'
+import Singleton from '@base/singletonBase/Singleton'
 
 export default class Util extends Singleton {
   private bvTool = {
@@ -77,7 +77,7 @@ export default class Util extends Singleton {
 
     // 如果没获取到 开启计时器 循环获取
     return new Promise((resolve, reject) => {
-      let timeout = 20
+      let timeout = 120
 
       const timer = setInterval(() => {
         element = document.querySelector(selector)
@@ -100,7 +100,7 @@ export default class Util extends Singleton {
   }
 
   /**
-   * 获取页面上的元素，10秒内如果没获取到则停止获取
+   * 获取页面上的元素，一分钟内如果没获取到则停止获取
    * @param selector 选择器
    */
   public getElements(selector: string): Promise<NodeListOf<HTMLElement>> {
@@ -109,7 +109,7 @@ export default class Util extends Singleton {
     if (elements.length > 0) return Promise.resolve(elements)
 
     return new Promise((resolve, reject) => {
-      let timeout = 20
+      let timeout = 120
       const timer = setInterval(() => {
         elements = document.querySelectorAll(selector)
 

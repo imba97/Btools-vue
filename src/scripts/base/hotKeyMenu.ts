@@ -1,4 +1,4 @@
-import Util from '@/scripts/base/Util'
+import Util from '@base/Util'
 import $ from 'jquery'
 import _ from 'lodash'
 

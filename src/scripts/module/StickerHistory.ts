@@ -4,8 +4,8 @@
  *  - 自定义颜文字
  */
 
-import Util from '@/scripts/base/Util'
-import { TComment, IComment } from '@/scripts/base/storage/template'
+import Util from '@base/Util'
+import { TComment, IComment } from '@base/storage/template'
 import ModuleBase from '@/scripts/module/ModuleBase'
 import $ from 'jquery'
 import _ from 'lodash'
@@ -129,6 +129,10 @@ export class StickerHistory extends ModuleBase {
           .on('keyup', (e) => {
             // 过滤回车
             if (e.key !== 'Enter') return
+
+            // 不能为空
+            if ((e.target as HTMLInputElement).value.trim() === '') return
+
             const isAdded = this.addCustomizeKaomoji(
               (e.target as HTMLInputElement).value
             )
