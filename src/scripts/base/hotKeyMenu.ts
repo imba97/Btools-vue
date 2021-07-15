@@ -82,8 +82,8 @@ export default class HKM {
         // 显示菜单
         this.$menuElement.show()
 
-        let top = e.screenY - 160
-        let left = e.screenX - this.menuElement.clientWidth / 2
+        let top = e.clientY - 65
+        let left = e.clientX - this.menuElement.clientWidth / 2
 
         // 修正 top left 防止超出页面
         if (top < 0) top = 0

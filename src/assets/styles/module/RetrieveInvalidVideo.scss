@@ -1,0 +1,117 @@
+.btools-detail-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 350px;
+
+  border-radius: 10px;
+  overflow: hidden;
+
+  box-shadow: 0 12px 5px -10px rgba(0, 0, 0, 0.1), 0 0 4px 0 rgba(0, 0, 0, 0.1);
+
+  z-index: 999999;
+
+  .btools-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #fff;
+    font-size: 30px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .btools-container {
+    position: relative;
+    padding-left: 30px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+
+    .btools-title {
+      width: 400px;
+      height: 62px;
+      line-height: 62px;
+      color: #fff;
+      font-size: 20px;
+
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btools-part {
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .btools-list {
+      width: 460px;
+      height: 200px;
+
+      overflow-y: auto;
+
+      box-sizing: border-box;
+
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      // 滚动条 外
+      &::-webkit-scrollbar-track {
+        background-image: linear-gradient(
+          to top,
+          lightgrey 0%,
+          lightgrey 1%,
+          #e0e0e0 26%,
+          #efefef 48%,
+          #d9d9d9 75%,
+          #bcbcbc 100%
+        );
+        -webkit-border-radius: 2em;
+        -moz-border-radius: 2em;
+        border-radius: 2em;
+      }
+
+      // 滚动条 内
+      &::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+        -webkit-border-radius: 2em;
+        -moz-border-radius: 2em;
+        border-radius: 2em;
+      }
+
+      li {
+        margin: 5px 0;
+        list-style-type: none;
+        color: #fff;
+        font-size: 18px;
+      }
+    }
+
+    .btools-link {
+      margin-top: 10px;
+      color: #ccc;
+      font-size: 20px;
+
+      a {
+        color: $defaultColor;
+      }
+    }
+  }
+
+  .btools-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.95;
+    background-image: linear-gradient(60deg, #29323c 0%, #485563 100%);
+    z-index: -1;
+  }
+}

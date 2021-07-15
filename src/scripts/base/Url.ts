@@ -71,6 +71,13 @@ export class Url<T extends ParsedUrlQueryInput> {
     null
   )
 
+  public static readonly BILIPLUS_VIDEO_DETAIL: Url<{ id: string }> = new Url(
+    'GET',
+    UrlType.BILIPLUS,
+    '/view',
+    null
+  )
+
   // ========= 测试 =========
 
   // ========= 测试 =========
