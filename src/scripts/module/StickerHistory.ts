@@ -50,27 +50,25 @@ export class StickerHistory extends ModuleBase {
     // 在页面添加历史表情
     // 1. 上面的评论框
     await this.addStickerHistoryElement('.bb-comment')
-    // 2. 下面的评论框
+
+    // 2. 楼中楼的评论框
+    await this.addStickerHistoryElement('.list-item')
+
+    // 3. 下面的评论框
     await this.addStickerHistoryElement('.comment-send-lite')
 
     this.createList(this._localData)
 
-    // 表情 按钮被点击 开启初始化
-    Util.Instance()
-      .getElements('.comment-emoji')
-      .then((eles) => {
-        eles.forEach((ele) => {
-          ele.addEventListener('click', async () => {
-            this.Init()
-          })
-        })
-      })
+    // 开启初始化
+    this.Init()
   }
 
   private async addStickerHistoryElement(selector: string) {
     const ele = await Util.Instance().getElement(selector)
     const btools_sticker_history = document.createElement('div')
     btools_sticker_history.setAttribute('class', 'btools-sticker-history')
+    const type = selector.replace('.', '')
+    btools_sticker_history.setAttribute('data-type', type)
 
     // 历史表情 容器 用于定位
     const btools_sticker_history_container = document.createElement('div')
@@ -95,24 +93,63 @@ export class StickerHistory extends ModuleBase {
     ele.appendChild(btools_sticker_history)
     this._sticker_history_dom_info?.div.push(btools_sticker_history_container)
 
-    const textarea: string =
-      selector === '.bb-comment'
-        ? '.bb-comment .comment-send .textarea-container textarea'
-        : '.bb-comment .comment-send-lite .textarea-container textarea'
+    const textarea = this.getTextarea(selector)
 
     this._sticker_history_dom_info?.textarea.push(textarea)
   }
 
   private async Init() {
+    // 防止重复添加监听
+    if (this._addedListener) return
+    this._addedListener = true
+
+    const self = this
+
+    // 给 reply 按钮添加监听
+    $('body').on('click', '.list-item .reply', this.replyListener)
+
+    // 表情点击事件
+    $('body').on('click', '.emoji-wrap .emoji-list', async function () {
+      const img = $(this).find('img')
+      const isKaomoji = img.length === 0
+      const text = isKaomoji ? $(this).text() : img.attr('title') || ''
+      const src = img.attr('src') || ''
+
+      const stickerHistory: IStickerHistory = {
+        isKaomoji,
+        text,
+        src
+      }
+
+      const index = _.findIndex(self._localData.stickerHistory, stickerHistory)
+
+      // 如果存在则只排序
+      if (index !== -1) {
+        self.removeAndAddToFirst(self._localData.stickerHistory!, index)
+        self.save(true)
+
+        return
+      }
+
+      self._localData.stickerHistory?.unshift(stickerHistory)
+
+      await ExtStorage.Instance().setStorage<TComment, IComment>(
+        new TComment({
+          stickerHistory: self._localData.stickerHistory
+        })
+      )
+
+      self.createList(self._localData)
+    })
+
     // 表情盒子 title
     const emojiBoxTitle = await Util.Instance().getElement(
       '.emoji-box .emoji-title span'
     )
-    // 防止重复添加监听
-    if (this._addedListener) return
-    this._addedListener = true
+
     // 监听 表情类型 title 内容变化
     let customizeKaomojiElement: JQuery<HTMLElement>
+
     $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
       if (!this._isAddedCustomizeKaomoji) {
         const emoji_box = await Util.Instance().getElement('.emoji-box')
@@ -153,42 +190,6 @@ export class StickerHistory extends ModuleBase {
       } else {
         customizeKaomojiElement?.hide()
       }
-    })
-
-    const self = this
-
-    // 表情点击事件
-    $(document).on('click', '.emoji-wrap .emoji-list', async function () {
-      const img = $(this).find('img')
-      const isKaomoji = img.length === 0
-      const text = isKaomoji ? $(this).text() : img.attr('title') || ''
-      const src = img.attr('src') || ''
-
-      const stickerHistory: IStickerHistory = {
-        isKaomoji,
-        text,
-        src
-      }
-
-      const index = _.findIndex(self._localData.stickerHistory, stickerHistory)
-
-      // 如果存在则只排序
-      if (index !== -1) {
-        self.removeAndAddToFirst(self._localData.stickerHistory!, index)
-        self.save(true)
-
-        return
-      }
-
-      self._localData.stickerHistory?.unshift(stickerHistory)
-
-      await ExtStorage.Instance().setStorage<TComment, IComment>(
-        new TComment({
-          stickerHistory: self._localData.stickerHistory
-        })
-      )
-
-      self.createList(self._localData)
     })
   }
 
@@ -469,5 +470,32 @@ export class StickerHistory extends ModuleBase {
     const removedItem = arr.splice(index, 1)
     // 添加到第一个
     if (removedItem && removedItem.length === 1) arr.unshift(removedItem[0])
+  }
+
+  private getTextarea(selector: string): string {
+    switch (selector) {
+      case '.bb-comment':
+        return '.bb-comment .comment-send .textarea-container textarea'
+      case '.comment-send-lite':
+        return '.bb-comment .comment-send-lite .textarea-container textarea'
+      case '.list-item':
+        return '.comment-list .list-item .textarea-container textarea'
+      default:
+        return ''
+    }
+  }
+
+  private replyListener() {
+    if ($('.list-item .comment-send').length === 0) {
+      $('.btools-sticker-history[data-type="list-item"]').hide()
+      return
+    }
+    const btoolsStickerHistory = $(
+      '.btools-sticker-history[data-type="list-item"]'
+    )
+      .show()
+      .remove()
+    const replyItem = $(this).parents('.list-item')
+    replyItem.append(btoolsStickerHistory)
   }
 }
