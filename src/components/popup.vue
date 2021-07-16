@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="subscribe-channel">
+    <div class="subscribe-channel" v-if="Object.keys(channelInfo).length !== 0">
       <div v-for="(cids, uid) in channelInfo" :key="uid">
         <p class="user-info" @click="toUserSpace(uid)">
           <img
@@ -35,6 +35,10 @@
           </p>
         </div>
       </div>
+    </div>
+    <div class="subscribe-channel-empty" v-else>
+      <i class="icon-empty" v-html="getEmptyIcon()"></i>
+      <span>您还没订阅任何频道</span>
     </div>
     <!-- 订阅频道 图片后缀 @380w_240h_100Q_1c.webp -->
   </div>

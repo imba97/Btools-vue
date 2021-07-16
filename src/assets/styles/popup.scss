@@ -125,3 +125,22 @@
     }
   }
 }
+
+.subscribe-channel-empty {
+  width: 320px;
+  height: 200px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .icon-empty {
+    width: 60px;
+    height: 60px;
+  }
+
+  span {
+    font-size: 20px;
+  }
+}
