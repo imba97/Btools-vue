@@ -115,3 +115,10 @@
     background-color: #f66 !important;
   }
 }
+
+.btools-user-select-none {
+  * {
+    user-select: none;
+    pointer-events: none;
+  }
+}

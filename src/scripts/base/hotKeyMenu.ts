@@ -67,6 +67,8 @@ export default class HKM {
     hotKeyMenuID: string
   ) {
     overlordElement.setAttribute('btools-bind-hkm-id', hotKeyMenuID)
+    // 防止火狐拖拽图片等
+    overlordElement.setAttribute('ondragstart', 'return false;')
 
     // 鼠标按下
     overlordElement.addEventListener(

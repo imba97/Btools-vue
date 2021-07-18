@@ -196,6 +196,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
   }
 
   private setHMK(element: HTMLElement, aid: string, data: IVideoInfo) {
+    $(element).addClass('btools-user-select-none')
     new HKM(element).add([
       {
         key: 'S',
