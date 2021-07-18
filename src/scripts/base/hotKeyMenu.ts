@@ -4,7 +4,7 @@ import _ from 'lodash'
 
 export default class HKM {
   // 宿主元素，添加快捷键菜单的元素
-  private overlordElement?: NodeListOf<HTMLElement> | HTMLElement
+  private overlordElement: NodeListOf<HTMLElement> | HTMLElement
   // 菜单 DIV
   private menuElement: HTMLElement = document.createElement('div')
   private $menuElement: JQuery<HTMLElement> = $(this.menuElement)
@@ -214,14 +214,23 @@ export default class HKM {
    * @param target 目标元素
    * @param css CSS
    */
-  public setCss(target: SetCssTarget, css: any) {
+  public setCss(target: HKMElement, css: any) {
     switch (target) {
-      case SetCssTarget.OverlordElements:
+      case HKMElement.OverlordElements:
         $(this.overlordElement!).css(css)
         break
-      case SetCssTarget.MenuElement:
+      case HKMElement.MenuElement:
         this.$menuElement.css(css)
         break
+    }
+  }
+
+  public getElement(target: HKMElement) {
+    switch (target) {
+      case HKMElement.OverlordElements:
+        return this.overlordElement
+      case HKMElement.MenuElement:
+        return this.menuElement
     }
   }
 
@@ -283,7 +292,7 @@ export default class HKM {
   }
 }
 
-export enum SetCssTarget {
+export enum HKMElement {
   OverlordElements,
   MenuElement
 }

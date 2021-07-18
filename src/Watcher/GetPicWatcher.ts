@@ -6,7 +6,7 @@ import Util from '@base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
 import IconUtil from '@base/IconUtil'
-import { default as HKM, SetCssTarget } from '@base/HotKeyMenu'
+import { default as HKM, HKMElement } from '@base/HotKeyMenu'
 
 export class GetPicWatcher extends WatcherBase {
   protected init(): void {
@@ -46,15 +46,15 @@ export class GetPicWatcher extends WatcherBase {
     const btools_box = await Util.Instance().getElement(selector || 'body')
 
     // 添加 Btools 按钮
-    const btools_button = $(btools_box)
-      .append(
-        `
+    $(btools_box).append(
+      `
         <div class="btools-get-pic-video">
           ${IconUtil.Instance().LOGO()}
         </div>
         `
-      )
-      .find('.btools-get-pic-video')
+    )
+
+    const btools_button = $('.btools-get-pic-video')
 
     // 添加 快捷键菜单
     const hkm = new HKM(btools_button[0]).add([
@@ -73,7 +73,13 @@ export class GetPicWatcher extends WatcherBase {
       }
     ])
 
-    this.resetHkmPosition(hkm)
+    btools_button.hide()
+
+    $(() => {
+      this.resetHkmPosition(hkm)
+      btools_button.show()
+    })
+
     window.addEventListener('resize', () => {
       this.resetHkmPosition(hkm)
     })
@@ -122,6 +128,7 @@ export class GetPicWatcher extends WatcherBase {
     )
 
     const hkm = await this.video()
+    $(hkm.getElement(HKMElement.OverlordElements)!).show()
     hkm.removeWithKey('S').add([
       {
         key: 'S',
@@ -199,7 +206,7 @@ export class GetPicWatcher extends WatcherBase {
    */
   private resetHkmPosition(hkm: HKM) {
     const player = $('#bilibiliPlayer')
-    hkm.setCss(SetCssTarget.OverlordElements, {
+    hkm.setCss(HKMElement.OverlordElements, {
       top: (player.offset()?.top || 0) + 10,
       left: (player.offset()?.left || 0) - 40
     })
