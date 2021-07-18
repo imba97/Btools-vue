@@ -31,7 +31,9 @@ export class GetPicWatcher extends WatcherBase {
         break
 
       case GetPicEnum.Read:
-        this.read()
+        window.addEventListener('load', () => {
+          this.read()
+        })
         break
       case GetPicEnum.LiveRoom:
         this.liveRoom()
@@ -41,9 +43,7 @@ export class GetPicWatcher extends WatcherBase {
 
   private async video(selector?: string): Promise<HKM> {
     // 获取 Btools 按钮 父元素
-    const btools_box = await Util.Instance().getElement(
-      selector || '#bilibiliPlayer'
-    )
+    const btools_box = await Util.Instance().getElement(selector || 'body')
 
     // 添加 Btools 按钮
     const btools_button = $(btools_box)
@@ -72,6 +72,11 @@ export class GetPicWatcher extends WatcherBase {
         }
       }
     ])
+
+    this.resetHkmPosition(hkm)
+    window.addEventListener('resize', () => {
+      this.resetHkmPosition(hkm)
+    })
 
     return Promise.resolve(hkm)
   }
@@ -116,10 +121,7 @@ export class GetPicWatcher extends WatcherBase {
       '.player-auxiliary-playlist-item-active img'
     )
 
-    const hkm = await this.video('#viewbox_report')
-    hkm.setCss(SetCssTarget.OverlordElements, {
-      top: 100
-    })
+    const hkm = await this.video()
     hkm.removeWithKey('S').add([
       {
         key: 'S',
@@ -141,6 +143,13 @@ export class GetPicWatcher extends WatcherBase {
       {
         key: 'S',
         title: '打开原图',
+        action: (img) => {
+          this.openOriginalDrawing(img as HTMLImageElement)
+        }
+      },
+      {
+        key: 'D',
+        title: '新窗口打开',
         action: (img) => {
           window.open(this.getOriginalDrawing(img as HTMLImageElement))
         }
@@ -184,6 +193,23 @@ export class GetPicWatcher extends WatcherBase {
     ])
   }
 
+  /**
+   * 重置快捷键菜单的位置，到播放器左上角
+   * @param hkm 快捷键菜单
+   */
+  private resetHkmPosition(hkm: HKM) {
+    const player = $('#bilibiliPlayer')
+    hkm.setCss(SetCssTarget.OverlordElements, {
+      top: (player.offset()?.top || 0) + 10,
+      left: (player.offset()?.left || 0) - 40
+    })
+  }
+
+  /**
+   * 获取图片原图链接
+   * @param img 图片 元素
+   * @returns 原图链接
+   */
   private getOriginalDrawing(img: HTMLImageElement) {
     const srcSplit = img.src.split('@')
     if (srcSplit.length > 1) {
@@ -191,6 +217,93 @@ export class GetPicWatcher extends WatcherBase {
     } else {
       return img.src
     }
+  }
+
+  /**
+   * 打开原图
+   * @param img
+   */
+  private async openOriginalDrawing(img: HTMLImageElement) {
+    // 获取页面上的打开原图容器
+    let container = document.querySelector('.btools-origina-drawing-container')
+    let content = document.querySelector(
+      '.btools-origina-drawing-container .btools-img'
+    )
+    let image = document.querySelector(
+      '.btools-origina-drawing-container .btools-content img'
+    )
+    // 如果没则创建
+    if (container === null) {
+      // 容器
+      container = document.createElement('div')
+      container.setAttribute('class', 'btools-origina-drawing-container')
+
+      // 内容
+      image = document.createElement('img')
+
+      content = document.createElement('div')
+      content.setAttribute('class', 'btools-content')
+
+      // 背景
+      const background = document.createElement('div')
+      background.setAttribute('class', 'btools-background')
+
+      content.appendChild(image)
+
+      container.appendChild(content)
+      container.appendChild(background)
+
+      document.body.appendChild(container)
+
+      // 图片已加载 时间监听
+      image.addEventListener('load', () => {
+        const imgDom = $(image!)
+        const containerDom = $(container!)
+        // 显示容器
+        containerDom.show()
+
+        // 滚动条复原
+        $(content!).scrollTop(0).scrollLeft(0)
+
+        const imageWidth = imgDom.outerWidth()
+        const imageHeight = imgDom.outerHeight()
+
+        const imageViewWidth = containerDom.outerWidth()
+        const imageViewHeight = containerDom.outerHeight()
+
+        if (
+          !imageViewWidth ||
+          !imageViewHeight ||
+          !imageWidth ||
+          !imageHeight
+        ) {
+          return
+        }
+
+        const imageTop =
+          imageHeight < imageViewHeight
+            ? imageViewHeight / 2 - imageHeight / 2
+            : 0
+        const imageLeft =
+          imageWidth < imageViewWidth ? imageViewWidth / 2 - imageWidth / 2 : 0
+
+        $(image!).css({
+          top: imageTop,
+          left: imageLeft,
+          opacity: 1
+        })
+      })
+    }
+
+    container.addEventListener('click', function () {
+      $(image!).attr('src', '')
+      $(container!).hide()
+    })
+
+    // 获取原图链接
+    const src = this.getOriginalDrawing(img)
+    // 显示
+    $(image!).css('opacity', 0).attr('src', src)
   }
 
   /**

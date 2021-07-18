@@ -36,10 +36,74 @@
 
 .btools-get-pic-video {
   position: absolute;
-  top: 10px;
-  left: -40px;
+  top: 150px;
+  left: 30px;
   width: 30px;
   height: 30px;
 
   cursor: pointer;
+}
+
+// 专栏 打开原图 图片容器
+.btools-origina-drawing-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  z-index: 99999999;
+
+  .btools-content,
+  .btools-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .btools-content {
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    // 滚动条 外
+    &::-webkit-scrollbar-track {
+      background-image: linear-gradient(
+        to top,
+        lightgrey 0%,
+        lightgrey 1%,
+        #e0e0e0 26%,
+        #efefef 48%,
+        #d9d9d9 75%,
+        #bcbcbc 100%
+      );
+      -webkit-border-radius: 2em;
+      -moz-border-radius: 2em;
+      border-radius: 2em;
+    }
+
+    // 滚动条 内
+    &::-webkit-scrollbar-thumb {
+      background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+      -webkit-border-radius: 2em;
+      -moz-border-radius: 2em;
+      border-radius: 2em;
+    }
+
+    overflow: auto;
+
+    img {
+      position: absolute;
+      user-select: none;
+    }
+  }
+
+  .btools-background {
+    opacity: 0.75;
+    background-color: #000;
+    z-index: -1;
+  }
 }
