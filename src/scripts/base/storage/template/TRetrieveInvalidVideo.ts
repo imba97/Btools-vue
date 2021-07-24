@@ -43,9 +43,22 @@ export interface IVideoDetail extends Object {
   created_at: string
 }
 
+interface INotInvalidVideoInfo extends Object {
+  /**
+   * 作者 ID
+   */
+  mid: string
+
+  /**
+   * AV号
+   */
+  aid: string
+}
+
 export interface IRetrieveInvalidVideo extends Object {
   videoInfo: { [key: string]: IVideoInfo }
   videoDetail: { [key: string]: IVideoDetail }
+  notInvalidVideoInfo: { [key: string]: INotInvalidVideoInfo }
 }
 
 export class TRetrieveInvalidVideo extends TemplateBase {

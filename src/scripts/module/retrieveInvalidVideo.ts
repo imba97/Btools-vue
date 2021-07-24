@@ -23,12 +23,18 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
   private _localData: IRetrieveInvalidVideo = {
     videoInfo: {},
-    videoDetail: {}
+    videoDetail: {},
+    notInvalidVideoInfo: {}
   }
+
+  /**
+   * 未失效视频 已请求视频信息的 bvid
+   */
+  private _notInvalidVideoBvids: string[] = []
 
   protected handle() {
     const videoList = Util.Instance().getElements(
-      '.fav-video-list>li.disabled>a.cover,.fav-video-list>li.disabled>a.title'
+      '.fav-video-list>li>a.cover,.fav-video-list>li>a.title'
     )
 
     // 获取本地数据
@@ -38,7 +44,8 @@ export class RetrieveInvalidVideo extends ModuleBase {
     >(
       new TRetrieveInvalidVideo({
         videoInfo: {},
-        videoDetail: {}
+        videoDetail: {},
+        notInvalidVideoInfo: {}
       })
     )
 
@@ -55,22 +62,33 @@ export class RetrieveInvalidVideo extends ModuleBase {
     // 设置读取到的视频信息
     this._localData = localData
 
+    // 每次初始化都清空
+    this._notInvalidVideoBvids = []
+
     // 视频 AV 号
     const aids: number[] = []
 
-    // 获取本地数据
-
     // 循环失效视频标签
-    _.forEach(elements, (element) => {
+    _.forEach(elements, async (element) => {
+      // 获取 BV 号
       const bvid = element.parentElement?.getAttribute('data-aid')
-
       if (!bvid) return true
 
       // 获取 AV 号
       const aid = Util.Instance().bv2av(bvid)
 
+      // 是否是失效的
+      const isDisabled =
+        _.indexOf(element.parentElement?.classList, 'disabled') !== -1
+
+      // 没有失效的视频
+      if (!isDisabled) {
+        await this.notInvalidVideoHandl(element, bvid)
+        return true
+      }
+
       // 如果在本地储存中 则用本地信息 否则获取相应的 AV 号
-      if (localData.videoInfo.hasOwnProperty(bvid)) {
+      if (isDisabled && localData.videoInfo.hasOwnProperty(bvid)) {
         if (!localData.videoInfo[bvid].hasOwnProperty('mid')) {
           aids.push(aid)
         }
@@ -85,12 +103,15 @@ export class RetrieveInvalidVideo extends ModuleBase {
         if (localData.videoInfo[bvid].title !== this._notFoundTitle)
           this.setHMK(element, aid.toString(), localData.videoInfo[bvid])
 
-        return
+        return true
       }
 
       // 不在本地存储中 添加到待查询的 aid 数组内
       aids.push(aid)
     })
+
+    // 保存一下
+    this.save()
 
     // 如果没有则不查询
     if (aids.length === 0) return
@@ -195,6 +216,84 @@ export class RetrieveInvalidVideo extends ModuleBase {
     }
   }
 
+  /**
+   * 未失效视频处理
+   * @param element
+   * @param bvid
+   */
+  private async notInvalidVideoHandl(element: HTMLElement, bvid: string) {
+    // 判断是否有本地存储
+    if (this._localData.notInvalidVideoInfo.hasOwnProperty(bvid)) {
+      this.setNotInvalidVideoHMK(element, bvid)
+      return
+    }
+
+    const videoInfo = await Url.VIDEO_INFO.request({
+      bvid
+    })
+
+    if (videoInfo.code === 0) {
+      this._localData.notInvalidVideoInfo[bvid] = {
+        mid: videoInfo.data.owner.mid,
+        aid: videoInfo.data.aid
+      }
+
+      // 视频信息
+      this._localData.videoInfo[bvid] = {
+        mid: videoInfo.data.owner.mid,
+        title: videoInfo.data.title,
+        pic: videoInfo.data.pic
+      }
+
+      // 分P信息
+      const partNames: string[] = []
+      _.forEach(videoInfo.data.pages, (item) => {
+        partNames.push(item.part)
+      })
+
+      // 详情信息
+      this._localData.videoDetail[bvid] = {
+        desc: videoInfo.data.desc,
+        author: videoInfo.data.owner.name,
+        partNames,
+        created_at: Util.Instance().dateFormat(
+          videoInfo.data.pubdate * 1000,
+          'yyyy-mm-dd'
+        )
+      }
+
+      this.setNotInvalidVideoHMK(element, bvid)
+    }
+  }
+
+  private setNotInvalidVideoHMK(element: HTMLElement, bvid: string) {
+    new HKM(element).add([
+      {
+        key: 'S',
+        title: '打开视频',
+        action: () => {
+          window.open(`https://b23.tv/${bvid}`)
+        }
+      },
+      {
+        key: 'E',
+        title: '打开UP主空间',
+        action: () => {
+          window.open(
+            `https://space.bilibili.com/${this._localData.notInvalidVideoInfo[bvid].mid}`
+          )
+        }
+      },
+      {
+        key: 'D',
+        title: '详细信息',
+        action: () => {
+          this.detailInfo(this._localData.notInvalidVideoInfo[bvid].aid)
+        }
+      }
+    ])
+  }
+
   private setHMK(element: HTMLElement, aid: string, data: IVideoInfo) {
     $(element).addClass('btools-user-select-none')
     new HKM(element).add([
@@ -238,10 +337,13 @@ export class RetrieveInvalidVideo extends ModuleBase {
     const bvid = Util.Instance().av2bv(parseInt(aid))
     // 如果存在本地存储中
     if (this._localData.videoDetail.hasOwnProperty(bvid)) {
-      this.showDetail(aid, bvid, this._localData.videoDetail[bvid])
+      this.showDetail()
+      this.setDetailInfo(aid, bvid, this._localData.videoDetail[bvid])
       return
     }
 
+    // 显示详情窗口 此时会 loading
+    this.showDetail()
     const detail = await Url.BILIPLUS_VIDEO_DETAIL.request({
       id: aid
     })
@@ -259,7 +361,8 @@ export class RetrieveInvalidVideo extends ModuleBase {
       created_at: detail.created_at
     }
 
-    this.showDetail(aid, bvid, detailInfo)
+    // 请求完成后 展示信息
+    this.setDetailInfo(aid, bvid, detailInfo)
 
     this._localData.videoDetail[bvid] = detailInfo
 
@@ -269,12 +372,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
     >(new TRetrieveInvalidVideo(this._localData))
   }
 
-  private showDetail(aid: string, bvid: string, detailInfo: IVideoDetail) {
-    const getPartNames =
-      detailInfo.partNames.length === 1 && detailInfo.partNames[0] === ''
-        ? '<li>无</li>'
-        : this.getDetailPartNamesLi(detailInfo.partNames)
-
+  private showDetail() {
     let detailBox = $('.btools-detail-box')
     if (detailBox.length === 0) {
       $('body').append(
@@ -282,13 +380,25 @@ export class RetrieveInvalidVideo extends ModuleBase {
         <div class="btools-detail-box">
           <span class="btools-close-btn">×</span>
           <div class="btools-container">
-            <p class="btools-title">${this._localData.videoInfo[bvid].title}</p>
-            <p class="btools-part">分P信息</p>
-            <ul class="btools-list"></ul>
-            <div class="btools-link">
-              缓存：
-              <a href="https://www.jijidown.com/video/av${aid}" target="_blank">哔哩哔哩唧唧</a>
-              、<a href="https://www.biliplus.com/video/av${aid}" target="_blank">biliplus</a>
+            <div class="btools-video-info">
+              <p class="btools-title"></p>
+              <p class="btools-part">分P信息</p>
+              <ul class="btools-list"></ul>
+              <div class="btools-link">
+                缓存：
+                <a class="btools-link-jijidown" href="javascript:void(0);" target="_blank">哔哩哔哩唧唧</a>
+                、<a class="btools-link-biliplus" href="javascript:void(0);" target="_blank">biliplus</a>
+              </div>
+            </div>
+            <div class="btools-loading">
+              <div class="sk-chase">
+                <div class="sk-chase-dot"></div>
+                <div class="sk-chase-dot"></div>
+                <div class="sk-chase-dot"></div>
+                <div class="sk-chase-dot"></div>
+                <div class="sk-chase-dot"></div>
+                <div class="sk-chase-dot"></div>
+              </div>
             </div>
           </div>
           <div class="btools-background"></div>
@@ -298,8 +408,6 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
       detailBox = $('.btools-detail-box')
 
-      detailBox.find('.btools-list').html(getPartNames)
-
       detailBox.on('click', '.btools-close-btn', () => {
         detailBox.hide()
       })
@@ -307,12 +415,40 @@ export class RetrieveInvalidVideo extends ModuleBase {
       return
     }
 
+    // 展示 并先隐藏 视频信息 显示 loading
     if (detailBox.is(':hidden')) {
       detailBox.show()
+      detailBox.find('.btools-video-info').hide()
+      detailBox.find('.btools-loading').show()
     }
+  }
 
+  private setDetailInfo(aid: string, bvid: string, detailInfo: IVideoDetail) {
+    const detailBox = $('.btools-detail-box')
+
+    const getPartNames =
+      detailInfo.partNames.length === 1 && detailInfo.partNames[0] === ''
+        ? '<li>无</li>'
+        : this.getDetailPartNamesLi(detailInfo.partNames)
+
+    // 添加分P信息
+    detailBox.find('.btools-list').html(getPartNames)
+    // 设置标题
     detailBox.find('.btools-title').text(this._localData.videoInfo[bvid].title)
+    // 设置分P滚动条到最顶部
     detailBox.find('.btools-list').html(getPartNames).scrollTop(0)
+
+    // 设置缓存网站 链接
+    detailBox
+      .find('.btools-link-jijidown')
+      .attr('href', `https://www.jijidown.com/video/av${aid}`)
+    detailBox
+      .find('.btools-link-jijidown')
+      .attr('href', `https://www.biliplus.com/video/av${aid}`)
+
+    // 展示 视频信息 隐藏 loading
+    detailBox.find('.btools-video-info').show()
+    detailBox.find('.btools-loading').hide()
   }
 
   private getDetailPartNamesLi(partNames: string[]) {
@@ -322,5 +458,12 @@ export class RetrieveInvalidVideo extends ModuleBase {
     })
 
     return result
+  }
+
+  private save() {
+    ExtStorage.Instance().setStorage<
+      TRetrieveInvalidVideo,
+      IRetrieveInvalidVideo
+    >(new TRetrieveInvalidVideo(this._localData))
   }
 }
