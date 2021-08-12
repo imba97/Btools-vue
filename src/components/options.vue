@@ -3,6 +3,9 @@
     <div class="routers-box">
       <ul class="routers">
         <li><router-link to="/">基本设置</router-link></li>
+        <li v-if="!isProduction">
+          <router-link to="/DevelopmentHelper">开发者工具</router-link>
+        </li>
         <li><router-link to="/SubscribeChannel">订阅频道</router-link></li>
         <li><router-link to="/LiveRoomHelper">直播间助手</router-link></li>
       </ul>
@@ -24,5 +27,11 @@ import { Vue, Component } from 'vue-property-decorator'
 export default class Options extends Vue {
   // 初始数据可以直接声明为实例的 property
   message = 'Hello!'
+
+  isProduction = true
+
+  created() {
+    this.isProduction = process.env.NODE_ENV === 'production'
+  }
 }
 </script>
