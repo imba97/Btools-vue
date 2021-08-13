@@ -32,7 +32,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
    */
   private _notInvalidVideoBvids: string[] = []
 
-  protected handle() {
+  protected async handle() {
     const videoList = Util.Instance().getElements(
       '.fav-video-list>li>a.cover,.fav-video-list>li>a.title'
     )
@@ -50,9 +50,9 @@ export class RetrieveInvalidVideo extends ModuleBase {
     )
 
     // 初始化
-    Promise.all([videoList, localData]).then((res) => {
-      this.Init(res[0], res[1])
-    })
+    const res = await Promise.all([videoList, localData])
+
+    this.Init(res[0], res[1])
   }
 
   private async Init(
@@ -83,7 +83,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
       // 没有失效的视频
       if (!isDisabled) {
-        await this.notInvalidVideoHandl(element, bvid)
+        await this.notInvalidVideoHandle(element, bvid)
         return true
       }
 
@@ -158,6 +158,13 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
     // 处理未找到的视频
     _.forEach(_.difference(aids, findAids), async (aid) => {
+      // TODO: biliplus 未找到的 发到 jijidown 继续查找
+      const jijidownData = await Url.JIJIDOWN_VIDEO_INFO.request({
+        id: `${aid}`
+      })
+
+      console.log('jijidownData', jijidownData)
+
       const bvid = Util.Instance().av2bv(aid)
 
       // 未找到的也添加本地数据对象
@@ -177,10 +184,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
     // 不知为何 _localData 赋值慢半拍
     setTimeout(() => {
       // 数据保存到本地
-      ExtStorage.Instance().setStorage<
-        TRetrieveInvalidVideo,
-        IRetrieveInvalidVideo
-      >(new TRetrieveInvalidVideo(this._localData))
+      this.save()
     }, 1000)
   }
 
@@ -221,7 +225,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
    * @param element
    * @param bvid
    */
-  private async notInvalidVideoHandl(element: HTMLElement, bvid: string) {
+  private async notInvalidVideoHandle(element: HTMLElement, bvid: string) {
     // 判断是否有本地存储
     if (this._localData.notInvalidVideoInfo.hasOwnProperty(bvid)) {
       this.setNotInvalidVideoHMK(element, bvid)
@@ -366,10 +370,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
     this._localData.videoDetail[bvid] = detailInfo
 
-    ExtStorage.Instance().setStorage<
-      TRetrieveInvalidVideo,
-      IRetrieveInvalidVideo
-    >(new TRetrieveInvalidVideo(this._localData))
+    this.save()
   }
 
   private showDetail() {

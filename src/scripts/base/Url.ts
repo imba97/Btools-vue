@@ -8,7 +8,8 @@ import Util from './Util'
  */
 export enum UrlType {
   BILIBILI,
-  BILIPLUS
+  BILIPLUS,
+  JIJIDOWN
 }
 
 export class Url<T extends ParsedUrlQueryInput> {
@@ -19,7 +20,7 @@ export class Url<T extends ParsedUrlQueryInput> {
 
   // public static readonly 名称: Url<{ 发送参数名: 发送参数类型 }> = new Url(请求类型, URL类型, 'URL路径', RequestHeaders)
 
-  // ========= BILIBILI =========
+  // #region BILIBILI
 
   /**
    * 获取用户卡片信息
@@ -64,6 +65,10 @@ export class Url<T extends ParsedUrlQueryInput> {
     Origin: 'https://www.bilibili.com'
   })
 
+  // #endregion
+
+  // #region BILIPLUS
+
   public static readonly BILIPLUS_VIDEO_INFO: Url<{ aid: string }> = new Url(
     'GET',
     UrlType.BILIPLUS,
@@ -78,9 +83,21 @@ export class Url<T extends ParsedUrlQueryInput> {
     null
   )
 
-  // ========= 测试 =========
+  // #endregion
 
-  // ========= 测试 =========
+  // #region JIJIDOWN
+
+  public static readonly JIJIDOWN_VIDEO_INFO: Url<{ id: string }> = new Url(
+    'GET',
+    UrlType.JIJIDOWN,
+    '/v1/video/get_info',
+    null
+  )
+
+  // #endregion
+
+  // #region TEST
+  // #endregion
 
   constructor(
     private _method: Method,
@@ -100,6 +117,9 @@ export class Url<T extends ParsedUrlQueryInput> {
 
       case UrlType.BILIPLUS:
         return 'https://www.biliplus.com/api'
+
+      case UrlType.JIJIDOWN:
+        return 'https://www.jijidown.com/api'
 
       default:
         Util.Instance().console('未曾设想的 Base Url 类型', 'error')

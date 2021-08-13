@@ -13,6 +13,12 @@ const router = new Router({
       component: () => import(/*  */ '@components/options/Home.vue')
     },
     {
+      path: '/DevelopmentHelper',
+      name: 'DevelopmentHelper',
+      component: () =>
+        import(/*  */ '@components/options/DevelopmentHelper.vue')
+    },
+    {
       path: '/SubscribeChannel',
       name: 'SubscribeChannel',
       component: () => import('@components/options/SubscribeChannel.vue')
