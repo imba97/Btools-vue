@@ -90,7 +90,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
       // 如果在本地储存中 则用本地信息 否则获取相应的 AV 号
       if (isDisabled && localData.videoInfo.hasOwnProperty(bvid)) {
         if (!localData.videoInfo[bvid].hasOwnProperty('mid')) {
-          aids.push(aid)
+          if (aids.indexOf(aid) === -1) aids.push(aid)
         }
 
         this.setInvalidVideoInfo(
@@ -107,7 +107,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
       }
 
       // 不在本地存储中 添加到待查询的 aid 数组内
-      aids.push(aid)
+      if (aids.indexOf(aid) === -1) aids.push(aid)
     })
 
     // 保存一下
@@ -132,53 +132,49 @@ export class RetrieveInvalidVideo extends ModuleBase {
       _.forEach(json.data, async (data: IVideoInfo, _aid: string) => {
         const aid = parseInt(_aid)
         const bvid = Util.Instance().av2bv(aid)
-        // 拿到失效视频 Element
-        const element = await Util.Instance().getElement(
-          `.fav-video-list>li.disabled[data-aid=${bvid}]`
+
+        // 标题 不等于 未找到的标题 就创建快捷键菜单
+        this.foundInvalidVideoHandle(
+          aid,
+          bvid,
+          data,
+          data.title !== this._notFoundTitle
         )
-
-        // 添加到本地数据对象
-        this.addLocalData(bvid, data)
-
-        this.setInvalidVideoInfo(element, data.title, data.pic)
-
-        // 如果没找到视频则不添加快捷键菜单
-        if (data.title === this._notFoundTitle) return true
-
-        // 为失效视频创建快捷键菜单
-        const a = await Util.Instance().getElements(
-          `.fav-video-list>li.disabled[data-aid=${bvid}]>a.cover,.fav-video-list>li.disabled[data-aid=${bvid}]>a.title`
-        )
-
-        a.forEach((aEle) => {
-          this.setHMK(aEle, _aid, data)
-        })
       })
     }
 
     // 处理未找到的视频
     _.forEach(_.difference(aids, findAids), async (aid) => {
-      // TODO: biliplus 未找到的 发到 jijidown 继续查找
+      // biliplus 未找到的 发到 jijidown 继续查找
       const jijidownData = await Url.JIJIDOWN_VIDEO_INFO.request({
         id: `${aid}`
       })
 
-      console.log('jijidownData', jijidownData)
-
       const bvid = Util.Instance().av2bv(aid)
 
-      // 未找到的也添加本地数据对象
-      this.addLocalData(bvid, {
-        mid: '',
-        title: this._notFoundTitle,
-        pic: ''
-      })
+      // 查到则保存
+      if (jijidownData.upid !== -1) {
+        const data = {
+          mid: jijidownData.upid,
+          title: jijidownData.title,
+          pic: jijidownData.img
+        }
 
-      await Util.Instance()
-        .getElement(`.fav-video-list>li.disabled[data-aid=${bvid}]`)
-        .then((element) => {
-          this.setInvalidVideoInfo(element, this._notFoundTitle)
+        this.foundInvalidVideoHandle(aid, bvid, data, true)
+      } else {
+        // jijidown 也未找到 添加到本地存储
+        this.addLocalData(bvid, {
+          mid: '',
+          title: this._notFoundTitle,
+          pic: ''
         })
+
+        await Util.Instance()
+          .getElement(`.fav-video-list>li.disabled[data-aid=${bvid}]`)
+          .then((element) => {
+            this.setInvalidVideoInfo(element, this._notFoundTitle)
+          })
+      }
     })
 
     // 不知为何 _localData 赋值慢半拍
@@ -218,6 +214,41 @@ export class RetrieveInvalidVideo extends ModuleBase {
       // 移除遮挡
       $(element).find('.disabled-cover').remove()
     }
+  }
+
+  /**
+   * 已找到视频处理
+   * @param aid AV号
+   * @param bvid BV号
+   * @param data 视频数据
+   * @param isCreateHKM 是否创建快捷键菜单
+   */
+  private async foundInvalidVideoHandle(
+    aid: number,
+    bvid: string,
+    data: IVideoInfo,
+    isCreateHKM: boolean
+  ) {
+    // 添加到本地数据对象
+    this.addLocalData(bvid, data)
+
+    // 拿到失效视频 Element
+    const element = await Util.Instance().getElement(
+      `.fav-video-list>li.disabled[data-aid=${bvid}]`
+    )
+
+    this.setInvalidVideoInfo(element, data.title, data.pic)
+
+    if (!isCreateHKM) return
+
+    // 为失效视频创建快捷键菜单
+    const a = await Util.Instance().getElements(
+      `.fav-video-list>li.disabled[data-aid=${bvid}]>a.cover,.fav-video-list>li.disabled[data-aid=${bvid}]>a.title`
+    )
+
+    a.forEach((aEle) => {
+      this.setHMK(aEle, `${aid}`, data)
+    })
   }
 
   /**
@@ -444,7 +475,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
       .find('.btools-link-jijidown')
       .attr('href', `https://www.jijidown.com/video/av${aid}`)
     detailBox
-      .find('.btools-link-jijidown')
+      .find('.btools-link-biliplus')
       .attr('href', `https://www.biliplus.com/video/av${aid}`)
 
     // 展示 视频信息 隐藏 loading
