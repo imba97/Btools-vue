@@ -1,4 +1,6 @@
 # Btools
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fimba97%2FBtools-vue.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fimba97%2FBtools-vue?ref=badge_shield)
+
 
 用 Vue + TypeScript 重构插件
 
@@ -29,3 +31,7 @@ npm run build:firefox
 - [x] 直播间助手
   - [x] 隐藏迷你播放器
   - [ ] ~~隐藏PK分数~~
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fimba97%2FBtools-vue.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fimba97%2FBtools-vue?ref=badge_large)
