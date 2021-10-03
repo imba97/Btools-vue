@@ -8,7 +8,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WriteJsonWebpackPlugin = require('write-json-webpack-plugin')
 const ExtensionReloader = require('webpack-extension-reloader')
-const ESLintPlugin = require('eslint-webpack-plugin')
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -102,9 +101,6 @@ module.exports = (): webpack.Configuration => {
     },
 
     plugins: [
-      new ESLintPlugin({
-        overrideConfigFile: resolve(__dirname, '.eslintrc.js')
-      }),
       new HtmlWebpackPlugin({
         filename: 'popup.html',
         template: './src/popup/popup.html',
