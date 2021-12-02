@@ -7,7 +7,10 @@ import { RequestApiType } from '@base/enums/ContentJsType'
 
 export class CommentListener extends ListenerBase {
   init() {
-    this.urls = ['*://api.bilibili.com/x/v2/reply/main*']
+    this.urls = [
+      '*://api.bilibili.com/x/v2/reply/main*',
+      '*://api.bilibili.com/x/v2/reply/jump*'
+    ]
     super.init()
   }
 

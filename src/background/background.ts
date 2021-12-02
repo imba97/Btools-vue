@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import { browser } from 'webextension-polyfill-ts'
 

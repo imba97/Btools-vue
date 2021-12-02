@@ -30,6 +30,7 @@ export class StickerHistory extends ModuleBase {
   private _isAddedCustomizeKaomoji = false
 
   protected async handle() {
+    console.log(document.querySelector('.btools-sticker-history'))
     if (document.querySelector('.btools-sticker-history') !== null) return
 
     Util.Instance().console('历史表情', 'success')
@@ -52,10 +53,12 @@ export class StickerHistory extends ModuleBase {
     await this.addStickerHistoryElement('.bb-comment')
 
     // 2. 楼中楼的评论框
-    await this.addStickerHistoryElement('.list-item')
+    const listItemElement = await this.addStickerHistoryElement('.list-item')
+    // 2.1. 楼中楼默认展开的情况，调用一次 replyListener 并指定 this 为 回复按钮
+    this.replyListener.call($(listItemElement).find('.reply'))
 
     // 3. 下面的评论框
-    await this.addStickerHistoryElement('.comment-send-lite')
+    // await this.addStickerHistoryElement('.comment-send-lite')
 
     this.createList(this._localData)
 
@@ -66,14 +69,13 @@ export class StickerHistory extends ModuleBase {
   private async addStickerHistoryElement(selector: string) {
     const ele = await Util.Instance().getElement(selector)
     const btools_sticker_history = document.createElement('div')
-    btools_sticker_history.setAttribute('class', 'btools-sticker-history')
+    btools_sticker_history.classList.add('btools-sticker-history')
     const type = selector.replace('.', '')
     btools_sticker_history.setAttribute('data-type', type)
 
     // 历史表情 容器 用于定位
     const btools_sticker_history_container = document.createElement('div')
-    btools_sticker_history_container.setAttribute(
-      'class',
+    btools_sticker_history_container.classList.add(
       'btools-sticker-history-container'
     )
 
@@ -83,7 +85,7 @@ export class StickerHistory extends ModuleBase {
 
     // 显示更多 按钮
     const show_more = document.createElement('button')
-    show_more.setAttribute('class', 'btools-sticker-history-show-more')
+    show_more.classList.add('btools-sticker-history-show-more')
     show_more.setAttribute('data-added-listener', 'false')
     show_more.innerHTML = IconUtil.Instance().SHOW_MORE('#CCC')
     btools_sticker_history.append(show_more)
@@ -96,6 +98,8 @@ export class StickerHistory extends ModuleBase {
     const textarea = this.getTextarea(selector)
 
     this._sticker_history_dom_info?.textarea.push(textarea)
+
+    return Promise.resolve(ele)
   }
 
   private async Init() {
@@ -103,13 +107,11 @@ export class StickerHistory extends ModuleBase {
     if (this._addedListener) return
     this._addedListener = true
 
-    const self = this
-
     // 给 reply 按钮添加监听
     $('body').on('click', '.list-item .reply', this.replyListener)
 
     // 表情点击事件
-    $('body').on('click', '.emoji-wrap .emoji-list', async function () {
+    $('body').on('click', '.emoji-wrap .emoji-list', async () => {
       const img = $(this).find('img')
       const isKaomoji = img.length === 0
       const text = isKaomoji ? $(this).text() : img.attr('title') || ''
@@ -121,25 +123,25 @@ export class StickerHistory extends ModuleBase {
         src
       }
 
-      const index = _.findIndex(self._localData.stickerHistory, stickerHistory)
+      const index = _.findIndex(this._localData.stickerHistory, stickerHistory)
 
       // 如果存在则只排序
       if (index !== -1) {
-        self.removeAndAddToFirst(self._localData.stickerHistory!, index)
-        self.save(true)
+        this.removeAndAddToFirst(this._localData.stickerHistory!, index)
+        this.save(true)
 
         return
       }
 
-      self._localData.stickerHistory?.unshift(stickerHistory)
+      this._localData.stickerHistory?.unshift(stickerHistory)
 
       await ExtStorage.Instance().setStorage<TComment, IComment>(
         new TComment({
-          stickerHistory: self._localData.stickerHistory
+          stickerHistory: this._localData.stickerHistory
         })
       )
 
-      self.createList(self._localData)
+      this.createList(this._localData)
     })
 
     // 表情盒子 title
@@ -157,10 +159,10 @@ export class StickerHistory extends ModuleBase {
         customizeKaomojiElement = $(emoji_box)
           .append(
             `
-                <div class="customize-kaomoji">
-                  <input type="text" placeholder="请输入颜文字，回车提交" />
-                </div>
-              `
+              <div class="customize-kaomoji">
+                <input type="text" placeholder="请输入颜文字，回车提交" />
+              </div>
+            `
           )
           .find('.customize-kaomoji')
           .on('keyup', (e) => {
@@ -496,6 +498,7 @@ export class StickerHistory extends ModuleBase {
       .show()
       .remove()
     const replyItem = $(this).parents('.list-item')
+
     replyItem.append(btoolsStickerHistory)
   }
 }
