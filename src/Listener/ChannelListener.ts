@@ -23,7 +23,7 @@ export class ChannelListener extends ListenerBase {
   private _videos_temp: IVideoData[] = []
 
   init() {
-    this.urls = ['*://api.bilibili.com/x/space/channel/video*']
+    this.urls = ['*://api.bilibili.com/x/series/archives*']
     super.init()
 
     // 开启计时器
@@ -130,20 +130,20 @@ export class ChannelListener extends ListenerBase {
   /**
    * 获取频道视频
    * @param uid 用户 ID
-   * @param cid 频道 ID
+   * @param sid 频道 ID
    * @param page 页数
    */
-  private async getChannelVideos(uid: number, cid: number, page: number = 1) {
+  private async getChannelVideos(uid: number, sid: number, page: number = 1) {
     // 发送请求
     const result = await Url.CHANEL_VIDEO.backgroundRequest({
       mid: uid,
-      cid,
+      series_id: sid,
       pn: page
     })
 
     // 遍历视频列表
-    if (result.data.list.archives.length !== 0) {
-      result.data.list.archives.forEach((item: IVideoData) => {
+    if (result.data.archives.length !== 0) {
+      result.data.archives.forEach((item: IVideoData) => {
         this._videos_temp.push({
           bvid: item.bvid,
           title: item.title,
@@ -153,8 +153,8 @@ export class ChannelListener extends ListenerBase {
         })
       })
       // 如果本页全满 说明可能有下一页
-      if (result.data.list.archives.length === 100)
-        await this.getChannelVideos(uid, cid, ++page)
+      if (result.data.archives.length === 100)
+        await this.getChannelVideos(uid, sid, ++page)
     }
   }
 

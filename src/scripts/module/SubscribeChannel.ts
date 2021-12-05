@@ -103,7 +103,7 @@ export class SubscribeChannel extends ModuleBase {
     )
 
     const channel_info_reg =
-      /space\.bilibili\.com\/(\d+)\/channel\/detail\?cid=(\d+)/.exec(
+      /space\.bilibili\.com\/(\d+)\/channel\/seriesdetail\?sid=(\d+)/.exec(
         window.location.href
       )
 
@@ -121,7 +121,7 @@ export class SubscribeChannel extends ModuleBase {
     )
 
     // 订阅按钮
-    this._subscribeButton.setAttribute('class', 'btools-subscribe-button')
+    this._subscribeButton.classList.add('btools-subscribe-button')
     this._subscribeButton.innerHTML = this._isSubscribed
       ? IconUtil.Instance().LOGO(this._logo_color.subscribed)
       : IconUtil.Instance().LOGO(this._logo_color.doNotSubscribe)
@@ -137,15 +137,15 @@ export class SubscribeChannel extends ModuleBase {
   /**
    * 订阅处理事件
    * @param uid 用户ID
-   * @param cid 频道ID
+   * @param sid 频道ID
    */
-  private async doSubscribe(uid: number, cid: number) {
+  private async doSubscribe(uid: number, sid: number) {
     if (!this._localData.channel!.hasOwnProperty(uid)) {
       this._localData.channel![uid] = []
       this._localData.userInfo![uid] = {}
     }
 
-    if (this._localData.channel![uid].indexOf(cid) !== -1) return
+    if (this._localData.channel![uid].indexOf(sid) !== -1) return
 
     // 切换按钮颜色
     this._subscribeButton.innerHTML = IconUtil.Instance().LOGO(
@@ -153,15 +153,19 @@ export class SubscribeChannel extends ModuleBase {
     )
 
     // 频道数据 获取频道标题 和 作者名称
-    const channelData = await this.getChannelVideos(uid, cid)
+    const channelData = await Url.CHANNEL_INFO.request({
+      series_id: sid
+    })
+
+    await this.getChannelVideos(uid, sid)
 
     const userInfo = await Url.USER_CARD.request({
       mid: uid.toString()
     })
 
     // 频道信息
-    this._localData.channelInfo![cid] = {
-      title: channelData.data.list.name
+    this._localData.channelInfo![sid] = {
+      title: _.get(channelData, 'data.meta.name', '获取失败')
     }
 
     // 用户信息
@@ -171,13 +175,13 @@ export class SubscribeChannel extends ModuleBase {
     }
 
     // 添加到本地存储
-    this._localData.channel![uid].push(cid)
+    this._localData.channel![uid].push(sid)
 
     // 添加频道视频
     if (!this._localData.channelVideos?.hasOwnProperty(uid))
       this._localData.channelVideos![uid] = {}
 
-    this._localData.channelVideos![uid][cid] = this._videos_temp
+    this._localData.channelVideos![uid][sid] = this._videos_temp
 
     this.save()
 
@@ -226,20 +230,20 @@ export class SubscribeChannel extends ModuleBase {
   /**
    * 获取频道所有视频 视频存入 _videos_temp
    * @param uid 用户ID
-   * @param cid 频道 ID
+   * @param sid 频道 ID
    * @param page 页数
    * @returns 频道数据
    */
-  private async getChannelVideos(uid: number, cid: number, page: number = 1) {
+  private async getChannelVideos(uid: number, sid: number, page: number = 1) {
     const result = await Url.CHANEL_VIDEO.request({
       mid: uid,
-      cid,
+      series_id: sid,
       pn: page
     })
 
     // 遍历视频列表
-    if (result.data.list.archives.length !== 0) {
-      result.data.list.archives.forEach((item: IVideoData) => {
+    if (result.data.archives.length !== 0) {
+      result.data.archives.forEach((item: IVideoData) => {
         this._videos_temp.push({
           bvid: item.bvid,
           title: item.title,
@@ -248,11 +252,9 @@ export class SubscribeChannel extends ModuleBase {
         })
       })
       // 如果本页全满 说明可能有下一页
-      if (result.data.list.archives.length === 100)
-        await this.getChannelVideos(uid, cid, ++page)
+      if (result.data.archives.length === 100)
+        await this.getChannelVideos(uid, sid, ++page)
     }
-
-    return result
   }
 
   /**

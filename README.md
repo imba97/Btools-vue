@@ -6,9 +6,13 @@
 
 ```shell
 npm i
-# development
+# development Chrome
+npm run c
+# development Firefox
 npm run f
-# production
+# production Chrome
+npm run build:chrome
+# production Firefox
 npm run build:firefox
 ```
 
@@ -23,9 +27,11 @@ npm run build:firefox
 - [x] 网址链接转换
 
 - [x] 专栏助手
+
   - [x] 打开原图
   - [x] 新窗口打开原图
 
 - [x] 直播间助手
+
   - [x] 隐藏迷你播放器
-  - [ ] ~~隐藏PK分数~~
+  - [ ] ~~隐藏 PK 分数~~

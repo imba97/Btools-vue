@@ -35,14 +35,21 @@ export class Url<T extends ParsedUrlQueryInput> {
   /**
    * 获取频道信息
    */
+  public static readonly CHANNEL_INFO: Url<{
+    series_id: number
+  }> = new Url('GET', UrlType.BILIBILI, '/x/series/series', null)
+
+  /**
+   * 获取频道视频
+   */
   public static readonly CHANEL_VIDEO: Url<{
     mid: number
-    cid: number
+    series_id: number
     pn: number
   }> = new Url(
     'GET',
     UrlType.BILIBILI,
-    '/x/space/channel/video?ps=100&order=0&ctype=0',
+    '/x/series/archives?ps=100&order=0&ctype=0',
     null
   )
 
