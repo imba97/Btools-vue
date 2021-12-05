@@ -30,7 +30,6 @@ export class StickerHistory extends ModuleBase {
   private _isAddedCustomizeKaomoji = false
 
   protected async handle() {
-    console.log(document.querySelector('.btools-sticker-history'))
     if (document.querySelector('.btools-sticker-history') !== null) return
 
     Util.Instance().console('历史表情', 'success')
@@ -50,7 +49,9 @@ export class StickerHistory extends ModuleBase {
 
     // 在页面添加历史表情
     // 1. 上面的评论框
-    await this.addStickerHistoryElement('.bb-comment')
+    await this.addStickerHistoryElement(
+      '.bb-comment > .comment-send > .textarea-container'
+    )
 
     // 2. 楼中楼的评论框
     const listItemElement = await this.addStickerHistoryElement('.list-item')
@@ -58,7 +59,12 @@ export class StickerHistory extends ModuleBase {
     this.replyListener.call($(listItemElement).find('.reply'))
 
     // 3. 下面的评论框
-    // await this.addStickerHistoryElement('.comment-send-lite')
+    Util.Instance()
+      .getElement('.comment-send-lite')
+      .then(async () => {
+        await this.addStickerHistoryElement('.comment-send-lite')
+        this.createList(this._localData)
+      })
 
     this.createList(this._localData)
 
@@ -108,6 +114,7 @@ export class StickerHistory extends ModuleBase {
     this._addedListener = true
 
     // 给 reply 按钮添加监听
+    // TODO: 切换评论排序失效问题
     $('body').on('click', '.list-item .reply', this.replyListener)
 
     // 表情点击事件

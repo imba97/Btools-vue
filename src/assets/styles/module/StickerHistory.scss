@@ -1,11 +1,11 @@
-.bb-comment {
+.bb-comment > .comment-send > .textarea-container {
   & > .btools-sticker-history {
     position: absolute;
-    top: 142px;
-    left: 160px;
+    top: 67px;
+    left: 80px;
 
     .btools-sticker-history-container {
-      top: 12px;
+      top: 0;
     }
 
     .btools-sticker-history-show-more {
