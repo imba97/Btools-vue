@@ -19,7 +19,7 @@ module.exports = (): webpack.Configuration => {
   let manifestJSON = require('./src/manifest.json')
 
   // 版本号
-  manifestJSON.version = '2.0.2'
+  manifestJSON.version = '2.0.3'
 
   let configs: webpack.Configuration = {
     node: false,

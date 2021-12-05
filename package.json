@@ -6,8 +6,8 @@
   "scripts": {
     "c": "cross-env BROWSER_ENV=chrome cross-env NODE_ENV=development webpack --watch",
     "f": "cross-env BROWSER_ENV=firefox cross-env NODE_ENV=development webpack --watch",
-    "build:chrome": "cross-env BROWSER_ENV=chrome cross-env NODE_ENV=production webpack",
-    "build:firefox": "cross-env BROWSER_ENV=firefox cross-env NODE_ENV=production webpack"
+    "build:chrome": "cross-env BROWSER_ENV=chrome cross-env NODE_ENV=production webpack && node dev/zip/index.js Chrome",
+    "build:firefox": "cross-env BROWSER_ENV=firefox cross-env NODE_ENV=production webpack && node dev/zip/index.js Firefox"
   },
   "repository": {
     "type": "git",
@@ -72,7 +72,8 @@
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.2",
     "webpack-extension-reloader": "^1.1.4",
-    "write-json-webpack-plugin": "^1.1.0"
+    "write-json-webpack-plugin": "^1.1.0",
+    "zip-a-folder": "^1.1.0"
   },
   "dependencies": {
     "@babel/runtime-corejs3": "^7.14.9",
