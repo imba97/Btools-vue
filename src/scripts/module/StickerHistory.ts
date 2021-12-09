@@ -20,6 +20,7 @@ class StickerHistoryDomInfo {
   public div: HTMLDivElement[] = []
   public textarea: string[] = []
   public showMore: HTMLButtonElement[] = []
+  public btools_sticker_history: { [key: string]: HTMLDivElement } = {}
 }
 
 export class StickerHistory extends ModuleBase {
@@ -54,9 +55,9 @@ export class StickerHistory extends ModuleBase {
     )
 
     // 2. 楼中楼的评论框
-    const listItemElement = await this.addStickerHistoryElement('.list-item')
-    // 2.1. 楼中楼默认展开的情况，调用一次 replyListener 并指定 this 为 回复按钮
-    this.replyListener.call($(listItemElement).find('.reply'))
+    await this.addStickerHistoryElement('.list-item')
+    // 2.1. 楼中楼默认展开的情况
+    this.resetViewStatus()
 
     // 3. 下面的评论框
     Util.Instance()
@@ -73,11 +74,23 @@ export class StickerHistory extends ModuleBase {
   }
 
   private async addStickerHistoryElement(selector: string) {
+    const type = selector.replace('.', '')
     const ele = await Util.Instance().getElement(selector)
+
+    if (this._sticker_history_dom_info?.btools_sticker_history[type]) {
+      ele.appendChild(
+        this._sticker_history_dom_info?.btools_sticker_history[type]
+      )
+      return
+    }
+
     const btools_sticker_history = document.createElement('div')
     btools_sticker_history.classList.add('btools-sticker-history')
-    const type = selector.replace('.', '')
     btools_sticker_history.setAttribute('data-type', type)
+
+    // 保存历史表情 div 对象
+    this._sticker_history_dom_info!.btools_sticker_history[type] =
+      btools_sticker_history
 
     // 历史表情 容器 用于定位
     const btools_sticker_history_container = document.createElement('div')
@@ -104,8 +117,6 @@ export class StickerHistory extends ModuleBase {
     const textarea = this.getTextarea(selector)
 
     this._sticker_history_dom_info?.textarea.push(textarea)
-
-    return Promise.resolve(ele)
   }
 
   private async Init() {
@@ -113,15 +124,25 @@ export class StickerHistory extends ModuleBase {
     if (this._addedListener) return
     this._addedListener = true
 
+    // 评论类型点击事件
+    $('body').on('click', '.clearfix li', async () => {
+      // 2. 楼中楼的评论框
+      await this.addStickerHistoryElement('.list-item')
+      // 2.1. 楼中楼默认展开的情况，调用一次 replyListener 并指定 this 为 回复按钮
+      this.resetViewStatus()
+    })
+
     // 给 reply 按钮添加监听
-    // TODO: 切换评论排序失效问题
-    $('body').on('click', '.list-item .reply', this.replyListener)
+    $('body').on('click', '.list-item .reply', () => {
+      this.resetViewStatus()
+    })
 
     // 表情点击事件
-    $('body').on('click', '.emoji-wrap .emoji-list', async () => {
-      const img = $(this).find('img')
+    $('body').on('click', '.emoji-wrap .emoji-list', async (e) => {
+      const currentTarget = $(e.currentTarget)
+      const img = currentTarget.find('img')
       const isKaomoji = img.length === 0
-      const text = isKaomoji ? $(this).text() : img.attr('title') || ''
+      const text = isKaomoji ? currentTarget.text() : img.attr('title') || ''
       const src = img.attr('src') || ''
 
       const stickerHistory: IStickerHistory = {
@@ -483,8 +504,8 @@ export class StickerHistory extends ModuleBase {
 
   private getTextarea(selector: string): string {
     switch (selector) {
-      case '.bb-comment':
-        return '.bb-comment .comment-send .textarea-container textarea'
+      case '.bb-comment > .comment-send > .textarea-container':
+        return '.bb-comment > .comment-send > .textarea-container textarea'
       case '.comment-send-lite':
         return '.bb-comment .comment-send-lite .textarea-container textarea'
       case '.list-item':
@@ -494,18 +515,20 @@ export class StickerHistory extends ModuleBase {
     }
   }
 
-  private replyListener() {
-    if ($('.list-item .comment-send').length === 0) {
-      $('.btools-sticker-history[data-type="list-item"]').hide()
+  private resetViewStatus() {
+    if ($('.open-reply .comment-send').length === 0) {
+      $(
+        this._sticker_history_dom_info!.btools_sticker_history['list-item']
+      ).hide()
       return
     }
-    const btoolsStickerHistory = $(
-      '.btools-sticker-history[data-type="list-item"]'
-    )
-      .show()
-      .remove()
-    const replyItem = $(this).parents('.list-item')
 
-    replyItem.append(btoolsStickerHistory)
+    const btoolsStickerHistory = $(
+      this._sticker_history_dom_info!.btools_sticker_history['list-item']
+    )
+
+    btoolsStickerHistory.show().remove()
+
+    $('.open-reply').append(btoolsStickerHistory)
   }
 }
