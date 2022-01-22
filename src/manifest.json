@@ -1,45 +1,36 @@
 {
-	"background": {
+  "background": {
     "persistent": true,
     "page": "background.html"
   },
-	"manifest_version": 2,
-	"name": "Btools",
-	"version": "2.0.0",
-	"description": "__MSG_pluginDesc__",
-	"icons":
-	{
-		"16": "icon/16.png",
-		"48": "icon/48.png",
-		"128": "icon/128.png"
-	},
-	"browser_action":
-	{
-		"default_icon": "icon/128.png",
-		"default_title": "Btools",
-		"default_popup": "popup.html"
-	},
-  "options_ui":
-  {
+  "manifest_version": 2,
+  "name": "Btools",
+  "version": "2.0.0",
+  "description": "__MSG_pluginDesc__",
+  "icons": {
+    "16": "icon/16.png",
+    "48": "icon/48.png",
+    "128": "icon/128.png"
+  },
+  "browser_action": {
+    "default_icon": "icon/128.png",
+    "default_title": "Btools",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
     "page": "options.html"
   },
-	"content_scripts":
-	[
-		{
-			"matches": ["*://*.bilibili.com/*"],
-			"js": ["btools.js"],
-			"css": ["btools.css"],
-			"run_at": "document_start"
-		}
-	],
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
-	"permissions":
-	[
-    "<all_urls>",
-		"storage",
-    "webRequest"
-	],
-  
-	"homepage_url": "https://btools.cc",
-	"default_locale": "zh_CN"
+  "content_scripts": [
+    {
+      "matches": ["*://*.bilibili.com/*", "*://movie.douban.com/*"],
+      "js": ["btools.js"],
+      "css": ["btools.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+  "permissions": ["<all_urls>", "storage", "webRequest"],
+
+  "homepage_url": "https://btools.cc",
+  "default_locale": "zh_CN"
 }

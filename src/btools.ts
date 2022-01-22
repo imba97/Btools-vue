@@ -20,7 +20,12 @@ import {
 /**
  * 加载 Btools Watcher 模块
  */
-import { GetPicWatcher, LinkConverter, LiveRoomHelper } from '@/Watcher'
+import {
+  GetPicWatcher,
+  LinkConverter,
+  LiveRoomHelper,
+  HaiLinHappy
+} from '@/Watcher'
 
 Util.Instance().console('已开启', 'success')
 
@@ -57,3 +62,4 @@ browser.runtime.onMessage.addListener(function (request, sender) {
 new GetPicWatcher()
 new LinkConverter()
 new LiveRoomHelper()
+new HaiLinHappy()
