@@ -5,8 +5,8 @@ import { browser } from 'webextension-polyfill-ts'
 
 import '@styles/global'
 
-import Util from '@base/Util'
-import { RequestApiType } from '@base/enums/ContentJsType'
+import Util from '@/scripts/base/Util'
+import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 
 /**
  * 加载 Btools Linstener 模块

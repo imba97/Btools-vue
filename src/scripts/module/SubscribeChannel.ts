@@ -1,15 +1,15 @@
 import ModuleBase from '@/scripts/module/ModuleBase'
-import Util from '@base/Util'
-import ExtStorage from '@base/storage/ExtStorage'
+import Util from '@/scripts/base/Util'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
   TSubscribeChannel,
   ISubscribeChannel,
   IVideoData
-} from '@base/storage/template'
+} from '@/scripts/base/storage/template'
 import _ from 'lodash'
-import { Url } from '@base/Url'
-import IconUtil from '@base/IconUtil'
-import HKM from '@base/HotKeyMenu'
+import { Url } from '@/scripts/base/Url'
+import IconUtil from '@/scripts/base/IconUtil'
+import HKM from '@/scripts/base/HotKeyMenu'
 
 export class SubscribeChannel extends ModuleBase {
   private _localData: ISubscribeChannel = {}

@@ -1,4 +1,4 @@
-import { OptionsType } from '@base/enums/OptionsType'
+import { OptionsType } from '@/scripts/base/enums/OptionsType'
 
 export interface IBtoolsConfigsOptions<T> extends Object {
   /**

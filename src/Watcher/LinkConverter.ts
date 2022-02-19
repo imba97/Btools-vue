@@ -2,7 +2,7 @@
  * 链接转换
  */
 
-import Util from '@base/Util'
+import Util from '@/scripts/base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
 import _ from 'lodash'

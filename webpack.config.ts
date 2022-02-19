@@ -39,9 +39,7 @@ module.exports = (): webpack.Configuration => {
       alias: {
         vue$: 'vue/dist/vue.esm.js',
         '@': resolve('src'),
-        '@styles': resolve('src/assets/styles'),
-        '@components': resolve('src/components'),
-        '@base': resolve('src/scripts/base')
+        '@styles': resolve('src/assets/styles')
       }
     },
     module: {

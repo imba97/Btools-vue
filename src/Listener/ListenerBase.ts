@@ -5,7 +5,7 @@
  *     与前端交互，监听API请求，当结果返回后再进行页面操作
  */
 
-import { RequestApiType } from '@base/enums/ContentJsType'
+import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
 import { browser } from 'webextension-polyfill-ts'
 
 interface IContentJs extends Object {

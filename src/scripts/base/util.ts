@@ -1,4 +1,4 @@
-import Singleton from '@base/singletonBase/Singleton'
+import Singleton from '@/scripts/base/singletonBase/Singleton'
 
 export default class Util extends Singleton {
   private bvTool = {

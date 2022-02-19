@@ -1,12 +1,158 @@
+<style lang="scss" scoped>
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.subscribe-channel {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+
+  ul {
+    overflow-y: auto;
+  }
+
+  ul > li {
+    position: relative;
+    width: 150px;
+    height: 130px;
+    list-style: none;
+    box-sizing: border-box;
+    float: left;
+    cursor: pointer;
+
+    .pic {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 150px;
+      height: 100px;
+      object-fit: fill;
+    }
+
+    .title {
+      position: absolute;
+      top: 100px;
+      left: 0;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .user-info {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+    cursor: pointer;
+
+    .face {
+      position: absolute;
+      top: 5px;
+      left: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 100%;
+    }
+
+    .nickname {
+      position: absolute;
+      top: 10px;
+      left: 45px;
+      color: #fff;
+      font-size: 16px;
+    }
+  }
+
+  .channel {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background-image: linear-gradient(
+      to top,
+      #d5d4d0 0%,
+      #d5d4d0 1%,
+      #eeeeec 31%,
+      #efeeec 75%,
+      #e9e9e7 100%
+    );
+    cursor: pointer;
+
+    .title {
+      position: absolute;
+      top: 5px;
+      right: 40px;
+      font-size: 14px;
+    }
+
+    .clear-all {
+      position: absolute;
+      top: 3px;
+      right: 5px;
+      padding: 3px;
+      font-size: 12px;
+      text-decoration: none;
+      color: #fff;
+      background-color: #f66;
+      border-radius: 5px;
+      user-select: none;
+    }
+  }
+
+  .empty {
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .icon-empty {
+      width: 30px;
+      height: 30px;
+      display: inline;
+    }
+
+    span {
+      margin-left: 10px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+  }
+}
+
+.subscribe-channel-empty {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .icon-empty {
+    width: 60px;
+    height: 60px;
+  }
+
+  span {
+    font-size: 20px;
+  }
+}
+</style>
+
 <template>
-  <div>
+  <div class="container">
     <div class="subscribe-channel" v-if="Object.keys(channelInfo).length !== 0">
       <div v-for="(cids, uid) in channelInfo" :key="uid">
         <p class="user-info" @click="toUserSpace(uid)">
-          <img
-            class="face"
-            :src="`${userInfo[uid].face}@50w_50h_100Q_1c.webp`"
-          />
+          <img class="face" :src="`${userInfo[uid].face}@50w_50h_100Q_1c.webp`" />
           <span class="nickname">{{ userInfo[uid].name }}</span>
         </p>
         <div v-for="(channel, cid) in cids" :key="cid">
@@ -16,8 +162,7 @@
               class="clear-all"
               href="javascript:void(0);"
               @click="clearAll(uid, cid, $event)"
-              >清空</span
-            >
+            >清空</span>
           </p>
           <ul v-if="channel.videos.length > 0">
             <li
@@ -48,17 +193,19 @@
 import { Vue, Component } from 'vue-property-decorator'
 import {
   ISubscribeChannel,
+  IUserInfo,
   IVideoData,
   TSubscribeChannel
-} from '@base/storage/template'
-import ExtStorage from '@base/storage/ExtStorage'
+} from '@/scripts/base/storage/template'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import _ from 'lodash'
-import IconUtil from '@base/IconUtil'
+import IconUtil from '@/scripts/base/IconUtil'
+import { IChannelList } from '@/scripts/base/interface/IPopup'
 
 @Component
-export default class Popup extends Vue {
-  channelInfo = {}
-  userInfo = {}
+export default class SubscribeChannel extends Vue {
+  channelInfo: IChannelList = {}
+  userInfo: IUserInfo = {}
 
   private _localData: ISubscribeChannel = {}
 
@@ -148,8 +295,7 @@ export default class Popup extends Vue {
 
     // 打开页面
     window.open(
-      `https://b23.tv/${
-        this._localData.channelVideos![uid][cid][localDataIndex].bvid
+      `https://b23.tv/${this._localData.channelVideos![uid][cid][localDataIndex].bvid
       }`
     )
 
@@ -179,5 +325,3 @@ export default class Popup extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped></style>

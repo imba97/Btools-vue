@@ -2,7 +2,7 @@
  * 直播间助手
  */
 
-import Util from '@base/Util'
+import Util from '@/scripts/base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
 import _ from 'lodash'

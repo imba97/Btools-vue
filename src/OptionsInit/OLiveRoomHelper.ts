@@ -1,6 +1,9 @@
-import ExtStorage from '@base/storage/ExtStorage'
-import { OptionsType } from '@base/enums/OptionsType'
-import { ILiveRoomHelper, TLiveRoomHelper } from '@base/storage/template'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import { OptionsType } from '@/scripts/base/enums/OptionsType'
+import {
+  ILiveRoomHelper,
+  TLiveRoomHelper
+} from '@/scripts/base/storage/template'
 import _ from 'lodash'
 
 export class OLiveRoomHelper {

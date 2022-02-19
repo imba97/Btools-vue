@@ -2,11 +2,11 @@
  * 获取封面
  */
 
-import Util from '@base/Util'
+import Util from '@/scripts/base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
-import IconUtil from '@base/IconUtil'
-import { default as HKM, HKMElement } from '@base/HotKeyMenu'
+import IconUtil from '@/scripts/base/IconUtil'
+import { default as HKM, HKMElement } from '@/scripts/base/HotKeyMenu'
 
 export class GetPicWatcher extends WatcherBase {
   protected init(): void {

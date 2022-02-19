@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="title">直播间助手配置项（点击切换选项）</h2>
+    <h2 class="title">订阅频道配置项（点击切换选项）</h2>
     <ul class="options">
       <li
         v-for="(item, index) in options"
@@ -8,32 +8,32 @@
         @click="change($event, index, item.key)"
         @contextmenu="change($event, index, item.key)"
       >
-        <span class="name">{{ item.name }}：</span
-        ><span class="value">{{ item.current.name }}</span>
+        <span class="name">{{ item.name }}：</span>
+        <span class="value">{{ item.current.name }}</span>
       </li>
     </ul>
   </div>
 </template>
 
 <script lang="ts">
-import { OLiveRoomHelper } from '@/OptionsInit'
-import { OptionsType } from '@base/enums/OptionsType'
-import { IBtoolsConfigsOptions, IBtoolsOptions } from '@base/interface/IOptions'
-import ExtStorage from '@base/storage/ExtStorage'
-import { TLiveRoomHelper, ILiveRoomHelper } from '@base/storage/template'
+import { OSubscribeChannel } from '@/OptionsInit'
+import { OptionsType } from '@/scripts/base/enums/OptionsType'
+import { IBtoolsConfigsOptions, IBtoolsOptions } from '@/scripts/base/interface/IOptions'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import { ISubscribeChannel, TSubscribeChannel } from '@/scripts/base/storage/template'
 import _ from 'lodash'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class SubscribeChannel extends Vue {
-  private _localData: ILiveRoomHelper = {}
+  private _localData: ISubscribeChannel = {}
   private _isSetting = false
 
   options: Options[] = []
   type = OptionsType
 
   async created() {
-    this._localData = await new OLiveRoomHelper().init()
+    this._localData = await new OSubscribeChannel().init()
 
     // 循环每一项 显示到界面
     _.forEach(this._localData.setting, (option, key) => {
@@ -77,7 +77,7 @@ export default class SubscribeChannel extends Vue {
     const max = this._localData.setting![key].values.length
 
     // 下一项 index
-    let next
+    let next: number
 
     // 鼠标左键 下一项
     if (e.button === 0) {
@@ -98,9 +98,10 @@ export default class SubscribeChannel extends Vue {
       this._localData.setting![key].values[next]
 
     // 保存本地存储
-    await ExtStorage.Instance().setStorage<TLiveRoomHelper, ILiveRoomHelper>(
-      new TLiveRoomHelper(this._localData)
-    )
+    await ExtStorage.Instance().setStorage<
+      TSubscribeChannel,
+      ISubscribeChannel
+    >(new TSubscribeChannel(this._localData))
 
     this._isSetting = false
   }

@@ -2,8 +2,8 @@
  * 直播间助手存储模板
  */
 
-import { TemplateBase } from '@base/storage/template/TemplateBase'
-import { IBtoolsOptions } from '@base/interface/IOptions'
+import { TemplateBase } from '@/scripts/base/storage/template/TemplateBase'
+import { IBtoolsOptions } from '@/scripts/base/interface/IOptions'
 
 /**
  * 直播间助手 配置项

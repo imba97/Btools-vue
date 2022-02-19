@@ -1,5 +1,5 @@
-import { TemplateBase } from '@base/storage/template/TemplateBase'
-import { IBtoolsOptions } from '@base/interface/IOptions'
+import { TemplateBase } from '@/scripts/base/storage/template/TemplateBase'
+import { IBtoolsOptions } from '@/scripts/base/interface/IOptions'
 
 export interface IVideoData {
   /**
@@ -33,7 +33,7 @@ interface IChannelInfo extends Object {
   }
 }
 
-interface IUserInfo extends Object {
+export interface IUserInfo extends Object {
   [key: number]: {
     name?: string
     face?: string

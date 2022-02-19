@@ -2,12 +2,15 @@
  * 直播间助手
  */
 
-import Util from '@base/Util'
+import Util from '@/scripts/base/Util'
 import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
 import _ from 'lodash'
-import { ILiveRoomHelper, TLiveRoomHelper } from '@base/storage/template'
-import ExtStorage from '@base/storage/ExtStorage'
+import {
+  ILiveRoomHelper,
+  TLiveRoomHelper
+} from '@/scripts/base/storage/template'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 
 export class LiveRoomHelper extends WatcherBase {
   private _localData?: ILiveRoomHelper

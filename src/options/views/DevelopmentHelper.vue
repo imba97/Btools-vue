@@ -7,11 +7,11 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import ExtStorage from '@base/storage/ExtStorage'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
   TRetrieveInvalidVideo,
   IRetrieveInvalidVideo
-} from '@base/storage/template'
+} from '@/scripts/base/storage/template'
 
 @Component
 export default class DevelopmentHelper extends Vue {

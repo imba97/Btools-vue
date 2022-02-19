@@ -4,14 +4,14 @@
  *  - 自定义颜文字
  */
 
-import Util from '@base/Util'
-import { TComment, IComment } from '@base/storage/template'
+import Util from '@/scripts/base/Util'
+import { TComment, IComment } from '@/scripts/base/storage/template'
 import ModuleBase from '@/scripts/module/ModuleBase'
 import $ from 'jquery'
 import _ from 'lodash'
-import { IStickerHistory } from '@base/storage/template/TComment'
-import ExtStorage from '@base/storage/ExtStorage'
-import IconUtil from '@base/IconUtil'
+import { IStickerHistory } from '@/scripts/base/storage/template/TComment'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import IconUtil from '@/scripts/base/IconUtil'
 
 /**
  * 历史表情 DOM 元素信息

@@ -1,6 +1,9 @@
-import ExtStorage from '@base/storage/ExtStorage'
-import { OptionsType } from '@base/enums/OptionsType'
-import { ISubscribeChannel, TSubscribeChannel } from '@base/storage/template'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import { OptionsType } from '@/scripts/base/enums/OptionsType'
+import {
+  ISubscribeChannel,
+  TSubscribeChannel
+} from '@/scripts/base/storage/template'
 import _ from 'lodash'
 
 export class OSubscribeChannel {

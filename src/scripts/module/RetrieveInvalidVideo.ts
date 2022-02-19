@@ -5,18 +5,18 @@
 import _ from 'lodash'
 import $ from 'jquery'
 
-import HKM from '@base/HotKeyMenu'
-import Util from '@base/Util'
-import { Url } from '@base/Url'
+import HKM from '@/scripts/base/HotKeyMenu'
+import Util from '@/scripts/base/Util'
+import { Url } from '@/scripts/base/Url'
 import ModuleBase from '@/scripts/module/ModuleBase'
 
-import ExtStorage from '@base/storage/ExtStorage'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
   TRetrieveInvalidVideo,
   IRetrieveInvalidVideo,
   IVideoInfo,
   IVideoDetail
-} from '@base/storage/template'
+} from '@/scripts/base/storage/template'
 
 export class RetrieveInvalidVideo extends ModuleBase {
   private _notFoundTitle = '未查询到视频信息'
