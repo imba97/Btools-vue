@@ -32,7 +32,7 @@ export class SubscribeChannel extends ModuleBase {
   /**
    * 频道信息
    */
-  private _channel_info: { uid?: number; cid?: number } = {}
+  private _channel_info: { uid?: number; sid?: number } = {}
 
   /**
    * 快捷键菜单 实例
@@ -47,14 +47,14 @@ export class SubscribeChannel extends ModuleBase {
       key: 'S',
       title: '订阅频道',
       action: () => {
-        this.doSubscribe(this._channel_info.uid!, this._channel_info.cid!)
+        this.doSubscribe(this._channel_info.uid!, this._channel_info.sid!)
       }
     },
     unsubscribe: {
       key: 'S',
       title: '取消订阅',
       action: () => {
-        this.doUnSubscribe(this._channel_info.uid!, this._channel_info.cid!)
+        this.doUnSubscribe(this._channel_info.uid!, this._channel_info.sid!)
       }
     }
   }
@@ -112,12 +112,12 @@ export class SubscribeChannel extends ModuleBase {
     // 用户 ID
     this._channel_info.uid = parseInt(channel_info_reg[1])
     // 频道 ID
-    this._channel_info.cid = parseInt(channel_info_reg[2])
+    this._channel_info.sid = parseInt(channel_info_reg[2])
 
     // 查询是否已订阅
     this._isSubscribed = this.isSubscribed(
       this._channel_info.uid,
-      this._channel_info.cid
+      this._channel_info.sid
     )
 
     // 订阅按钮
@@ -199,10 +199,10 @@ export class SubscribeChannel extends ModuleBase {
   /**
    * 取消订阅事件
    * @param uid 用户ID
-   * @param cid 频道ID
+   * @param sid 频道ID
    */
-  private doUnSubscribe(uid: number, cid: number) {
-    const channelIndex = this._localData.channel![uid].indexOf(cid)
+  private doUnSubscribe(uid: number, sid: number) {
+    const channelIndex = this._localData.channel![uid].indexOf(sid)
 
     if (channelIndex === -1) {
       return
@@ -212,7 +212,7 @@ export class SubscribeChannel extends ModuleBase {
     this._localData.channel![uid].splice(channelIndex, 1)
 
     // 删除频道视频
-    delete this._localData.channelVideos![uid][cid]
+    delete this._localData.channelVideos![uid][sid]
 
     this.save()
 
@@ -260,17 +260,17 @@ export class SubscribeChannel extends ModuleBase {
   /**
    * 查询是否已订阅
    * @param uid 用户ID
-   * @param cid 频道ID
+   * @param sid 频道ID
    * @returns 是否已订阅
    */
-  private isSubscribed(uid: number, cid: number): boolean {
+  private isSubscribed(uid: number, sid: number): boolean {
     return (
       // chanel 不是 undefined
       this._localData.channel !== undefined &&
       // 频道中有 uid
       this._localData.channel.hasOwnProperty(uid) &&
-      // uid 下有 cid
-      this._localData.channel[uid].indexOf(cid) !== -1
+      // uid 下有 sid
+      this._localData.channel[uid].indexOf(sid) !== -1
       // 则已订阅
     )
   }

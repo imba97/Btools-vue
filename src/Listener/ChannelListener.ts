@@ -92,30 +92,30 @@ export class ChannelListener extends ListenerBase {
     let requestTimeout = 0
 
     // 循环订阅的频道
-    _.forEach(this._localData.channel, (cids, uid) => {
+    _.forEach(this._localData.channel, (sids, uid) => {
       // 用户 ID
       const _uid = parseInt(uid)
       // 循环所有频道 ID
-      _.forEach(cids, async (cid) => {
+      _.forEach(sids, async (sid) => {
         // 延时执行
         setTimeout(async () => {
           // 清空视频信息临时存储数组
           this._videos_temp = []
           // 获取最新频道视频
-          await this.getChannelVideos(_uid, cid)
+          await this.getChannelVideos(_uid, sid)
 
           // 与本地存储进行差异对比 取得新视频
           const newVideos = _.differenceBy(
             this._videos_temp,
-            this._localData.channelVideos![uid][cid],
+            this._localData.channelVideos![uid][sid],
             'bvid'
           )
 
           // 如果有新视频
           if (newVideos.length !== 0) {
             // 合并数组
-            this._localData.channelVideos![uid][cid] = _.union(
-              this._localData.channelVideos![uid][cid],
+            this._localData.channelVideos![uid][sid] = _.union(
+              this._localData.channelVideos![uid][sid],
               newVideos
             )
 

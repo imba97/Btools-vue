@@ -150,25 +150,25 @@
 <template>
   <div class="container">
     <div class="subscribe-channel" v-if="Object.keys(channelInfo).length !== 0">
-      <div v-for="(cids, uid) in channelInfo" :key="uid">
+      <div v-for="(sids, uid) in channelInfo" :key="uid">
         <p class="user-info" @click="toUserSpace(uid)">
           <img class="face" :src="`${userInfo[uid].face}@50w_50h_100Q_1c.webp`" />
           <span class="nickname">{{ userInfo[uid].name }}</span>
         </p>
-        <div v-for="(channel, cid) in cids" :key="cid">
-          <p class="channel" @click="toChannel(uid, cid)">
+        <div v-for="(channel, sid) in sids" :key="sid">
+          <p class="channel" @click="toChannel(uid, sid)">
             <span class="title">{{ channel.title }}</span>
             <span
               class="clear-all"
               href="javascript:void(0);"
-              @click="clearAll(uid, cid, $event)"
+              @click="clearAll(uid, sid, $event)"
             >清空</span>
           </p>
           <ul v-if="channel.videos.length > 0">
             <li
               v-for="(video, index) in channel.videos"
               :key="index"
-              @click="linkTo(uid, cid, index, video.bvid)"
+              @click="linkTo(uid, sid, index, video.bvid)"
             >
               <img class="pic" :src="`${video.pic}@380w_240h_100Q_1c.webp`" />
               <p class="title">{{ video.title }}</p>
@@ -227,9 +227,9 @@ export default class SubscribeChannel extends Vue {
     const user = {}
 
     // 遍历视频信息
-    _.forEach(this._localData.channelVideos, async (cids, uid) => {
+    _.forEach(this._localData.channelVideos, async (sids, uid) => {
       // 如果是空直接跳过
-      if (_.isEmpty(cids)) return true
+      if (_.isEmpty(sids)) return true
 
       // 构造临时存储
       data[uid] = {}
@@ -239,15 +239,15 @@ export default class SubscribeChannel extends Vue {
       user[uid].name = this._localData.userInfo![uid].name
       user[uid].face = this._localData.userInfo![uid].face
       // 循环频道信息
-      _.forEach(cids, (videos: IVideoData[], cid) => {
+      _.forEach(sids, (videos: IVideoData[], sid) => {
         if (_.isEmpty(videos)) {
           return true
         }
-        data[uid][cid] = {}
+        data[uid][sid] = {}
         // 频道名称
-        data[uid][cid].title = this._localData.channelInfo![cid].title
+        data[uid][sid].title = this._localData.channelInfo![sid].title
         // 频道下已阅的视频
-        data[uid][cid].videos = videos.filter((video) => !video.readed)
+        data[uid][sid].videos = videos.filter((video) => !video.readed)
       })
     })
 
@@ -259,12 +259,12 @@ export default class SubscribeChannel extends Vue {
   /**
    * 清空一个频道下所有视频
    */
-  clearAll(uid: number, cid: number, e: MouseEvent) {
+  clearAll(uid: number, sid: number, e: MouseEvent) {
     e.stopPropagation()
-    this.channelInfo[uid][cid].videos = []
+    this.channelInfo[uid][sid].videos = []
 
-    this._localData.channelVideos![uid][cid] = _.map(
-      this._localData.channelVideos![uid][cid],
+    this._localData.channelVideos![uid][sid] = _.map(
+      this._localData.channelVideos![uid][sid],
       (item) => {
         if (!item.readed) item.readed = true
         return item
@@ -277,17 +277,17 @@ export default class SubscribeChannel extends Vue {
   /**
    * 跳转到该视频
    */
-  linkTo(uid: number, cid: number, index: number, bvid: string) {
+  linkTo(uid: number, sid: number, index: number, bvid: string) {
     // 临时存储
     const channelInfo = this.channelInfo
     // 删除视频
-    channelInfo[uid][cid].videos.splice(index, 1)
+    channelInfo[uid][sid].videos.splice(index, 1)
     // 渲染页面
     this.channelInfo = channelInfo
 
     // 获取该视频在本地存储的 index
     const localDataIndex = _.findIndex(
-      this._localData.channelVideos![uid][cid],
+      this._localData.channelVideos![uid][sid],
       { bvid }
     )
 
@@ -295,12 +295,12 @@ export default class SubscribeChannel extends Vue {
 
     // 打开页面
     window.open(
-      `https://b23.tv/${this._localData.channelVideos![uid][cid][localDataIndex].bvid
+      `https://b23.tv/${this._localData.channelVideos![uid][sid][localDataIndex].bvid
       }`
     )
 
     // 设置为 已读
-    this._localData.channelVideos![uid][cid][localDataIndex].readed = true
+    this._localData.channelVideos![uid][sid][localDataIndex].readed = true
 
     this.save()
   }
@@ -309,8 +309,8 @@ export default class SubscribeChannel extends Vue {
     window.open(`https://space.bilibili.com/${uid}`)
   }
 
-  toChannel(uid: number, cid: number) {
-    window.open(`https://space.bilibili.com/${uid}/channel/detail?cid=${cid}`)
+  toChannel(uid: number, sid: number) {
+    window.open(`https://space.bilibili.com/${uid}/channel/seriesdetail?sid=${sid}`)
   }
 
   // 保存本地存储
