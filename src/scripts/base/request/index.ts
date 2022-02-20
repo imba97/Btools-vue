@@ -12,6 +12,11 @@ export default class Request extends Singleton {
   protected baseUrl!: string
 
   protected async request(options: AxiosRequestConfig): Promise<any> {
+    // 如果没有 tabs.sendMessage 说明是 background js
+    if (_.get(browser, 'tabs.sendMessage', null) !== null) {
+      return this.backgroundRequest(options)
+    }
+
     return new Promise((resolve, reject) => {
       browser.runtime
         .sendMessage({
@@ -34,6 +39,11 @@ export default class Request extends Singleton {
     })
   }
 
+  /**
+   * background js 发起请求
+   * @param options
+   * @returns
+   */
   protected async backgroundRequest(options: AxiosRequestConfig) {
     return await axios({
       method: options.method,
