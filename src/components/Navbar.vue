@@ -20,7 +20,7 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: lighten($default-color, 20%);
+    background-color: lighten($primary-color, 20%);
   }
 
   &::-webkit-scrollbar-track {
@@ -35,7 +35,7 @@
 
     white-space: nowrap;
 
-    background-color: $default-color;
+    background-color: $primary-color;
 
     a {
       position: relative;
@@ -54,7 +54,7 @@
       text-decoration: none;
 
       &.active {
-        background-color: lighten($default-color, 10%);
+        background-color: lighten($primary-color, 10%);
       }
     }
   }
