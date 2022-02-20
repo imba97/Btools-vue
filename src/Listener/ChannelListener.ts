@@ -11,7 +11,7 @@ import {
   IVideoData,
   TSubscribeChannel
 } from '@/scripts/base/storage/template'
-import { Url } from '@/scripts/base/Url'
+import { BilibiliApi } from '@/api'
 import _ from 'lodash'
 
 export class ChannelListener extends ListenerBase {
@@ -135,11 +135,7 @@ export class ChannelListener extends ListenerBase {
    */
   private async getChannelVideos(uid: number, sid: number, page: number = 1) {
     // 发送请求
-    const result = await Url.CHANEL_VIDEO.backgroundRequest({
-      mid: uid,
-      series_id: sid,
-      pn: page
-    })
+    const result = await BilibiliApi.Instance().getChannelVideo(uid, sid, page)
 
     // 遍历视频列表
     if (result.data.archives.length !== 0) {

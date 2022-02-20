@@ -7,7 +7,6 @@ import $ from 'jquery'
 
 import HKM from '@/scripts/base/HotKeyMenu'
 import Util from '@/scripts/base/Util'
-import { Url } from '@/scripts/base/Url'
 import ModuleBase from '@/scripts/module/ModuleBase'
 
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
@@ -17,6 +16,7 @@ import {
   IVideoInfo,
   IVideoDetail
 } from '@/scripts/base/storage/template'
+import { BilibiliApi, BiliPlus, JijiDown } from '@/api'
 
 export class RetrieveInvalidVideo extends ModuleBase {
   private _notFoundTitle = '未查询到视频信息'
@@ -120,9 +120,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
     const findAids: number[] = []
 
     // 请求 biliplus 查询失效视频信息
-    const json = await Url.BILIPLUS_VIDEO_INFO.request({
-      aid: aids.join(',')
-    })
+    const json = await BiliPlus.Instance().videoInfo(aids.join(','))
 
     if (json.code === 0) {
       // 构造以找到 aid
@@ -146,9 +144,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
     // 处理未找到的视频
     _.forEach(_.difference(aids, findAids), async (aid) => {
       // biliplus 未找到的 发到 jijidown 继续查找
-      const jijidownData = await Url.JIJIDOWN_VIDEO_INFO.request({
-        id: `${aid}`
-      })
+      const jijidownData = await JijiDown.Instance().videoInfo(`${aid}`)
 
       const bvid = Util.Instance().av2bv(aid)
 
@@ -263,9 +259,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
       return
     }
 
-    const videoInfo = await Url.VIDEO_INFO.request({
-      bvid
-    })
+    const videoInfo = await BilibiliApi.Instance().videoInfo(bvid)
 
     if (videoInfo.code === 0) {
       this._localData.notInvalidVideoInfo[bvid] = {
@@ -379,9 +373,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
 
     // 显示详情窗口 此时会 loading
     this.showDetail()
-    const detail = await Url.BILIPLUS_VIDEO_DETAIL.request({
-      id: aid
-    })
+    const detail = await BiliPlus.Instance().videoDetail(aid)
 
     const partNames: string[] = []
     // 取出分P标题

@@ -7,9 +7,9 @@ import {
   IVideoData
 } from '@/scripts/base/storage/template'
 import _ from 'lodash'
-import { Url } from '@/scripts/base/Url'
 import IconUtil from '@/scripts/base/IconUtil'
 import HKM from '@/scripts/base/HotKeyMenu'
+import { BilibiliApi } from '@/api'
 
 export class SubscribeChannel extends ModuleBase {
   private _localData: ISubscribeChannel = {}
@@ -153,15 +153,11 @@ export class SubscribeChannel extends ModuleBase {
     )
 
     // 频道数据 获取频道标题 和 作者名称
-    const channelData = await Url.CHANNEL_INFO.request({
-      series_id: sid
-    })
+    const channelData = await BilibiliApi.Instance().getChannelInfo(sid)
 
     await this.getChannelVideos(uid, sid)
 
-    const userInfo = await Url.USER_CARD.request({
-      mid: uid.toString()
-    })
+    const userInfo = await BilibiliApi.Instance().userCard(uid.toString())
 
     // 频道信息
     this._localData.channelInfo![sid] = {
@@ -235,11 +231,7 @@ export class SubscribeChannel extends ModuleBase {
    * @returns 频道数据
    */
   private async getChannelVideos(uid: number, sid: number, page: number = 1) {
-    const result = await Url.CHANEL_VIDEO.request({
-      mid: uid,
-      series_id: sid,
-      pn: page
-    })
+    const result = await BilibiliApi.Instance().getChannelVideo(uid, sid, page)
 
     // 遍历视频列表
     if (result.data.archives.length !== 0) {

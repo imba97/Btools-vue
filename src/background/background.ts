@@ -21,6 +21,7 @@ browser.runtime.onMessage.addListener((request) => {
   return new Promise((resolve, reject) => {
     axios({
       method: request.type,
+      baseURL: request.baseUrl,
       url: request.url,
       ...params,
       headers: request.headers || {}
