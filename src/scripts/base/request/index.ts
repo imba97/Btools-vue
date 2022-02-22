@@ -4,11 +4,11 @@ import { default as axios, AxiosRequestConfig, Method } from 'axios'
 import { browser } from 'webextension-polyfill-ts'
 
 import Singleton from '@/scripts/base/singletonBase/Singleton'
-import ExtStorage from '../storage/ExtStorage'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import {
   IMultipleAccounts,
   TMultipleAccounts
-} from '../storage/template/TMultipleAccounts'
+} from '@/scripts/base/storage/template/TMultipleAccounts'
 
 export default class Request extends Singleton {
   /**
@@ -46,25 +46,20 @@ export default class Request extends Singleton {
       }
     }
 
+    const isGet = options.method?.toLocaleUpperCase() === 'GET'
+
     return new Promise((resolve, reject) => {
       browser.runtime
         .sendMessage({
           type: options.method,
           baseUrl: this.baseUrl,
           url: options.url,
-          ...(options.method?.toLocaleUpperCase() === 'GET'
+          ...(isGet
             ? { params: options.data }
-            : { data: options.data }),
-          headers:
-            options.method?.toLocaleUpperCase() === 'GET'
-              ? {
-                  cookie: userCookie
-                }
-              : {
-                  'content-type': 'application/x-www-form-urlencoded',
-                  cookie: userCookie
-                },
-          ...options
+            : { data: qs.stringify(options.data) }),
+          headers: isGet
+            ? {}
+            : { 'content-type': 'application/x-www-form-urlencoded' }
         })
         .then((json) => {
           if (!json) reject(new Error('error'))
@@ -95,6 +90,7 @@ export default class Request extends Singleton {
         ? {}
         : { 'content-type': 'application/x-www-form-urlencoded' }
     }).then((response) => {
+      console.log(response)
       return response.data
     })
   }

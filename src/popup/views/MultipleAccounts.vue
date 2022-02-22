@@ -146,10 +146,13 @@
 <template>
   <div class="account-container">
     <div v-show="!showLogin" class="account-list">
+      <!-- 账号数 添加按钮 -->
       <div class="account-control-button">
         <span>帐号列表 ({{ accountList.length }})</span>
         <button @click="addAccount">添加帐号</button>
       </div>
+
+      <!-- 帐号列表 -->
       <ul>
         <li v-for="item in accountList" :key="item.uid">
           <div class="avatar">
@@ -195,6 +198,7 @@ import { IAccountItem } from '@/scripts/base/interface/IMultipleAccounts'
 
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import { TMultipleAccounts, IMultipleAccounts } from '@/scripts/base/storage/template/TMultipleAccounts'
+import { browser, Cookies } from 'webextension-polyfill-ts'
 
 @Component({
   name: 'MultipleAccounts'
@@ -219,8 +223,12 @@ export default class MultipleAccounts extends Vue {
 
   public currentStatus: number = this.LoginStatus.NotScanned
 
-
   public accountList: IAccountItem[] = []
+
+  /** 当前账号的 cookie */
+  private _currentAccountCookie: Cookies.Cookie[] = []
+
+  private _accountCookieNames: string[] = []
 
   @Watch('showLogin')
   onShowLoginChanged(val: boolean) {
@@ -275,6 +283,9 @@ export default class MultipleAccounts extends Vue {
 
     this.accountList = _.cloneDeep(this._localData.userList) || []
 
+    // 退出也重新替换当前 cookie 
+    this.replaceToken()
+
     this.checkAccountCount()
     this.save()
   }
@@ -296,6 +307,34 @@ export default class MultipleAccounts extends Vue {
 
     this.oauthKey = _.get(loginUrlResponse, 'data.oauthKey', '')
 
+    // 获取当前 cookie
+
+    // TODO: 禁止 response set-cookie
+    // 登陆后会 set-cookie 目前不知道怎么禁止 response headers set-cookie
+    // 现在就只能获取原来的 cookie 登陆后换回原来的
+    const cookies = await browser.cookies
+      .getAll({
+        domain: '.bilibili.com'
+      })
+
+    this._currentAccountCookie = []
+    this._accountCookieNames = [
+      'SESSDATA',
+      'bili_jct',
+      'DedeUserID',
+      'DedeUserID__ckMd5'
+    ]
+
+    _.forEach(this._accountCookieNames, key => {
+      const cookie = _.find(cookies, { name: key })
+
+      if (cookie) {
+        this._currentAccountCookie.push(cookie)
+      }
+    })
+
+    console.log(this._currentAccountCookie)
+
     // 二维码
     this.qrcode = await qrcode.toDataURL(loginUrl, {
       color: {
@@ -313,6 +352,7 @@ export default class MultipleAccounts extends Vue {
 
     if (!response.status) return
 
+    // 登陆成功
     if (this.checkLoginTimer) {
       const dataUrl = _.get(response, 'data.url', '')
 
@@ -323,8 +363,6 @@ export default class MultipleAccounts extends Vue {
         bili_jct: string
       }
 
-      const userInfo = await BilibiliApi.Instance().userCard(params.DedeUserID)
-
       const savedUserInfo = _.find(this._localData.userList, {
         uid: params.DedeUserID
       })
@@ -333,6 +371,9 @@ export default class MultipleAccounts extends Vue {
         savedUserInfo.token = params.SESSDATA
         savedUserInfo.csrf = params.bili_jct
       } else {
+
+        const userInfo = await BilibiliApi.Instance().userCard(params.DedeUserID)
+
         this._localData.userList?.push({
           uid: params.DedeUserID,
           name: userInfo.data.card.name,
@@ -341,6 +382,8 @@ export default class MultipleAccounts extends Vue {
           csrf: params.bili_jct
         })
       }
+
+      this.replaceToken()
 
       this.accountList = _.cloneDeep(this._localData.userList) || []
       this.currentStatus = this.LoginStatus.NotScanned
@@ -351,6 +394,27 @@ export default class MultipleAccounts extends Vue {
       clearInterval(this.checkLoginTimer)
       return
     }
+  }
+
+  /**
+   * 替换 token
+   * 好耶，这样果然能成功
+   */
+  private replaceToken() {
+    _.forEach(this._currentAccountCookie, cookie => {
+      browser.cookies.set({
+        url: 'https://bilibili.com',
+        domain: cookie.domain,
+        expirationDate: cookie.expirationDate,
+        httpOnly: cookie.httpOnly,
+        name: cookie.name,
+        path: cookie.path,
+        sameSite: cookie.sameSite,
+        secure: cookie.secure,
+        storeId: cookie.storeId,
+        value: cookie.value
+      })
+    })
   }
 
   private save() {
