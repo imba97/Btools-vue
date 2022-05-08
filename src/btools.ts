@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { browser } from 'webextension-polyfill-ts'
 
 import '@styles/global'
+import '@styles/index'
 
 import Util from '@/scripts/base/Util'
 import { RequestApiType } from '@/scripts/base/enums/ContentJsType'

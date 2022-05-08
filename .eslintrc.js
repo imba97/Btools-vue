@@ -41,6 +41,23 @@ module.exports = {
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/docs/rules
     '@typescript-eslint/semi': 0,
     '@typescript-eslint/indent': 0,
-    '@typescript-eslint/explicit-function-return-type': 0
+    '@typescript-eslint/explicit-function-return-type': 0,
+    '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/member-delimiter-style': 0,
+    '@typescript-eslint/interface-name-prefix': 0,
+    '@typescript-eslint/no-empty-interface': 0,
+    'no-unused-vars': 0,
+    '@typescript-eslint/no-unused-vars': 0,
+    'import/no-named-default': 0,
+    '@typescript-eslint/no-inferrable-types': 0,
+    'no-unused-expressions': 0,
+    '@typescript-eslint/no-non-null-assertion': 0,
+    '@typescript-eslint/no-empty-function': 0,
+    '@typescript-eslint/camelcase': 0,
+    'no-use-before-define': 0,
+    '@typescript-eslint/no-use-before-define': 0,
+    'no-proto': 0,
+    '@typescript-eslint/ban-types': 0,
+    'no-useless-constructor': 0
   }
 }

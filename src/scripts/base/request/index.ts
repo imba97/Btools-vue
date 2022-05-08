@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import qs from 'querystring'
-import { default as axios, AxiosRequestConfig, Method } from 'axios'
+import axios, { AxiosRequestConfig, Method } from 'axios'
 import { browser } from 'webextension-polyfill-ts'
 
 import Singleton from '@/scripts/base/singletonBase/Singleton'
@@ -16,37 +16,19 @@ export default class Request extends Singleton {
    */
   protected baseUrl!: string
 
-  protected async request(
-    options: AxiosRequestConfig,
-    accountId?: string
-  ): Promise<any> {
+  protected async request(options: AxiosRequestConfig): Promise<any> {
     // 如果没有 tabs.sendMessage 说明不是 content js
     if (_.get(browser, 'tabs.sendMessage', null) !== null) {
-      return this.backgroundRequest(options, accountId)
-    }
-
-    let userCookie = ''
-
-    if (accountId) {
-      const accounts = await ExtStorage.Instance().getStorage<
-        TMultipleAccounts,
-        IMultipleAccounts
-      >(
-        new TMultipleAccounts({
-          userList: []
-        })
-      )
-
-      const user = _.find(accounts.userList, {
-        uid: accountId
-      })
-
-      if (user) {
-        userCookie = `SESSDATA=${user.token}; bili_jct=${user.csrf}`
-      }
+      return this.backgroundRequest(options)
     }
 
     const isGet = options.method?.toLocaleUpperCase() === 'GET'
+
+    const headers: { [key: string]: any } = isGet
+      ? {}
+      : {
+          'content-type': 'application/x-www-form-urlencoded'
+        }
 
     return new Promise((resolve, reject) => {
       browser.runtime
@@ -57,9 +39,7 @@ export default class Request extends Singleton {
           ...(isGet
             ? { params: options.data }
             : { data: qs.stringify(options.data) }),
-          headers: isGet
-            ? {}
-            : { 'content-type': 'application/x-www-form-urlencoded' }
+          headers
         })
         .then((json) => {
           if (!json) reject(new Error('error'))
@@ -73,11 +53,14 @@ export default class Request extends Singleton {
    * @param options
    * @returns
    */
-  protected async backgroundRequest(
-    options: AxiosRequestConfig,
-    accountId?: string
-  ) {
+  protected async backgroundRequest(options: AxiosRequestConfig) {
     const isGet = options.method?.toLocaleUpperCase() === 'GET'
+
+    const headers: { [key: string]: any } = isGet
+      ? {}
+      : {
+          'content-type': 'application/x-www-form-urlencoded'
+        }
 
     return await axios({
       method: options.method,
@@ -86,11 +69,8 @@ export default class Request extends Singleton {
       ...(isGet
         ? { params: options.data }
         : { data: qs.stringify(options.data) }),
-      headers: isGet
-        ? {}
-        : { 'content-type': 'application/x-www-form-urlencoded' }
+      headers
     }).then((response) => {
-      console.log(response)
       return response.data
     })
   }

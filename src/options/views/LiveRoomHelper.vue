@@ -41,8 +41,9 @@ export default class SubscribeChannel extends Vue {
         !option ||
         !(option as IBtoolsOptions<any>).name ||
         !(option as IBtoolsOptions<any>).current
-      )
+      ) {
         return true
+      }
 
       this.options.push({
         key,

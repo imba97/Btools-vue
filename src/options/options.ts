@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Options from '@/options/index.vue'
+
+import '@styles/global'
 import '@styles/options'
 
 import router from '@/options/router'

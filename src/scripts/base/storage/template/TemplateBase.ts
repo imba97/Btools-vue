@@ -7,6 +7,7 @@ export class TemplateBase {
     this._data = data
     this._name = (this as any).__proto__.constructor.name
   }
+
   public GetName(): string {
     return this._name
   }

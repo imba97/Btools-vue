@@ -7,6 +7,13 @@ export default class BilibiliApi extends Request {
     this.baseUrl = 'https://api.bilibili.com'
   }
 
+  public myInfo() {
+    return this.request({
+      url: '/x/space/myinfo',
+      method: 'GET'
+    })
+  }
+
   /**
    * 获取用户卡片信息
    */

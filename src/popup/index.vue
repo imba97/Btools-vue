@@ -19,7 +19,6 @@
 }
 </style>
 
-
 <template>
   <div class="popup-container">
     <Navbar class="popup-navbar">
@@ -48,7 +47,6 @@ import Navbar from '@/components/Navbar.vue'
   }
 })
 export default class Popup extends Vue {
-
   private _localData: IPopup = {}
 
   // 监听路由 path
@@ -84,6 +82,5 @@ export default class Popup extends Vue {
       new TPopup(this._localData)
     )
   }
-
 }
 </script>

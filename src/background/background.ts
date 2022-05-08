@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios'
+import axios from 'axios'
 import _ from 'lodash'
 import { browser } from 'webextension-polyfill-ts'
 
@@ -7,6 +7,9 @@ import {
   CommentListener,
   ChannelListener
 } from '@/Listener'
+
+// 加载 background scripts
+import './scripts/Account'
 
 // 加载监听器
 
@@ -22,8 +25,8 @@ browser.runtime.onMessage.addListener((request) => {
     method: request.type,
     baseURL: request.baseUrl,
     url: request.url,
-    ...params,
-    headers: request.headers || {}
+    headers: request.headers || {},
+    ...params
   }).then((response) => {
     return response.data
   })

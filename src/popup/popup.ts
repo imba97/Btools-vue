@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import Popup from '@/popup/index.vue'
+
+import '@styles/global'
 import '@styles/popup'
 
 import router from '@/popup/router'

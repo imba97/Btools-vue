@@ -10,6 +10,11 @@ import { IAccountItem } from '@/scripts/base/interface/IMultipleAccounts'
  */
 export interface IMultipleAccounts extends Object {
   /**
+   * 当前登录账号 UID
+   */
+  currentAccount?: string
+
+  /**
    * 用户列表
    */
   userList?: IAccountItem[]

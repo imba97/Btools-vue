@@ -40,7 +40,7 @@
     overflow-y: auto;
   }
 
-  ul > li {
+  ul>li {
     padding: 5px 10px;
 
     display: flex;
@@ -65,9 +65,14 @@
         border-radius: 100%;
       }
 
-      span {
-        margin-left: 10px;
+      p {
+        margin-left: 5px;
+        width: 100px;
         font-size: 16px;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
@@ -112,34 +117,23 @@
   .success-message {
     color: $success-color;
   }
-
-  .cancel {
-    margin-top: 20px;
-    padding: 3px 5px;
-
-    background-color: #f0f0f0;
-    color: #999;
-
-    border: 1px #ccc solid;
-    border-radius: 5px;
-
-    cursor: pointer;
-  }
 }
 
 .control-button {
-  .logout-button {
-    // TODO: 按钮样式封装
-    padding: 3px 5px;
-
-    background-color: lighten($error-color, 10%);
-    color: #fff;
-
-    border: 1px #fff solid;
-    border-radius: 5px;
-
-    cursor: pointer;
+  .current-account {
+    color: darken($error-color, 10%);
+    font-weight: 700;
   }
+}
+
+.invalid {
+  filter: grayscale(100%);
+  filter: gray;
+}
+
+.invalid-text {
+  color: gray !important;
+  font-weight: 700;
 }
 </style>
 
@@ -156,12 +150,19 @@
       <ul>
         <li v-for="item in accountList" :key="item.uid">
           <div class="avatar">
-            <img :src="item.avatar" />
-            <span>{{ item.name }}</span>
+            <img :src="item.avatar" :class="{ invalid: invalidAccount && item.uid === currentAccount }" />
+            <p>{{ item.name }}</p>
           </div>
 
           <div class="control-button">
-            <button class="logout-button" @click="logout(item.csrf, item.uid)">退出</button>
+            <button v-if="item.uid !== currentAccount" class="btn-success" @click="changeAccount(item)">切换</button>
+            <span v-else class="current-account" :class="{ 'invalid-text': invalidAccount }">{{
+                invalidAccount ? '登录失效' : '当前账号'
+            }}</span>
+
+            <button v-if="invalidAccount && item.uid === currentAccount" class="btn-info"
+              @click="doShowLogin">登录</button>
+            <button v-else class="btn-error" @click="logout(item.csrf, item.uid)">退出</button>
           </div>
         </li>
       </ul>
@@ -179,7 +180,7 @@
       </p>
 
       <p v-show="accountList.length > 0">
-        <button class="cancel" @click="showLogin = false">取消</button>
+        <button class="btn-info mt-10" @click="showLogin = false">取消</button>
       </p>
     </div>
   </div>
@@ -189,6 +190,7 @@
 import _ from 'lodash'
 import qs from 'querystring'
 import qrcode from 'qrcode'
+import moment from 'moment'
 import { Vue, Component, Watch } from 'vue-property-decorator'
 
 import { primaryColor } from '@/assets/styles/variables'
@@ -204,7 +206,6 @@ import { browser, Cookies } from 'webextension-polyfill-ts'
   name: 'MultipleAccounts'
 })
 export default class MultipleAccounts extends Vue {
-
   private _localData: IMultipleAccounts = {}
 
   public qrcode: string = ''
@@ -223,10 +224,16 @@ export default class MultipleAccounts extends Vue {
 
   public currentStatus: number = this.LoginStatus.NotScanned
 
+  /**
+   * 登录账号是否失效
+   */
+  public invalidAccount: boolean = false
+
+  public currentAccount?: string = ''
   public accountList: IAccountItem[] = []
 
   /** 当前账号的 cookie */
-  private _currentAccountCookie: Cookies.Cookie[] = []
+  private _currentAccountCookie: Partial<Cookies.SetDetailsType>[] = []
 
   private _accountCookieNames: string[] = []
 
@@ -246,32 +253,79 @@ export default class MultipleAccounts extends Vue {
       TMultipleAccounts,
       IMultipleAccounts
     >(new TMultipleAccounts({
+      currentAccount: '',
       userList: []
     }))
 
+    this._accountCookieNames = [
+      'SESSDATA',
+      'bili_jct',
+      'DedeUserID',
+      'DedeUserID__ckMd5'
+    ]
+
+    this.currentAccount = this._localData.currentAccount
+
+    const userInfo = await BilibiliApi.Instance().myInfo()
+
+    this.invalidAccount = userInfo.code === -101
+
     this.accountList = _.cloneDeep(this._localData.userList) || []
-
-    // const test = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    // for (let i = 0; i < test.length; i++) {
-    //   const element = test[i];
-
-    //   this.accountList.push({
-    //     uid: `${element}`,
-    //     name: `imba久期${element}`,
-    //     avatar: 'http://i1.hdslb.com/bfs/face/cda293b4bf23052d52c58471702ff90e32145040.jpg',
-    //     token: '123',
-    //     csrf: '456'
-    //   })
-    // }
 
     // 没登录过帐号 自动切换到登录页
     this.checkAccountCount()
-
   }
 
   public addAccount() {
     this.refreshQrcode()
     this.showLogin = true
+  }
+
+  public async changeAccount(item: IAccountItem) {
+    // 获取当前 cookies
+    const cookies = await browser.cookies
+      .getAll({
+        domain: '.bilibili.com'
+      })
+
+    this._currentAccountCookie = []
+
+    _.forEach(['SESSDATA', 'bili_jct'], key => {
+      let cookie: any = _.find(cookies, { name: key })
+
+      if (!cookie) {
+        cookie = {
+          url: 'https://bilibili.com',
+          domain: '.bilibili.com',
+          expirationDate: moment().add(180, 'days').valueOf() / 1000,
+          httpOnly: key === 'SESSDATA',
+          name: key,
+          path: '/',
+          sameSite: 'unspecified',
+          secure: false,
+          storeId: '0',
+          value: ''
+        }
+      }
+
+      switch (key) {
+        case 'SESSDATA': cookie.value = item.token; break
+        case 'bili_jct': cookie.value = item.csrf; break
+      }
+
+      if (cookie) {
+        this._currentAccountCookie.push(cookie)
+      }
+    })
+
+    this.currentAccount = item.uid
+    this._localData.currentAccount = item.uid
+
+    this.invalidAccount = false
+
+    this.replaceToken()
+
+    this.save()
   }
 
   public async logout(csrf: string, uid: string) {
@@ -281,13 +335,21 @@ export default class MultipleAccounts extends Vue {
       uid
     })
 
+    this.currentAccount = undefined
+    this._localData.currentAccount = undefined
+
     this.accountList = _.cloneDeep(this._localData.userList) || []
 
-    // 退出也重新替换当前 cookie 
+    // 退出也重新替换当前 cookie
     this.replaceToken()
 
     this.checkAccountCount()
     this.save()
+  }
+
+  public doShowLogin() {
+    this.showLogin = true
+    this.refreshQrcode()
   }
 
   private checkAccountCount() {
@@ -318,12 +380,6 @@ export default class MultipleAccounts extends Vue {
       })
 
     this._currentAccountCookie = []
-    this._accountCookieNames = [
-      'SESSDATA',
-      'bili_jct',
-      'DedeUserID',
-      'DedeUserID__ckMd5'
-    ]
 
     _.forEach(this._accountCookieNames, key => {
       const cookie = _.find(cookies, { name: key })
@@ -332,8 +388,6 @@ export default class MultipleAccounts extends Vue {
         this._currentAccountCookie.push(cookie)
       }
     })
-
-    console.log(this._currentAccountCookie)
 
     // 二维码
     this.qrcode = await qrcode.toDataURL(loginUrl, {
@@ -346,8 +400,6 @@ export default class MultipleAccounts extends Vue {
   private async checkQrcodeStatus() {
     const response = await BilibiliPassport.Instance().getLoginInfo(this.oauthKey)
 
-    console.log(response)
-
     this.currentStatus = response.data || this.LoginStatus.NotScanned
 
     if (!response.status) return
@@ -359,6 +411,7 @@ export default class MultipleAccounts extends Vue {
       const urlSplit = dataUrl.split('?')
       const params = qs.parse(_.get(urlSplit, '1', '').replace(/%/g, '%25')) as {
         DedeUserID: string
+        DedeUserID__ckMd5: string
         SESSDATA: string
         bili_jct: string
       }
@@ -371,7 +424,6 @@ export default class MultipleAccounts extends Vue {
         savedUserInfo.token = params.SESSDATA
         savedUserInfo.csrf = params.bili_jct
       } else {
-
         const userInfo = await BilibiliApi.Instance().userCard(params.DedeUserID)
 
         this._localData.userList?.push({
@@ -379,12 +431,20 @@ export default class MultipleAccounts extends Vue {
           name: userInfo.data.card.name,
           avatar: userInfo.data.card.face,
           token: params.SESSDATA,
+          ckMd5: params.DedeUserID__ckMd5,
           csrf: params.bili_jct
         })
       }
 
+      const cookie = _.find(this._currentAccountCookie, { name: 'DedeUserID' })
+      if (!cookie?.value) {
+        this.currentAccount = params.DedeUserID
+        this._localData.currentAccount = params.DedeUserID
+      }
+
       this.replaceToken()
 
+      this.invalidAccount = false
       this.accountList = _.cloneDeep(this._localData.userList) || []
       this.currentStatus = this.LoginStatus.NotScanned
 
@@ -392,7 +452,6 @@ export default class MultipleAccounts extends Vue {
 
       this.save()
       clearInterval(this.checkLoginTimer)
-      return
     }
   }
 
@@ -401,6 +460,8 @@ export default class MultipleAccounts extends Vue {
    * 好耶，这样果然能成功
    */
   private replaceToken() {
+    if (this.invalidAccount) return
+
     _.forEach(this._currentAccountCookie, cookie => {
       browser.cookies.set({
         url: 'https://bilibili.com',
@@ -418,7 +479,6 @@ export default class MultipleAccounts extends Vue {
   }
 
   private save() {
-
     this.accountList = this._localData.userList || []
 
     ExtStorage.Instance().setStorage<

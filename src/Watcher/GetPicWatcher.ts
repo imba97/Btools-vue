@@ -7,6 +7,11 @@ import { WatcherBase, HandleOptions } from '@/Watcher/WatcherBase'
 import $ from 'jquery'
 import IconUtil from '@/scripts/base/IconUtil'
 import { default as HKM, HKMElement } from '@/scripts/base/HotKeyMenu'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import {
+  IMultipleAccounts,
+  TMultipleAccounts
+} from '@/scripts/base/storage/template/TMultipleAccounts'
 
 export class GetPicWatcher extends WatcherBase {
   protected init(): void {
@@ -16,6 +21,7 @@ export class GetPicWatcher extends WatcherBase {
     this.urls[GetPicEnum.Read] = /bilibili\.com\/read/
     this.urls[GetPicEnum.LiveRoom] = /live\.bilibili\.com/
   }
+
   protected handle(options: HandleOptions): void {
     Util.Instance().console('获取图片', 'success')
 
@@ -69,6 +75,20 @@ export class GetPicWatcher extends WatcherBase {
             )
             window.open(window.__INITIAL_STATE__.elecFullInfo.data.pic)
           `)
+        }
+      },
+      {
+        key: 'D',
+        title: '测试',
+        action: async () => {
+          const localData = await ExtStorage.Instance().getStorage<
+            TMultipleAccounts,
+            IMultipleAccounts
+          >(
+            new TMultipleAccounts({
+              currentAccount: ''
+            })
+          )
         }
       }
     ])

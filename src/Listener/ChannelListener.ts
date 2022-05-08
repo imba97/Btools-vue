@@ -149,8 +149,9 @@ export class ChannelListener extends ListenerBase {
         })
       })
       // 如果本页全满 说明可能有下一页
-      if (result.data.archives.length === 100)
+      if (result.data.archives.length === 100) {
         await this.getChannelVideos(uid, sid, ++page)
+      }
     }
   }
 

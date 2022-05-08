@@ -35,3 +35,5 @@ npm run build:firefox
 
   - [x] 隐藏迷你播放器
   - [ ] ~~隐藏 PK 分数~~
+
+- [x] 多帐号切换

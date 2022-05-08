@@ -20,6 +20,11 @@ export interface IAccountItem {
   token: string
 
   /**
+   * DedeUserID__ckMd5
+   */
+  ckMd5: string
+
+  /**
    * csrf
    */
   csrf: string
