@@ -76,20 +76,6 @@ export class GetPicWatcher extends WatcherBase {
             window.open(window.__INITIAL_STATE__.elecFullInfo.data.pic)
           `)
         }
-      },
-      {
-        key: 'D',
-        title: '测试',
-        action: async () => {
-          const localData = await ExtStorage.Instance().getStorage<
-            TMultipleAccounts,
-            IMultipleAccounts
-          >(
-            new TMultipleAccounts({
-              currentAccount: ''
-            })
-          )
-        }
       }
     ])
 
