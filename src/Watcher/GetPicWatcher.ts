@@ -71,9 +71,9 @@ export class GetPicWatcher extends WatcherBase {
           this.executeScript(`
             if(
               window.__INITIAL_STATE__ &&
-              window.__INITIAL_STATE__.elecFullInfo
+              window.__INITIAL_STATE__.videoData
             )
-            window.open(window.__INITIAL_STATE__.elecFullInfo.data.pic)
+            window.open(window.__INITIAL_STATE__.videoData.pic)
           `)
         }
       }
@@ -133,7 +133,7 @@ export class GetPicWatcher extends WatcherBase {
       '.player-auxiliary-playlist-item-active img'
     )
 
-    const hkm = await this.video()
+    const hkm = await this.video('#video-player')
     $(hkm.getElement(HKMElement.OverlordElements)!).show()
     hkm.removeWithKey('S').add([
       {
@@ -211,7 +211,7 @@ export class GetPicWatcher extends WatcherBase {
    * @param hkm 快捷键菜单
    */
   private resetHkmPosition(hkm: HKM) {
-    const player = $('#bilibiliPlayer')
+    const player = $('#playerWrap')
     hkm.setCss(HKMElement.OverlordElements, {
       top: (player.offset()?.top || 0) + 10,
       left: (player.offset()?.left || 0) - 40
