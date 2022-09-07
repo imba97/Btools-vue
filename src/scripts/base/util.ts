@@ -1,4 +1,7 @@
+import _ from 'lodash'
 import Singleton from '@/scripts/base/singletonBase/Singleton'
+import ExtStorage from '@/scripts/base/storage/ExtStorage'
+import { TMultipleAccounts, IMultipleAccounts } from '@/scripts/base/storage/template/TMultipleAccounts'
 
 export default class Util extends Singleton {
   private bvTool = {
@@ -215,39 +218,29 @@ export default class Util extends Singleton {
   }
 
   /**
-   * 时间格式化
-   * @author meizz
-   * @param date 时间
-   * @param fmt
-   * @returns
+   * 获取当前用户 cookie
+   * @param key cookie key
+   * @example
+   *
+   * ```javascript
+   * const csrf = await Util.Instance().getUserCookie('csrf')
+   * ```
    */
-  public dateFormat(timestamp: number, fmt: string) {
-    const date = new Date(timestamp)
+  public async getUserCookie(key: string): Promise<string | null> {
+    const userLocalData = await ExtStorage.Instance().getStorage<
+      TMultipleAccounts,
+      IMultipleAccounts
+    >(new TMultipleAccounts({
+      currentAccount: '',
+      userList: []
+    }))
 
-    const o = {
-      'M+': date.getMonth() + 1, //月份
-      'd+': date.getDate(), //日
-      'h+': date.getHours(), //小时
-      'm+': date.getMinutes(), //分
-      's+': date.getSeconds(), //秒
-      'q+': Math.floor((date.getMonth() + 3) / 3), //季度
-      S: date.getMilliseconds() //毫秒
-    }
+    const user = _.find(userLocalData.userList, {
+      uid: userLocalData.currentAccount
+    })
 
-    if (/(y+)/.test(fmt))
-      fmt = fmt.replace(
-        RegExp.$1,
-        (date.getFullYear() + '').substr(4 - RegExp.$1.length)
-      )
-    for (let k in o)
-      if (new RegExp('(' + k + ')').test(fmt))
-        fmt = fmt.replace(
-          RegExp.$1,
-          RegExp.$1.length == 1
-            ? o[k]
-            : ('00' + o[k]).substr(('' + o[k]).length)
-        )
+    if (!user) return Promise.resolve(null)
 
-    return fmt
+    return Promise.resolve(_.get(user, key, null))
   }
 }
