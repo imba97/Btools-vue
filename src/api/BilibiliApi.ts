@@ -69,6 +69,16 @@ export default class BilibiliApi extends Request {
   }
 
   /**
+   * 表情包列表
+   */
+  public emoteList() {
+    return this.request({
+      url: '/x/emote/user/panel/web?business=reply',
+      method: 'GET'
+    })
+  }
+
+  /**
    * 点赞接口
    * @param aid 视频ID
    * @param like 点赞 | 取消点赞

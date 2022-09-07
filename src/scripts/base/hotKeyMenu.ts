@@ -29,11 +29,11 @@ export default class HKM {
 
     if (typeof elements['length'] !== 'undefined') {
       if (elements['length'] === 0) return this
-      ;(this.overlordElement as NodeListOf<HTMLElement>).forEach(
-        (overlordElement) => {
-          this.setOverlordElement(overlordElement, hotKeyMenuID)
-        }
-      )
+        ; (this.overlordElement as NodeListOf<HTMLElement>).forEach(
+          (overlordElement) => {
+            this.setOverlordElement(overlordElement, hotKeyMenuID)
+          }
+        )
     } else {
       this.setOverlordElement(elements as HTMLElement, hotKeyMenuID)
     }
