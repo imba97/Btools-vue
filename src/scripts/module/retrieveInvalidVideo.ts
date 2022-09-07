@@ -4,6 +4,7 @@
 
 import _ from 'lodash'
 import $ from 'jquery'
+import moment from 'moment'
 
 import HKM from '@/scripts/base/HotKeyMenu'
 import Util from '@/scripts/base/Util'
@@ -285,10 +286,7 @@ export class RetrieveInvalidVideo extends ModuleBase {
         desc: videoInfo.data.desc,
         author: videoInfo.data.owner.name,
         partNames,
-        created_at: Util.Instance().dateFormat(
-          videoInfo.data.pubdate * 1000,
-          'yyyy-mm-dd'
-        )
+        created_at: moment(videoInfo.data.pubdate * 1000).format('YYYY-MM-DD HH:mm:ss')
       }
 
       this.setNotInvalidVideoHMK(element, bvid)

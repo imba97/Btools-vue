@@ -1,56 +1,6 @@
-.bb-comment > .comment-send > .textarea-container {
-  & > .btools-sticker-history {
-    position: absolute;
-    top: 67px;
-    left: 80px;
-
-    .btools-sticker-history-container {
-      top: 0;
-    }
-
-    .btools-sticker-history-show-more {
-      top: 0;
-    }
-  }
-}
-
-.list-item {
-  position: relative;
-
-  & > .btools-sticker-history {
-    position: absolute;
-    bottom: 50px;
-    left: 250px;
-
-    .btools-sticker-history-container {
-      top: 0;
-    }
-
-    .btools-sticker-history-show-more {
-      top: 0;
-    }
-
-    display: none;
-  }
-}
-
-.comment-send-lite {
-  & > .btools-sticker-history {
-    position: absolute;
-    bottom: 12px;
-    left: 175px;
-
-    .btools-sticker-history-container {
-      bottom: 0;
-    }
-
-    .btools-sticker-history-show-more {
-      bottom: 0;
-    }
-  }
-}
-
 .btools-sticker-history {
+  position: absolute;
+
   z-index: 100;
 
   .more::before {
@@ -73,7 +23,7 @@
   .btools-sticker-history-container {
     position: absolute;
     left: 0;
-    width: 200px;
+    width: 170px;
     height: 30px;
     overflow: hidden;
 
@@ -108,6 +58,7 @@
     }
 
     ul {
+      margin-right: -17px;
       overflow: auto;
       z-index: 999;
 
@@ -126,7 +77,7 @@
 
   .btools-sticker-history-show-more {
     position: absolute;
-    left: 205px;
+    left: 180px;
     width: 30px;
     height: 30px;
     background: none;
@@ -138,7 +89,7 @@
 
 .customize-kaomoji {
   position: absolute;
-  top: 6px;
+  top: 9px;
   left: 60px;
   width: 200px;
   height: 26px;
@@ -156,4 +107,15 @@
 
 .btools-customize-kaomoji {
   color: $primary-color !important;
+
+  padding: 5px 8px;
+  line-height: 22px;
+
+  display: inline-block;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e3e5e7;
+  }
 }

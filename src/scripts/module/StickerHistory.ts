@@ -9,24 +9,23 @@ import { TComment, IComment } from '@/scripts/base/storage/template'
 import ModuleBase from '@/scripts/module/ModuleBase'
 import $ from 'jquery'
 import _ from 'lodash'
-import { IStickerHistory } from '@/scripts/base/storage/template/TComment'
+import { IEmoteItem, IEmotePackage, IStickerHistory } from '@/scripts/base/storage/template/TComment'
 import ExtStorage from '@/scripts/base/storage/ExtStorage'
 import IconUtil from '@/scripts/base/IconUtil'
-
-/**
- * 历史表情 DOM 元素信息
- */
-class StickerHistoryDomInfo {
-  public div: HTMLDivElement[] = []
-  public textarea: string[] = []
-  public showMore: HTMLButtonElement[] = []
-  public btools_sticker_history: { [key: string]: HTMLDivElement } = {}
-}
+import { BilibiliApi } from '@/api'
+import { TMultipleAccounts, IMultipleAccounts } from '@/scripts/base/storage/template/TMultipleAccounts'
 
 export class StickerHistory extends ModuleBase {
-  private _sticker_history_dom_info?: StickerHistoryDomInfo
+  private _div!: HTMLDivElement
+  private _container!: HTMLDivElement
+  private _list!: HTMLUListElement
+  private _showMore!: HTMLElement
+  private _textarea: HTMLTextAreaElement | null = null
+
   private _addedListener = false
   private _localData: IComment = {}
+
+  private _emoteList: IEmotePackage[] = []
 
   private _isAddedCustomizeKaomoji = false
 
@@ -34,8 +33,6 @@ export class StickerHistory extends ModuleBase {
     if (document.querySelector('.btools-sticker-history') !== null) return
 
     Util.Instance().console('历史表情', 'success')
-
-    this._sticker_history_dom_info = new StickerHistoryDomInfo()
 
     // 读取存储表情
     this._localData = await ExtStorage.Instance().getStorage<
@@ -48,75 +45,39 @@ export class StickerHistory extends ModuleBase {
       })
     )
 
-    // 在页面添加历史表情
-    // 1. 上面的评论框
-    await this.addStickerHistoryElement(
-      '.bb-comment > .comment-send > .textarea-container'
-    )
-
-    // 2. 楼中楼的评论框
-    await this.addStickerHistoryElement('.list-item')
-    // 2.1. 楼中楼默认展开的情况
-    this.resetViewStatus()
-
-    // 3. 下面的评论框
-    Util.Instance()
-      .getElement('.comment-send-lite')
-      .then(async () => {
-        await this.addStickerHistoryElement('.comment-send-lite')
-        this.createList(this._localData)
-      })
-
-    this.createList(this._localData)
+    // 添加历史表情页面元素
+    this.addStickerHistoryElement()
 
     // 开启初始化
     this.Init()
+
+    // 创建历史表情列表
+    this.createList(this._localData)
   }
 
-  private async addStickerHistoryElement(selector: string) {
-    const type = selector.replace('.', '')
-    const ele = await Util.Instance().getElement(selector)
-
-    if (this._sticker_history_dom_info?.btools_sticker_history[type]) {
-      ele.appendChild(
-        this._sticker_history_dom_info?.btools_sticker_history[type]
-      )
-      return
-    }
-
-    const btools_sticker_history = document.createElement('div')
-    btools_sticker_history.classList.add('btools-sticker-history')
-    btools_sticker_history.setAttribute('data-type', type)
-
-    // 保存历史表情 div 对象
-    this._sticker_history_dom_info!.btools_sticker_history[type] =
-      btools_sticker_history
+  private async addStickerHistoryElement() {
+    this._div = document.createElement('div')
+    this._div.classList.add('btools-sticker-history')
 
     // 历史表情 容器 用于定位
-    const btools_sticker_history_container = document.createElement('div')
-    btools_sticker_history_container.classList.add(
+    this._container = document.createElement('div')
+    this._container.classList.add(
       'btools-sticker-history-container'
     )
 
     // ul
-    const ul = document.createElement('ul')
-    btools_sticker_history_container.appendChild(ul)
+    this._list = document.createElement('ul')
+    this._container.appendChild(this._list)
 
     // 显示更多 按钮
-    const show_more = document.createElement('button')
-    show_more.classList.add('btools-sticker-history-show-more')
-    show_more.setAttribute('data-added-listener', 'false')
-    show_more.innerHTML = IconUtil.Instance().SHOW_MORE('#CCC')
-    btools_sticker_history.append(show_more)
-    this._sticker_history_dom_info?.showMore.push(show_more)
+    this._showMore = document.createElement('button')
+    this._showMore.classList.add('btools-sticker-history-show-more')
+    this._showMore.setAttribute('data-added-listener', 'false')
+    this._showMore.innerHTML = IconUtil.Instance().SHOW_MORE('#CCC')
+    this._div.append(this._showMore)
 
-    btools_sticker_history.appendChild(btools_sticker_history_container)
-    ele.appendChild(btools_sticker_history)
-    this._sticker_history_dom_info?.div.push(btools_sticker_history_container)
-
-    const textarea = this.getTextarea(selector)
-
-    this._sticker_history_dom_info?.textarea.push(textarea)
+    this._div.appendChild(this._container)
+    document.body.appendChild(this._div)
   }
 
   private async Init() {
@@ -124,31 +85,124 @@ export class StickerHistory extends ModuleBase {
     if (this._addedListener) return
     this._addedListener = true
 
-    // 评论类型点击事件
-    $('body').on('click', '.clearfix li', async () => {
-      // 2. 楼中楼的评论框
-      await this.addStickerHistoryElement('.list-item')
-      // 2.1. 楼中楼默认展开的情况，调用一次 replyListener 并指定 this 为 回复按钮
-      this.resetViewStatus()
+    $('body').on('focus', '.reply-box-warp textarea', (e: Event) => {
+      this._textarea = (e.target) as HTMLTextAreaElement
+      const textarea = $(this._textarea)
+      console.log(textarea.offset()?.top, textarea.offset()?.left)
+
+      // top: 890px;
+      // left: 106px;
+
+      // top: 956px;
+      // left: 186px;
+      $(this._div).css({
+        top: (textarea.offset()?.top || 0) + 66,
+        left: (textarea.offset()?.left || 0) + 80
+      })
     })
 
-    // 给 reply 按钮添加监听
-    $('body').on('click', '.list-item .reply', () => {
-      this.resetViewStatus()
+    // // 评论类型点击事件
+    // $('body').on('click', '.clearfix li', async () => {
+    //   // 2.1. 楼中楼默认展开的情况，调用一次 replyListener 并指定 this 为 回复按钮
+    //   this.resetViewStatus()
+    // })
+
+    // // 给 reply 按钮添加监听
+    // $('body').on('click', '.list-item .reply', () => {
+    //   this.resetViewStatus()
+    // })
+
+    // 表情按钮点击事件
+    $('body').on('click', '.reply-box .emoji-btn', async () => {
+      // 表情盒子 title
+      const emojiBoxTitle = await Util.Instance().getElement(
+        '.emoji-panel .emoji-title'
+      )
+
+      this._isAddedCustomizeKaomoji = false
+
+      // 监听 表情类型 title 内容变化
+      let customizeKaomojiElement: JQuery<HTMLElement>
+
+      $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
+        if (!this._isAddedCustomizeKaomoji) {
+          const emoji_box = await Util.Instance().getElement('.emoji-panel')
+          // 自定义颜文字 输入框
+          customizeKaomojiElement = $(emoji_box)
+            .append(
+              `
+              <div class="customize-kaomoji">
+                <input type="text" placeholder="请输入颜文字，回车提交" />
+              </div>
+            `
+            )
+            .find('.customize-kaomoji')
+            .on('keyup', (e) => {
+              // 过滤回车
+              if (e.key !== 'Enter') return
+
+              // 不能为空
+              if ((e.target as HTMLInputElement).value.trim() === '') return
+
+              const isAdded = this.addCustomizeKaomoji(
+                (e.target as HTMLInputElement).value
+              )
+              // 添加成功
+              if (isAdded) {
+                // 删除文本框内容
+                (e.target as HTMLInputElement).value = ''
+              }
+            })
+          this._isAddedCustomizeKaomoji = true
+        }
+
+        if (!customizeKaomojiElement) return
+
+        if ($(emojiBoxTitle).text() === '颜文字') {
+          this.createCustomizeKaomoji()
+          customizeKaomojiElement?.show()
+        } else {
+          customizeKaomojiElement?.hide()
+          $('.btools-customize-kaomoji').remove()
+        }
+      })
     })
 
     // 表情点击事件
-    $('body').on('click', '.emoji-wrap .emoji-list', async (e) => {
+    $(document).on('click', '.emoji-content .emoji-info', async (e) => {
       const currentTarget = $(e.currentTarget)
       const img = currentTarget.find('img')
-      const isKaomoji = img.length === 0
-      const text = isKaomoji ? currentTarget.text() : img.attr('title') || ''
-      const src = img.attr('src') || ''
 
-      const stickerHistory: IStickerHistory = {
-        isKaomoji,
-        text,
-        src
+      let stickerHistory: IStickerHistory
+
+      // 没图片则是颜文字
+      if (img.length === 0) {
+        stickerHistory = {
+          isKaomoji: true,
+          text: currentTarget.text(),
+          src: ''
+        }
+      } else {
+        // 获取当前表情包的类型图片 url
+        const currentTypeSrc = $('.emoji-tab .current-type img').attr('src')
+        // 根据 url 搜索表情包列表
+        const currentEmote = _.find(this._emoteList, item => item.url.indexOf(currentTypeSrc!)) as IEmotePackage
+
+        // 点击表情的图片 url
+        const src = img.attr('src') || ''
+
+        if (!currentEmote || src === '') {
+          return
+        }
+
+        // 再根据表情图片 url 搜表情，最终获取到表情对应的文本
+        const emote = _.find(currentEmote.emote, item => item.url.indexOf(src)) as IEmoteItem
+
+        stickerHistory = {
+          isKaomoji: false,
+          text: emote.text,
+          src
+        }
       }
 
       const index = _.findIndex(this._localData.stickerHistory, stickerHistory)
@@ -172,186 +226,128 @@ export class StickerHistory extends ModuleBase {
       this.createList(this._localData)
     })
 
-    // 表情盒子 title
-    const emojiBoxTitle = await Util.Instance().getElement(
-      '.emoji-box .emoji-title span'
-    )
-
-    // 监听 表情类型 title 内容变化
-    let customizeKaomojiElement: JQuery<HTMLElement>
-
-    $(emojiBoxTitle).on('DOMNodeInserted', async (e) => {
-      if (!this._isAddedCustomizeKaomoji) {
-        const emoji_box = await Util.Instance().getElement('.emoji-box')
-        // 自定义颜文字 输入框
-        customizeKaomojiElement = $(emoji_box)
-          .append(
-            `
-              <div class="customize-kaomoji">
-                <input type="text" placeholder="请输入颜文字，回车提交" />
-              </div>
-            `
-          )
-          .find('.customize-kaomoji')
-          .on('keyup', (e) => {
-            // 过滤回车
-            if (e.key !== 'Enter') return
-
-            // 不能为空
-            if ((e.target as HTMLInputElement).value.trim() === '') return
-
-            const isAdded = this.addCustomizeKaomoji(
-              (e.target as HTMLInputElement).value
-            )
-            // 添加成功
-            if (isAdded) {
-              // 删除文本框内容
-              ;(e.target as HTMLInputElement).value = ''
-            }
-          })
-        this._isAddedCustomizeKaomoji = true
-      }
-
-      if (!customizeKaomojiElement) return
-
-      if ($('.emoji-box .emoji-title').text() === '颜文字') {
-        this.createCustomizeKaomoji()
-        customizeKaomojiElement?.show()
-      } else {
-        customizeKaomojiElement?.hide()
-      }
+    // 请求表情列表
+    this._emoteList = await BilibiliApi.Instance().emoteList().then(res => {
+      return _.get(res, 'data.packages', [])
     })
+
   }
 
   private createList(data: IComment) {
     let isShowMore = false
 
-    this._sticker_history_dom_info!.div.forEach((ele, domIndex) => {
-      const ul = $(ele).find('ul')
-      ul.html('')
+    const ul = $(this._list)
+    ul.html('')
 
-      if (!data.stickerHistory || data.stickerHistory.length === 0) {
-        return
-      }
+    if (!data.stickerHistory || data.stickerHistory.length === 0) {
+      return
+    }
 
-      data.stickerHistory.forEach((item, index) => {
-        const li = document.createElement('li')
-        li.setAttribute('class', item.isKaomoji ? 'kaomoji' : 'img')
+    data.stickerHistory.forEach((item, index) => {
+      const li = document.createElement('li')
+      li.setAttribute('class', item.isKaomoji ? 'kaomoji' : 'img')
 
-        li.innerHTML = item.isKaomoji
-          ? `<span>${item.text}</span>`
-          : `<img src="${item.src}" />`
+      li.innerHTML = item.isKaomoji
+        ? `<span>${item.text}</span>`
+        : `<img src="${item.src}" />`
 
-        li.addEventListener(
-          'click',
-          (e: MouseEvent) => {
-            e.preventDefault()
-            e.stopPropagation()
-
-            // 左键发送表情
-            if (e.button === 0) {
-              // 插入文字
-              this.insertText(item.text, domIndex)
-
-              // 获取是否点击
-              const isClick = li.getAttribute('data-is-click')
-              // 如果已经点击 则不重复添加监听
-              if (isClick === 'true') return
-              li.setAttribute('data-is-click', 'true')
-              // 添加监听 鼠标移出后把表情排到第一个
-              li.addEventListener(
-                'mouseleave',
-                () => {
-                  this.removeAndAddToFirst(
-                    this._localData.stickerHistory!,
-                    index
-                  )
-
-                  this.save(true)
-                },
-                {
-                  once: true
-                }
-              )
-
-              return
-            }
-          },
-          false
-        )
-
-        li.addEventListener('mousedown', (e: MouseEvent) => {
+      li.addEventListener(
+        'click',
+        (e: MouseEvent) => {
           e.preventDefault()
           e.stopPropagation()
-          // 中键删除表情
-          if (e.button === 1) {
-            // 删除对应表情
-            this._localData.stickerHistory?.splice(index, 1)
-            this.save(true)
-          }
-        })
 
-        ul.append(li)
+          // 左键发送表情
+          if (e.button === 0) {
+            // 插入文字
+            console.log(item.text)
+            this.insertText(item.text)
+
+            // 获取是否点击
+            const isClick = li.getAttribute('data-is-click')
+            // 如果已经点击 则不重复添加监听
+            if (isClick === 'true') return
+            li.setAttribute('data-is-click', 'true')
+            // 添加监听 鼠标移出后把表情排到第一个
+            li.addEventListener(
+              'mouseleave',
+              () => {
+                this.removeAndAddToFirst(
+                  this._localData.stickerHistory!,
+                  index
+                )
+
+                this.save(true)
+              },
+              {
+                once: true
+              }
+            )
+          }
+        },
+        false
+      )
+
+      li.addEventListener('mousedown', (e: MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        // 中键删除表情
+        if (e.button === 1) {
+          // 删除对应表情
+          this._localData.stickerHistory?.splice(index, 1)
+          this.save(true)
+        }
       })
 
-      // 高度大于两行则显示 “显示更多” 按钮
-      const ulHeight = ul.height()
-      if (ulHeight && ulHeight > 30) {
-        isShowMore = true
-      }
+      ul.append(li)
     })
 
-    // 显示更多
-    const showMore = this._sticker_history_dom_info?.showMore
-    if (!showMore) return
+    // 高度大于两行则显示 “显示更多” 按钮
+    const ulHeight = ul.height()
+    if (ulHeight && ulHeight > 30) {
+      isShowMore = true
+    }
 
     if (isShowMore) {
-      showMore.forEach((show_more, index) => {
-        // 显示
-        $(show_more).show()
+      // 显示
+      $(this._showMore).show()
 
-        // 防止重复添加点击事件
-        if (show_more.getAttribute('data-added-listener') === 'true') return
-        show_more.setAttribute('data-added-listener', 'true')
-        show_more.setAttribute('data-is-show', 'false')
+      // 防止重复添加点击事件
+      if (this._showMore.getAttribute('data-added-listener') === 'true') return
+      this._showMore.setAttribute('data-added-listener', 'true')
+      this._showMore.setAttribute('data-is-show', 'false')
 
-        // 添加点击事件
-        show_more.addEventListener('click', (e: MouseEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
+      // 添加点击事件
+      this._showMore.addEventListener('click', (e: MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
 
-          const div = this._sticker_history_dom_info!.div[index]
+        const ul = $(this._list)
+        const row = (ul.height() || 1) / 30
+        const isShow = this._showMore.getAttribute('data-is-show') === 'true'
 
-          const ul = $(div).find('ul')
-          const row = (ul.height() || 1) / 30
-          const isShow = show_more.getAttribute('data-is-show') === 'true'
-
-          if (isShow) {
-            // 隐藏
-            $(div).removeClass('more').css({
-              height: 30
+        if (isShow) {
+          // 隐藏
+          $(this._container).removeClass('more').css({
+            height: 30
+          })
+        } else {
+          // 显示
+          $(this._container)
+            .addClass('more')
+            .css({
+              height: 30 * row
             })
-          } else {
-            // 显示
-            $(div)
-              .addClass('more')
-              .css({
-                height: 30 * row
-              })
-          }
+        }
 
-          show_more.setAttribute('data-is-show', isShow ? 'false' : 'true')
-        })
+        this._showMore.setAttribute('data-is-show', isShow ? 'false' : 'true')
       })
     } else {
-      showMore.forEach((show_more, index) => {
-        const div = this._sticker_history_dom_info!.div[index]
-        $(div).removeClass('more').css({
-          height: 30
-        })
-
-        $(show_more).hide()
+      $(this._container).removeClass('more').css({
+        height: 30
       })
+
+      $(this._showMore).hide()
     }
   }
 
@@ -380,28 +376,25 @@ export class StickerHistory extends ModuleBase {
     }
   }
 
-  private async insertText(text: string, domIndex: number) {
+  private async insertText(text: string) {
     // 插入文字
-    if (this._sticker_history_dom_info) {
-      const $t = (await Util.Instance().getElement(
-        this._sticker_history_dom_info.textarea[domIndex]
-      )) as HTMLTextAreaElement
-      if ($t.selectionStart || $t.selectionStart === 0) {
-        const startPos = $t.selectionStart
-        const endPos = $t.selectionEnd
-        const scrollTop = $t.scrollTop
-        $t.value = `${$t.value.substring(
-          0,
-          startPos
-        )}${text}${$t.value.substring(endPos, $t.value.length)}`
-        $t.focus()
-        $t.selectionStart = startPos + text.length
-        $t.selectionEnd = startPos + text.length
-        $t.scrollTop = scrollTop
-      } else {
-        $t.value += text
-        $t.focus()
-      }
+    const $t = this._textarea!
+
+    if ($t.selectionStart || $t.selectionStart === 0) {
+      const startPos = $t.selectionStart
+      const endPos = $t.selectionEnd
+      const scrollTop = $t.scrollTop
+      $t.value = `${$t.value.substring(
+        0,
+        startPos
+      )}${text}${$t.value.substring(endPos, $t.value.length)}`
+      $t.focus()
+      $t.selectionStart = startPos + text.length
+      $t.selectionEnd = startPos + text.length
+      $t.scrollTop = scrollTop
+    } else {
+      $t.value += text
+      $t.focus()
     }
   }
 
@@ -436,38 +429,40 @@ export class StickerHistory extends ModuleBase {
    * @param val 颜文字
    */
   private async addCustomizeKaomojiToEmojiBox(val: string) {
-    const a = document.createElement('a')
-    a.setAttribute(
+    const emojiElement = document.createElement('div')
+    emojiElement.setAttribute(
       'class',
-      'emoji-list emoji-text emoji-default btools-customize-kaomoji'
+      'emoji-info btools-customize-kaomoji'
     )
-    a.setAttribute('data-emoji-text', val)
-    a.setAttribute('data-is-click', 'false')
-    a.innerText = val
+    emojiElement.setAttribute('data-emoji-text', val)
+    emojiElement.setAttribute('data-is-click', 'false')
+    emojiElement.innerHTML = `
+      <div class="text-emoji">${val}</div>
+    `
 
     const enmoji_box = await Util.Instance().getElement(
-      '.emoji-box .emoji-wrap'
+      '.emoji-panel .emoji-content'
     )
-    $(enmoji_box).prepend(a)
+    $(enmoji_box).prepend(emojiElement)
 
-    a.addEventListener('mousedown', (e) => {
+    emojiElement.addEventListener('mousedown', (e) => {
       e.preventDefault()
       e.stopPropagation()
 
-      const isClick = a.getAttribute('data-is-click')
+      const isClick = emojiElement.getAttribute('data-is-click')
 
       const index = _.findIndex(this._localData.customizeKaomoji, {
         text: val
       })
 
       if (isClick !== 'true') {
-        a.addEventListener(
+        emojiElement.addEventListener(
           'mouseleave',
           () => {
             // 界面
-            a.setAttribute('data-is-click', 'false')
-            a.remove()
-            $(enmoji_box).prepend(a)
+            emojiElement.setAttribute('data-is-click', 'false')
+            emojiElement.remove()
+            $(enmoji_box).prepend(emojiElement)
             // 存储
             this.removeAndAddToFirst(this._localData.customizeKaomoji!, index)
             this.save(false)
@@ -480,7 +475,7 @@ export class StickerHistory extends ModuleBase {
 
       // 左键
       if (e.button === 0) {
-        a.setAttribute('data-is-click', 'true')
+        emojiElement.setAttribute('data-is-click', 'true')
         return
       }
 
@@ -490,7 +485,7 @@ export class StickerHistory extends ModuleBase {
 
         this.save(false)
 
-        a.remove()
+        emojiElement.remove()
       }
     })
   }
@@ -502,33 +497,20 @@ export class StickerHistory extends ModuleBase {
     if (removedItem && removedItem.length === 1) arr.unshift(removedItem[0])
   }
 
-  private getTextarea(selector: string): string {
-    switch (selector) {
-      case '.bb-comment > .comment-send > .textarea-container':
-        return '.bb-comment > .comment-send > .textarea-container textarea'
-      case '.comment-send-lite':
-        return '.bb-comment .comment-send-lite .textarea-container textarea'
-      case '.list-item':
-        return '.comment-list .list-item .textarea-container textarea'
-      default:
-        return ''
-    }
-  }
+  // private resetViewStatus() {
+  //   if ($('.open-reply .comment-send').length === 0) {
+  //     $(
+  //       this._sticker_history_dom_info!.btools_sticker_history['list-item']
+  //     ).hide()
+  //     return
+  //   }
 
-  private resetViewStatus() {
-    if ($('.open-reply .comment-send').length === 0) {
-      $(
-        this._sticker_history_dom_info!.btools_sticker_history['list-item']
-      ).hide()
-      return
-    }
+  //   const btoolsStickerHistory = $(
+  //     this._sticker_history_dom_info!.btools_sticker_history['list-item']
+  //   )
 
-    const btoolsStickerHistory = $(
-      this._sticker_history_dom_info!.btools_sticker_history['list-item']
-    )
+  //   btoolsStickerHistory.show().remove()
 
-    btoolsStickerHistory.show().remove()
-
-    $('.open-reply').append(btoolsStickerHistory)
-  }
+  //   $('.open-reply').append(btoolsStickerHistory)
+  // }
 }

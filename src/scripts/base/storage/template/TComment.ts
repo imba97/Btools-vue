@@ -43,6 +43,23 @@ export interface ICustomizeKaomoji {
   text: string
 }
 
+export type IEmoteItem = {
+  text: string
+  url: string
+}
+
+export type IEmotePackage = {
+  /**
+   * .current-type 下的 img url
+   */
+  url: string
+
+  /**
+   * 表情列表
+   */
+  emote: IEmoteItem[]
+}
+
 export interface IComment extends Object {
   stickerHistory?: IStickerHistory[]
   customizeKaomoji?: ICustomizeKaomoji[]
