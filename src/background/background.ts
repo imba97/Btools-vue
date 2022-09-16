@@ -4,7 +4,6 @@ import { browser } from 'webextension-polyfill-ts'
 
 import {
   ResourceListListener,
-  CommentListener,
   ChannelListener
 } from '@/Listener'
 
@@ -14,7 +13,6 @@ import './scripts/Account'
 // 加载监听器
 
 new ResourceListListener()
-new CommentListener()
 new ChannelListener()
 
 browser.runtime.onMessage.addListener((request) => {

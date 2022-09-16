@@ -12,7 +12,6 @@ import { RequestApiType } from '@/scripts/base/enums/ContentJsType'
  */
 import {
   RetrieveInvalidVideo,
-  StickerHistory,
   SubscribeChannel
 } from '@/scripts/module'
 
@@ -40,11 +39,6 @@ browser.runtime.onMessage.addListener(function (request, sender) {
     case RequestApiType.ResourceList:
       // 找回失效视频
       new RetrieveInvalidVideo()
-      break
-
-    case RequestApiType.Reply:
-      new StickerHistory()
-      // 历史表情
       break
 
     case RequestApiType.Channel:

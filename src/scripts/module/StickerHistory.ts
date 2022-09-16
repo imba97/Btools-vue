@@ -2,6 +2,8 @@
  * 模块
  *  - 历史表情
  *  - 自定义颜文字
+ * 
+ * 移除原因：评论输入框没法通过获取 dom 修改 value
  */
 
 import Util from '@/scripts/base/Util'
@@ -85,20 +87,17 @@ export class StickerHistory extends ModuleBase {
     if (this._addedListener) return
     this._addedListener = true
 
-    $('body').on('focus', '.reply-box-warp textarea', (e: Event) => {
+    $('body').on('focus', '.reply-box-warp textarea', (e) => {
       this._textarea = (e.target) as HTMLTextAreaElement
       const textarea = $(this._textarea)
-      console.log(textarea.offset()?.top, textarea.offset()?.left)
-
-      // top: 890px;
-      // left: 106px;
-
-      // top: 956px;
-      // left: 186px;
       $(this._div).css({
         top: (textarea.offset()?.top || 0) + 66,
         left: (textarea.offset()?.left || 0) + 80
-      })
+      }).show()
+    })
+
+    $('body').on('blur', '.reply-box-warp textarea', (e) => {
+      $(this._div).hide()
     })
 
     // // 评论类型点击事件
@@ -260,7 +259,6 @@ export class StickerHistory extends ModuleBase {
           // 左键发送表情
           if (e.button === 0) {
             // 插入文字
-            console.log(item.text)
             this.insertText(item.text)
 
             // 获取是否点击
